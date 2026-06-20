@@ -44,7 +44,7 @@
         .group-card table{width:100%;font-size:0.8rem;border-collapse:collapse}
         .group-card th{text-align:left;color:#999;padding:6px 8px;border-bottom:2px solid rgba(255,255,255,0.1);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px}
         .group-card td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.05)}
-        .group-card tr.q{color:#2ecc70;font-weight:bold}
+        .group-card tr.q{color:#2ecc71;font-weight:bold}
         .group-card tr:hover{background:rgba(255,255,255,0.03)}
         .gd-pos{color:#27ae60}.gd-neg{color:#e74c3c}.gd-zero{color:#888}
 
@@ -255,7 +255,7 @@ var TEAM_CN = {
     'Netherlands':'荷兰','New Zealand':'新西兰','Norway':'挪威','Panama':'巴拿马',
     'Paraguay':'巴拉圭','Portugal':'葡萄牙','Qatar':'卡塔尔','Saudi Arabia':'沙特',
     'Scotland':'苏格兰','Senegal':'塞内加尔','South Africa':'南非','South Korea':'韩国',
-    'Spain':'西班牙','Sweden':'瑞典','Switzerland':'瑞士','Senegal':'塞内加尔',
+    'Spain':'西班牙','Sweden':'瑞典','Switzerland':'瑞士',
     'Tunisia':'突尼斯','Türkiye':'土耳其','USA':'美国','Uruguay':'乌拉圭',
     'Uzbekistan':'乌兹别克斯坦','Curaçao':'库拉索'
 };
@@ -293,7 +293,6 @@ var TEAM_KEY = {
     'Netherlands':['范戴克','德容','加克波'],
     'Portugal':['C罗','B费','贝尔纳多'],
     'Colombia':['迪亚斯','路易斯','J罗'],
-    'Uruguay':['努涅斯','巴尔韦德','阿劳霍'],
     'Germany':['穆西亚拉','维尔茨','萨内'],
     'Croatia':['莫德里奇','科瓦契奇','格瓦迪奥尔'],
     'Morocco':['哈基米','齐耶赫','恩内斯里'],
@@ -397,19 +396,30 @@ function predictScore(home,away){
     var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
     var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
     var ph=eloWinProb(eloH+homeAdv,eloA);
+    var pa=eloWinProb(eloA,eloH+homeAdv);
+    var eloDiff=Math.abs(eloH+homeAdv-eloA);
+    var drawBase=0.25-eloDiff*0.0003;
+    var pd=Math.max(0.12,Math.min(0.30,drawBase));
+    var total=ph+pa+pd;
+    ph=ph/total; pd=pd/total; pa=pa/total;
     var avgH=(xgH+concA)/2;
     var avgA=(xgA+concH)/2;
     var h=Math.round(avgH*10)/10;
     var a=Math.round(avgA*10)/10;
-    return {home:Math.round(h*10)/10,away:Math.round(a*10)/10,homeWin:Math.round(ph*100),draw:Math.round((1-ph-eloWinProb(eloA,eloH+homeAdv))*100),awayWin:Math.round(eloWinProb(eloA,eloH+homeAdv)*100)};
+    return {home:Math.round(h*10)/10,away:Math.round(a*10)/10,homeWin:Math.round(ph*100),draw:Math.round(pd*100),awayWin:Math.round(pa*100)};
 }
 
 function predictOverUnder(home,away){
     var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
     var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
-    var avgGoals=((xgH+concA)/2)+((xgA+concH)/2);
-    var over25=Math.min(95,Math.max(5,Math.round((avgGoals-2.0)*50+50)));
-    return {avg:avgGoals.toFixed(1),over25:over25,under25:100-over25};
+    var lambdaH=(xgH+concA)/2;
+    var lambdaA=(xgA+concH)/2;
+    var lambda=lambdaH+lambdaA;
+    var pUnder=0;
+    for(var k=0;k<=2;k++) pUnder+=poissonProb(lambda,k);
+    var over25=Math.round((1-pUnder)*100);
+    over25=Math.min(95,Math.max(5,over25));
+    return {avg:lambda.toFixed(1),over25:over25,under25:100-over25};
 }
 
 function predictHalfTime(home,away){
@@ -456,32 +466,64 @@ function getAdvancementProb(groupTeams,remainingMatches,team){
 }
 
 function simulateKnockout(teams){
-    if(teams.length<16) return [];
+    if(teams.length<2) return [];
     var bracket=[];
-    var order=[0,7,3,4,1,6,2,5];
-    for(var r=0;r<8;r++){
-        var t1=teams[order[r*2]];
-        var t2=teams[order[r*2+1]];
-        var p1=eloWinProb(TEAM_ELO[t1]||1500,TEAM_ELO[t2]||1500);
-        bracket.push({home:t1,away:t2,homeProb:Math.round(p1*100),awayProb:Math.round((1-p1)*100),winner:p1>0.5?t1:t2});
+    if(teams.length>=32){
+        var order32=[0,31,15,16,7,24,8,23,3,28,12,19,4,27,11,20,1,30,14,17,6,25,9,22,2,29,13,18,5,26,10,21];
+        var r32=[];
+        for(var r=0;r<16;r++){
+            var t1=teams[order32[r*2]]||'TBD';
+            var t2=teams[order32[r*2+1]]||'TBD';
+            var p1=eloWinProb(TEAM_ELO[t1]||1500,TEAM_ELO[t2]||1500);
+            r32.push({home:t1,away:t2,homeProb:Math.round(p1*100),awayProb:Math.round((1-p1)*100),winner:p1>0.5?t1:t2});
+        }
+        bracket=r32;
+        var r16=[];
+        for(var r2=0;r2<8;r2++){
+            var w1=bracket[r2*2].winner, w2=bracket[r2*2+1].winner;
+            var pw=eloWinProb(TEAM_ELO[w1]||1500,TEAM_ELO[w2]||1500);
+            r16.push({home:w1,away:w2,homeProb:Math.round(pw*100),awayProb:Math.round((1-pw)*100),winner:pw>0.5?w1:w2});
+        }
+        var qf=[];
+        for(var r3=0;r3<4;r3++){
+            var w3=r16[r3*2].winner, w4=r16[r3*2+1].winner;
+            var pw2=eloWinProb(TEAM_ELO[w3]||1500,TEAM_ELO[w4]||1500);
+            qf.push({home:w3,away:w4,homeProb:Math.round(pw2*100),awayProb:Math.round((1-pw2)*100),winner:pw2>0.5?w3:w4});
+        }
+        var sf=[];
+        for(var r4=0;r4<2;r4++){
+            var w5=qf[r4*2].winner, w6=qf[r4*2+1].winner;
+            var pw3=eloWinProb(TEAM_ELO[w5]||1500,TEAM_ELO[w6]||1500);
+            sf.push({home:w5,away:w6,homeProb:Math.round(pw3*100),awayProb:Math.round((1-pw3)*100),winner:pw3>0.5?w5:w6});
+        }
+        var fw=eloWinProb(TEAM_ELO[sf[0].winner]||1500,TEAM_ELO[sf[1].winner]||1500);
+        var final_={home:sf[0].winner,away:sf[1].winner,homeProb:Math.round(fw*100),awayProb:Math.round((1-fw)*100),champion:fw>0.5?sf[0].winner:sf[1].winner};
+        return {r32:bracket,r16:r16,qf:qf,sf:sf,final:final_};
+    } else if(teams.length>=16){
+        var order=[0,15,7,8,3,12,4,11,1,14,6,9,2,13,5,10];
+        for(var r=0;r<8;r++){
+            var t1=teams[order[r*2]]||'TBD';
+            var t2=teams[order[r*2+1]]||'TBD';
+            var p1=eloWinProb(TEAM_ELO[t1]||1500,TEAM_ELO[t2]||1500);
+            bracket.push({home:t1,away:t2,homeProb:Math.round(p1*100),awayProb:Math.round((1-p1)*100),winner:p1>0.5?t1:t2});
+        }
+        var qf=[];
+        for(var r2=0;r2<4;r2++){
+            var w1=bracket[r2*2].winner, w2=bracket[r2*2+1].winner;
+            var pw=eloWinProb(TEAM_ELO[w1]||1500,TEAM_ELO[w2]||1500);
+            qf.push({home:w1,away:w2,homeProb:Math.round(pw*100),awayProb:Math.round((1-pw)*100),winner:pw>0.5?w1:w2});
+        }
+        var sf=[];
+        for(var r3=0;r3<2;r3++){
+            var w3=qf[r3*2].winner, w4=qf[r3*2+1].winner;
+            var pw2=eloWinProb(TEAM_ELO[w3]||1500,TEAM_ELO[w4]||1500);
+            sf.push({home:w3,away:w4,homeProb:Math.round(pw2*100),awayProb:Math.round((1-pw2)*100),winner:pw2>0.5?w3:w4});
+        }
+        var fw=eloWinProb(TEAM_ELO[sf[0].winner]||1500,TEAM_ELO[sf[1].winner]||1500);
+        var final_={home:sf[0].winner,away:sf[1].winner,homeProb:Math.round(fw*100),awayProb:Math.round((1-fw)*100),champion:fw>0.5?sf[0].winner:sf[1].winner};
+        return {r16:bracket,qf:qf,sf:sf,final:final_};
     }
-    var qf=[];
-    for(var r2=0;r2<4;r2++){
-        var w1=bracket[r2*2].winner;
-        var w2=bracket[r2*2+1].winner;
-        var pw=eloWinProb(TEAM_ELO[w1]||1500,TEAM_ELO[w2]||1500);
-        qf.push({home:w1,away:w2,homeProb:Math.round(pw*100),awayProb:Math.round((1-pw)*100),winner:pw>0.5?w1:w2});
-    }
-    var sf=[];
-    for(var r3=0;r3<2;r3++){
-        var w3=qf[r3*2].winner;
-        var w4=qf[r3*2+1].winner;
-        var pw2=eloWinProb(TEAM_ELO[w3]||1500,TEAM_ELO[w4]||1500);
-        sf.push({home:w3,away:w4,homeProb:Math.round(pw2*100),awayProb:Math.round((1-pw2)*100),winner:pw2>0.5?w3:w4});
-    }
-    var fw=eloWinProb(TEAM_ELO[sf[0].winner]||1500,TEAM_ELO[sf[1].winner]||1500);
-    var final_={home:sf[0].winner,away:sf[1].winner,homeProb:Math.round(fw*100),awayProb:Math.round((1-fw)*100),champion:fw>0.5?sf[0].winner:sf[1].winner};
-    return {r16:bracket,qf:qf,sf:sf,final:final_};
+    return [];
 }
 
 function getTournamentWinProb(teams){
@@ -542,9 +584,9 @@ function calibrateLambdas(home,away,realOdds){
             if(err<best_err){best_err=err;best_lH=lH;best_lA=lA;}
         }
     }
-    for(var ht=0.35;ht<=0.50;ht+=0.01){
+    for(var ht=0.30;ht<=0.55;ht+=0.01){
         var htErr=Math.abs(ht-0.42);
-        if(htErr<0.05) best_ht=ht;
+        if(htErr<Math.abs(best_ht-0.42)) best_ht=ht;
     }
     var result={lH:best_lH,lA:best_lA,htRatio:best_ht};
     if(!realOdds) CALIBRATION_CACHE[cacheKey]=result;
@@ -1502,48 +1544,6 @@ var H2H = {
         {year:'1980 友谊赛',score:'0-1',winner:'Argentina'}
     ],
     'Netherlands-Brazil':[
-        {year:'2014 世界杯',score:'0-0',winner:'Draw'},
-        {year:'2011 友谊赛',score:'3-2',winner:'Brazil'},
-        {year:'1998 世界杯',score:'1-2',winner:'Brazil'},
-        {year:'1996 友谊赛',score:'0-2',winner:'Brazil'},
-        {year:'1994 世界杯',score:'2-3',winner:'Brazil'},
-        {year:'1989 友谊赛',score:'1-0',winner:'Brazil'}
-    ],
-    'Brazil-Netherlands':[
-        {year:'2014 世界杯',score:'0-0',winner:'Draw'},
-        {year:'2011 友谊赛',score:'2-3',winner:'Brazil'},
-        {year:'1998 世界杯',score:'2-1',winner:'Brazil'},
-        {year:'1996 友谊赛',score:'2-0',winner:'Brazil'},
-        {year:'1994 世界杯',score:'3-2',winner:'Brazil'},
-        {year:'1989 友谊赛',score:'0-1',winner:'Brazil'}
-    ],
-    'Argentina-Germany':[
-        {year:'2014 决赛',score:'0-1',winner:'Germany'},
-        {year:'2010 1/4决赛',score:'0-4',winner:'Germany'},
-        {year:'2006 1/4决赛',score:'1-1(点2-4)',winner:'Germany'},
-        {year:'1990 决赛',score:'0-1',winner:'Germany'},
-        {year:'1986 决赛',score:'3-2',winner:'Argentina'}
-    ],
-    'Germany-Argentina':[
-        {year:'2014 决赛',score:'1-0',winner:'Germany'},
-        {year:'2010 1/4决赛',score:'4-0',winner:'Germany'},
-        {year:'2006 1/4决赛',score:'1-1(点4-2)',winner:'Germany'},
-        {year:'1990 决赛',score:'1-0',winner:'Germany'},
-        {year:'1986 决赛',score:'2-3',winner:'Argentina'}
-    ],
-    'Japan-South Korea':[
-        {year:'2022 东亚杯',score:'3-0',winner:'Japan'},
-        {year:'2019 亚洲杯',score:'1-0',winner:'Japan'},
-        {year:'2017 世预赛',score:'1-3',winner:'Japan'},
-        {year:'2015 亚洲杯',score:'1-1',winner:'Draw'}
-    ],
-    'South Korea-Japan':[
-        {year:'2022 东亚杯',score:'0-3',winner:'Japan'},
-        {year:'2019 亚洲杯',score:'0-1',winner:'Japan'},
-        {year:'2017 世预赛',score:'3-1',winner:'Japan'},
-        {year:'2015 亚洲杯',score:'1-1',winner:'Draw'}
-    ],
-    'Iran-South Korea':[
         {year:'2022 世预赛',score:'2-0',winner:'Iran'},
         {year:'2021 世预赛',score:'1-1',winner:'Draw'},
         {year:'2019 亚洲杯',score:'0-0',winner:'Draw'},
@@ -1630,16 +1630,6 @@ var H2H = {
         {year:'2019 友谊赛',score:'0-3',winner:'Uruguay'},
         {year:'2018 世预赛',score:'2-2',winner:'Draw'},
         {year:'2017 世预赛',score:'2-2',winner:'Draw'}
-    ],
-    'Argentina-Uruguay':[
-        {year:'2023 世预赛',score:'2-0',winner:'Argentina'},
-        {year:'2022 世预赛',score:'1-0',winner:'Argentina'},
-        {year:'2021 美洲杯',score:'1-0',winner:'Argentina'}
-    ],
-    'Uruguay-Argentina':[
-        {year:'2023 世预赛',score:'0-2',winner:'Argentina'},
-        {year:'2022 世预赛',score:'0-1',winner:'Argentina'},
-        {year:'2021 美洲杯',score:'0-1',winner:'Argentina'}
     ]
 };
 
@@ -1649,7 +1639,20 @@ function getH2H(teamA, teamB){
     var rkey=teamB+'-'+teamA;
     if(H2H[rkey]) return H2H[rkey].map(function(m){
         var parts=m.score.split('-');
-        return {year:m.year,score:parts[1]+'-'+parts[0],winner:m.winner==='Draw'?'Draw':m.winner===teamA?teamB:teamA};
+        var newScore;
+        if(parts.length>2){
+            var first=parts[0];
+            var rest=parts.slice(1).join('-');
+            var innerParts=rest.match(/^(\d+)\((.+)\)$/);
+            if(innerParts){
+                newScore=innerParts[1]+'-'+first+'('+innerParts[2]+')';
+            } else {
+                newScore=parts[1]+'-'+parts[0];
+            }
+        } else {
+            newScore=parts[1]+'-'+parts[0];
+        }
+        return {year:m.year,score:newScore,winner:m.winner==='Draw'?'Draw':m.winner===teamA?teamB:teamA};
     });
     return [];
 }
@@ -1902,15 +1905,15 @@ function buildStandings(matches){
 }
 
 function getGroupForTeams(matches, teamA, teamB){
-    var round1=matches.filter(function(m){return m.round&&m.round.indexOf('Group')===0;});
-    if(round1.length===0) round1=matches;
+    var groupMatches=matches.filter(function(m){return m.round&&m.round.indexOf('Group Stage')===0;});
+    if(groupMatches.length===0) groupMatches=matches;
     var adj={};
     function addEdge(a,b){
         if(!adj[a]) adj[a]={};
         if(!adj[b]) adj[b]={};
         adj[a][b]=1; adj[b][a]=1;
     }
-    round1.forEach(function(m){ addEdge(m.home_team, m.away_team); });
+    groupMatches.forEach(function(m){ addEdge(m.home_team, m.away_team); });
     var visited={};
     var groups={};
     var gLetters='ABCDEFGHIJKL'.split('');
@@ -2395,10 +2398,12 @@ function closeLotteryModal(){
     document.body.style.overflow='';
 }
 
+var toastTimer=null;
 function showToast(msg){
     var t=document.getElementById('toast');
+    if(toastTimer) clearTimeout(toastTimer);
     t.textContent=msg;t.classList.add('show');
-    setTimeout(function(){t.classList.remove('show');},2000);
+    toastTimer=setTimeout(function(){t.classList.remove('show');toastTimer=null;},2000);
 }
 
 var FAV_KEY='wc2026_favs';
@@ -2559,10 +2564,10 @@ function buildTournamentAnalysis(matches){
 
     // 2. Best 3rd place analysis
     var groups={};
-    var round1=matches.filter(function(m){return m.round&&m.round.indexOf('Group')===0;});
+    var groupMatches=matches.filter(function(m){return m.round&&m.round.indexOf('Group Stage')===0;});
     var adj={};
     function addEdge(a,b){if(!adj[a])adj[a]={};if(!adj[b])adj[b]={};adj[a][b]=1;adj[b][a]=1;}
-    round1.forEach(function(m){addEdge(m.home_team,m.away_team);});
+    groupMatches.forEach(function(m){addEdge(m.home_team,m.away_team);});
     var visited={};var gLetters='ABCDEFGHIJKL'.split('');var gIdx=0;
     Object.keys(adj).forEach(function(t){
         if(visited[t])return;
@@ -2613,8 +2618,10 @@ function buildTournamentAnalysis(matches){
         var bracket=simulateKnockout(advanceTeams);
         html+='<div class="section-title">🏅 淘汰赛对阵推演</div>';
         html+='<div class="bracket">';
-        var roundNames=['16强','8强','半决赛','决赛'];
-        [bracket.r16,bracket.qf,bracket.sf,[bracket.final]].forEach(function(round,ri){
+        var hasR32=bracket.r32&&bracket.r32.length>0;
+        var rounds=hasR32?[bracket.r32,bracket.r16,bracket.qf,bracket.sf,[bracket.final]]:[bracket.r16,bracket.qf,bracket.sf,[bracket.final]];
+        var roundNames=hasR32?['32强','16强','8强','半决赛','决赛']:['16强','8强','半决赛','决赛'];
+        rounds.forEach(function(round,ri){
             html+='<div class="bracket-r-title">'+roundNames[ri]+'</div><div class="bracket-r">';
             round.forEach(function(m){
                 html+='<div class="bracket-m"><div class="bm-teams"><span'+(m.winner===m.home?' class="bm-w"':'')+'>'+cn(m.home)+'</span><span style="color:#555">'+m.homeProb+'%</span></div>';
@@ -2622,7 +2629,7 @@ function buildTournamentAnalysis(matches){
             });
             html+='</div>';
         });
-        html+='<div class="champion-box">🏆 预测冠军<div class="c-name">'+cn(bracket.final.champion)+'</div><div class="c-prob">夺冠概率 '+bracket.final.homeProb+'%</div></div>';
+        html+='<div class="champion-box">🏆 预测冠军<div class="c-name">'+cn(bracket.final.champion)+'</div><div class="c-prob">决赛胜率 '+(bracket.final.champion===bracket.final.home?bracket.final.homeProb:bracket.final.awayProb)+'%</div></div>';
         html+='</div>';
     }
 
