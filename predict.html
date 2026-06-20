@@ -2428,13 +2428,26 @@ function populateTeamFilter(){
     var names=Object.keys(teams).sort();
     var html='<option value="">🔍 筛选球队</option>';
     names.forEach(function(t){
-        html+='<option value="'+t+'">'+cn(t)+' ('+t+')</option>';
+        html+='<option value="'+t+'">'+cn(t)+'</option>';
     });
     sel.innerHTML=html;
 }
 
 function onTeamFilterChange(val){
     selectedTeam=val;
+    if(val){
+        var now=new Date();
+        var teamMatches=allMatches.filter(function(m){
+            return (m.home_team===val||m.away_team===val)&&new Date(m.kickoff_time)>now;
+        });
+        if(teamMatches.length>0){
+            teamMatches.sort(function(a,b){
+                return new Date(a.kickoff_time)-new Date(b.kickoff_time);
+            });
+            var nearestDate=teamMatches[0].kickoff_time.split(' ')[0];
+            selectedDate=nearestDate;
+        }
+    }
     buildDateBar();
     render();
 }
