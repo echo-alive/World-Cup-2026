@@ -687,8 +687,8 @@ function buildBetView(matches,stats){
     var bets=[];
     matches.forEach(function(m){
         var o=oddsData[m.home_team+'-'+m.away_team];
-        var hs=getTeamStats(m.home_team,stats);
-        var as=getTeamStats(m.away_team,stats);
+        var hs=stats[m.home_team]||{avgGoals:1.2,avgConceded:1.2,winRate:33,gd:0};
+        var as=stats[m.away_team]||{avgGoals:1.2,avgConceded:1.2,winRate:33,gd:0};
         var items=[];
 
         if(o){
@@ -700,13 +700,13 @@ function buildBetView(matches,stats){
                 reason:bestPick==='主胜'?'主场优势+赔率支持':bestPick==='客胜'?'客队实力占优':'两队实力接近',
                 risk:bestOdds>2.5?'low':bestOdds>1.8?'mid':'high'});
 
-            var avgGoals=(hs.goalsFor||1.2)+(as.goalsFor||1.2);
+            var avgGoals=parseFloat(hs.avgGoals||1.2)+parseFloat(as.avgGoals||1.2);
             items.push({type:'大小球',pick:avgGoals>2.5?'大2.5球':'小2.5球',
                 odds:avgGoals>2.5?'1.85':'1.95',
                 reason:'两队场均进'+(avgGoals/2).toFixed(1)+'球',
                 risk:avgGoals>3||avgGoals<2?'low':'mid'});
 
-            var diff=(hs.goalsFor||1.2)-(as.goalsFor||1.2);
+            var diff=parseFloat(hs.avgGoals||1.2)-parseFloat(as.avgGoals||1.2);
             if(Math.abs(diff)>0.3){
                 items.push({type:'让球',pick:diff>0?'主让1球':'客让1球',
                     odds:diff>0?'1.90':'1.90',
@@ -714,7 +714,7 @@ function buildBetView(matches,stats){
                     risk:Math.abs(diff)>0.8?'low':'mid'});
             }
         } else {
-            var hWin=(hs.winRate||0.33), aWin=(as.winRate||0.33);
+            var hWin=(hs.winRate||33)/100, aWin=(as.winRate||33)/100;
             var best=hWin>aWin?'主胜':'客胜';
             var prob=Math.max(hWin,aWin);
             var fakeOdds=(1/prob*0.85).toFixed(2);
