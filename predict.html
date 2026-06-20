@@ -65,6 +65,7 @@
         .logo{width:60px;height:60px;margin:0 auto 6px;object-fit:contain}
         .t-name{font-size:1.1rem;font-weight:bold}
         .t-rank{color:#888;font-size:0.75rem}
+        .t-pts{color:#f39c12;font-size:0.72rem;font-weight:bold}
         .vs{font-size:1.3rem;font-weight:bold;color:#e74c3c;padding:0 10px}
         .score{font-size:2rem;font-weight:bold;color:#f39c12}
         .score-sub{font-size:0.75rem;color:#888}
@@ -183,7 +184,7 @@
         .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
-        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}}
+        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}}
         @media(min-width:768px){.match-nav{max-width:940px;margin:0 -5px 12px;border-radius:12px}}
     </style>
 </head>
@@ -1960,25 +1961,82 @@ function getGroupForTeams(matches, teamA, teamB){
 }
 
 function simulateGroupImpact(grp, homeTeam, awayTeam, result){
-    var sim={};
-    Object.keys(grp.teams).forEach(function(t){
-        var s=grp.teams[t];
-        sim[t]={p:s.p,w:s.w,d:s.d,l:s.l,gf:s.gf,ga:s.ga,pts:s.pts,gd:s.gf-s.ga};
-    });
-    sim[homeTeam].p++; sim[awayTeam].p++;
+    var scorelines=[];
     if(result==='H'){
-        sim[homeTeam].w++;sim[homeTeam].pts+=3;sim[homeTeam].gf++;sim[homeTeam].gd++;
-        sim[awayTeam].l++;sim[awayTeam].ga++;sim[awayTeam].gd--;
+        scorelines=[{h:1,a:0,w:0.28},{h:2,a:0,w:0.14},{h:2,a:1,w:0.18},{h:3,a:0,w:0.06},{h:3,a:1,w:0.06},{h:3,a:2,w:0.04}];
     } else if(result==='D'){
-        sim[homeTeam].d++;sim[homeTeam].pts++;sim[homeTeam].gf++;sim[homeTeam].ga++;
-        sim[awayTeam].d++;sim[awayTeam].pts++;sim[awayTeam].gf++;sim[awayTeam].ga++;
+        scorelines=[{h:0,a:0,w:0.22},{h:1,a:1,w:0.28},{h:2,a:2,w:0.12}];
     } else {
-        sim[awayTeam].w++;sim[awayTeam].pts+=3;sim[awayTeam].gf++;sim[awayTeam].gd++;
-        sim[homeTeam].l++;sim[homeTeam].ga++;sim[homeTeam].gd--;
+        scorelines=[{h:0,a:1,w:0.28},{h:0,a:2,w:0.14},{h:1,a:2,w:0.18},{h:0,a:3,w:0.06},{h:1,a:3,w:0.06},{h:2,a:3,w:0.04}];
     }
-    var teams=Object.keys(sim).map(function(t){var s=sim[t];s.name=t;return s;});
-    teams.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
-    return teams;
+    var totalW=scorelines.reduce(function(s,x){return s+x.w;},0);
+    scorelines.forEach(function(s){s.w=s.w/totalW;});
+
+    var rankings={};
+    Object.keys(grp.teams).forEach(function(t){rankings[t]=0;});
+
+    scorelines.forEach(function(sl){
+        var sim={};
+        Object.keys(grp.teams).forEach(function(t){
+            var s=grp.teams[t];
+            sim[t]={p:s.p,w:s.w,d:s.d,l:s.l,gf:s.gf,ga:s.ga,pts:s.pts};
+        });
+        sim[homeTeam].p++;sim[awayTeam].p++;
+        sim[homeTeam].gf+=sl.h;sim[homeTeam].ga+=sl.a;
+        sim[awayTeam].gf+=sl.a;sim[awayTeam].ga+=sl.h;
+        if(sl.h>sl.a){sim[homeTeam].w++;sim[homeTeam].pts+=3;sim[awayTeam].l++;}
+        else if(sl.h===sl.a){sim[homeTeam].d++;sim[homeTeam].pts++;sim[awayTeam].d++;sim[awayTeam].pts++;}
+        else{sim[awayTeam].w++;sim[awayTeam].pts+=3;sim[homeTeam].l++;}
+        var teams=Object.keys(sim).map(function(t){var s=sim[t];s.name=t;s.gd=s.gf-s.ga;return s;});
+        sortGroupTeams(teams, grp);
+        teams.forEach(function(t,idx){rankings[t.name]+=(idx+1)*sl.w;});
+    });
+
+    var result2=Object.keys(grp.teams).map(function(t){
+        var avgRank=rankings[t];
+        var s=grp.teams[t];
+        return{name:t,pts:s.pts,gf:s.gf,ga:s.ga,gd:s.gf-s.ga,p:s.p,w:s.w,d:s.d,l:s.l,avgRank:avgRank};
+    });
+    result2.sort(function(a,b){return a.avgRank-b.avgRank||b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+    return result2;
+}
+
+function sortGroupTeams(teams, grp){
+    var ptsMap={};
+    teams.forEach(function(t){
+        if(!ptsMap[t.pts]) ptsMap[t.pts]=[];
+        ptsMap[t.pts].push(t);
+    });
+    var sorted=[];
+    var ptsKeys=Object.keys(ptsMap).map(Number).sort(function(a,b){return b-a;});
+    ptsKeys.forEach(function(pts){
+        var tied=ptsMap[pts];
+        if(tied.length<=1){sorted.push.apply(sorted,tied);return;}
+        var miniLeague={};
+        tied.forEach(function(t){miniLeague[t.name]={pts:0,gf:0,ga:0,w:0,d:0,l:0};});
+        var matches2=[];
+        matches.forEach(function(m){
+            if(m.status!=='FT')return;
+            var h=m.home_team,a=m.away_team;
+            if(!miniLeague[h]||!miniLeague[a])return;
+            var hs=m.home_score||0,as=m.away_score||0;
+            miniLeague[h].gf+=hs;miniLeague[h].ga+=as;
+            miniLeague[a].gf+=as;miniLeague[a].ga+=hs;
+            if(hs>as){miniLeague[h].pts+=3;miniLeague[h].w++;}
+            else if(hs===as){miniLeague[h].pts++;miniLeague[a].pts++;miniLeague[h].d++;miniLeague[a].d++;}
+            else{miniLeague[a].pts+=3;miniLeague[a].w++;}
+        });
+        tied.forEach(function(t){
+            var ml=miniLeague[t.name];
+            t.h2hPts=ml.pts;t.h2hGf=ml.gf;t.h2hGa=ml.ga;t.h2hGd=ml.gf-ml.ga;t.h2hW=ml.w;
+        });
+        tied.sort(function(a,b){
+            return b.h2hPts-a.h2hPts||b.h2hGd-a.h2hGd||b.h2hGf-a.h2hGf||b.gd-a.gd||b.gf-a.gf;
+        });
+        sorted.push.apply(sorted,tied);
+    });
+    teams.length=0;
+    sorted.forEach(function(t){teams.push(t);});
 }
 
 function buildGroupImpact(matches, homeTeam, awayTeam){
@@ -1997,13 +2055,15 @@ function buildGroupImpact(matches, homeTeam, awayTeam){
         html+='<div style="color:'+colors[i]+';font-weight:bold;font-size:0.82rem;margin-bottom:4px">'+labels[i]+'</div>';
         ranked.forEach(function(t,idx){
             var pos=idx+1;
+            var avgPos=t.avgRank?t.avgRank.toFixed(1):pos;
             var status=pos<=2?'✅晋级':pos===3?'⚠️待定':'❌出局';
             var statusColor=pos<=2?'#2ecc71':pos===3?'#f39c12':'#e74c3c';
             var isCur=(t.name===homeTeam||t.name===awayTeam);
             html+='<div style="display:flex;align-items:center;gap:4px;font-size:0.75rem;padding:1px 0;'+(isCur?'font-weight:bold;color:#fff':'color:#aaa')+'">';
-            html+='<span style="width:14px;text-align:center;color:#888">'+pos+'</span>';
+            html+='<span style="width:14px;text-align:center;color:#888">'+avgPos+'</span>';
             html+='<span style="flex:1">'+cn(t.name)+'</span>';
             html+='<span style="color:#888">'+t.pts+'分</span>';
+            html+='<span style="color:#888;font-size:0.68rem;width:36px;text-align:right">净'+(t.gd>0?'+':'')+t.gd+'</span>';
             html+='<span style="color:'+statusColor+';font-size:0.7rem;width:45px;text-align:right">'+status+'</span>';
             html+='</div>';
         });
@@ -2030,9 +2090,12 @@ function buildMatchCard(match, stats, idx){
     html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'">';
     html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span>'+(isNS?'<span style="margin-left:auto;font-size:0.72rem;color:#3498db;cursor:pointer" onclick="event.stopPropagation();toggleCompare('+matchId+',\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">📊 对比</span>':'')+'</div>';
     html+='<div class="teams">';
-    html+='<div class="team"><img class="logo" data-src="'+match.home_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(h)+'</div><div class="t-rank">FIFA #'+rk(h)+'</div></div>';
+    var pts1=s1?s1.pts:null, pts2=s2?s2.pts:null;
+    var ptsHtml1=pts1!==null?'<div class="t-pts">'+pts1+'分</div>':'';
+    var ptsHtml2=pts2!==null?'<div class="t-pts">'+pts2+'分</div>':'';
+    html+='<div class="team"><img class="logo" data-src="'+match.home_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(h)+'</div><div class="t-rank">FIFA #'+rk(h)+'</div>'+ptsHtml1+'</div>';
     html+=scoreHtml;
-    html+='<div class="team"><img class="logo" data-src="'+match.away_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(a)+'</div><div class="t-rank">FIFA #'+rk(a)+'</div></div>';
+    html+='<div class="team"><img class="logo" data-src="'+match.away_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(a)+'</div><div class="t-rank">FIFA #'+rk(a)+'</div>'+ptsHtml2+'</div>';
     html+='</div>';
 
     html+='<div class="grid">';
