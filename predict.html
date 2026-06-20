@@ -217,6 +217,1012 @@ var TEAM_KEY = {
 
 function cn(name){ return TEAM_CN[name] || name; }
 function rk(name){ return TEAM_RANK[name] || '--'; }
+
+var H2H = {
+    'Brazil-Germany':[
+        {year:'2002 决赛',score:'0-2',winner:'Germany'},
+        {year:'2014 半决赛',score:'1-7',winner:'Germany'},
+        {year:'2018 小组赛',score:'1-2',winner:'Germany'},
+        {year:'2011 友谊赛',score:'2-3',winner:'Germany'},
+        {year:'2017 联合会杯',score:'1-2',winner:'Germany'}
+    ],
+    'Germany-Brazil':[
+        {year:'2002 决赛',score:'2-0',winner:'Germany'},
+        {year:'2014 半决赛',score:'7-1',winner:'Germany'},
+        {year:'2018 小组赛',score:'2-1',winner:'Germany'},
+        {year:'2011 友谊赛',score:'3-2',winner:'Germany'},
+        {year:'2017 联合会杯',score:'2-1',winner:'Germany'}
+    ],
+    'Argentina-France':[
+        {year:'2018 1/8决赛',score:'4-3',winner:'France'},
+        {year:'2022 决赛',score:'3-3(点4-2)',winner:'Argentina'},
+        {year:'2009 友谊赛',score:'0-2',winner:'France'},
+        {year:'1978 小组赛',score:'2-1',winner:'Argentina'},
+        {year:'1974 小组赛',score:'1-0',winner:'Argentina'}
+    ],
+    'France-Argentina':[
+        {year:'2018 1/8决赛',score:'4-3',winner:'France'},
+        {year:'2022 决赛',score:'3-3(点2-4)',winner:'Argentina'},
+        {year:'2009 友谊赛',score:'2-0',winner:'France'},
+        {year:'1978 小组赛',score:'1-2',winner:'Argentina'},
+        {year:'1974 小组赛',score:'0-1',winner:'Argentina'}
+    ],
+    'England-France':[
+        {year:'2022 1/4决赛',score:'1-2',winner:'France'},
+        {year:'2017 友谊赛',score:'3-2',winner:'England'},
+        {year:'2012 友谊赛',score:'1-2',winner:'France'},
+        {year:'2010 友谊赛',score:'1-2',winner:'France'},
+        {year:'1997 友谊赛',score:'0-1',winner:'France'},
+        {year:'1996 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'1982 世界杯',score:'1-1',winner:'Draw'},
+        {year:'1966 世界杯',score:'2-0',winner:'England'}
+    ],
+    'France-England':[
+        {year:'2022 1/4决赛',score:'2-1',winner:'France'},
+        {year:'2017 友谊赛',score:'2-3',winner:'England'},
+        {year:'2012 友谊赛',score:'2-1',winner:'France'},
+        {year:'2010 友谊赛',score:'2-1',winner:'France'},
+        {year:'1997 友谊赛',score:'1-0',winner:'France'},
+        {year:'1996 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'1982 世界杯',score:'1-1',winner:'Draw'},
+        {year:'1966 世界杯',score:'0-2',winner:'England'}
+    ],
+    'Brazil-Argentina':[
+        {year:'2021 美洲杯决赛',score:'0-1',winner:'Argentina'},
+        {year:'2019 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'2018 世界杯',score:'1-0',winner:'Brazil'},
+        {year:'2017 友谊赛',score:'0-1',winner:'Argentina'},
+        {year:'2012 友谊赛',score:'3-4',winner:'Argentina'},
+        {year:'2011 美洲杯',score:'0-0',winner:'Draw'},
+        {year:'2009 联合会杯',score:'3-1',winner:'Brazil'},
+        {year:'2007 美洲杯决赛',score:'3-0',winner:'Brazil'},
+        {year:'2005 联合会杯',score:'4-1',winner:'Brazil'},
+        {year:'2004 美洲杯决赛',score:'2-2(点4-2)',winner:'Brazil'},
+        {year:'2001 世预赛',score:'2-1',winner:'Argentina'},
+        {year:'2000 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'1999 友谊赛',score:'0-2',winner:'Argentina'},
+        {year:'1995 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'1993 友谊赛',score:'0-1',winner:'Argentina'},
+        {year:'1991 美洲杯',score:'2-1',winner:'Argentina'}
+    ],
+    'Argentina-Brazil':[
+        {year:'2021 美洲杯决赛',score:'1-0',winner:'Argentina'},
+        {year:'2019 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'2018 世界杯',score:'0-1',winner:'Brazil'},
+        {year:'2017 友谊赛',score:'1-0',winner:'Argentina'},
+        {year:'2012 友谊赛',score:'4-3',winner:'Argentina'},
+        {year:'2011 美洲杯',score:'0-0',winner:'Draw'},
+        {year:'2009 联合会杯',score:'1-3',winner:'Brazil'},
+        {year:'2007 美洲杯决赛',score:'0-3',winner:'Brazil'},
+        {year:'2005 联合会杯',score:'1-4',winner:'Brazil'},
+        {year:'2004 美洲杯决赛',score:'2-2(点2-4)',winner:'Brazil'},
+        {year:'2001 世预赛',score:'1-2',winner:'Argentina'},
+        {year:'2000 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'1999 友谊赛',score:'2-0',winner:'Argentina'},
+        {year:'1995 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'1993 友谊赛',score:'1-0',winner:'Argentina'},
+        {year:'1991 美洲杯',score:'1-2',winner:'Argentina'}
+    ],
+    'Spain-Germany':[
+        {year:'2022 小组赛',score:'1-1',winner:'Draw'},
+        {year:'2014 世界杯',score:'1-0',winner:'Germany'},
+        {year:'2010 半决赛',score:'1-0',winner:'Spain'},
+        {year:'2008 欧洲杯决赛',score:'1-0',winner:'Spain'},
+        {year:'2003 友谊赛',score:'3-1',winner:'Spain'}
+    ],
+    'Germany-Spain':[
+        {year:'2022 小组赛',score:'1-1',winner:'Draw'},
+        {year:'2014 世界杯',score:'0-1',winner:'Germany'},
+        {year:'2010 半决赛',score:'0-1',winner:'Spain'},
+        {year:'2008 欧洲杯决赛',score:'0-1',winner:'Spain'},
+        {year:'2003 友谊赛',score:'1-3',winner:'Spain'}
+    ],
+    'Netherlands-Argentina':[
+        {year:'2022 1/4决赛',score:'2-2(点3-4)',winner:'Argentina'},
+        {year:'2014 半决赛',score:'0-0(点2-4)',winner:'Argentina'},
+        {year:'2006 世界杯',score:'0-0',winner:'Draw'},
+        {year:'1998 1/4决赛',score:'1-2',winner:'Argentina'},
+        {year:'1978 决赛',score:'1-3',winner:'Argentina'}
+    ],
+    'Argentina-Netherlands':[
+        {year:'2022 1/4决赛',score:'2-2(点4-3)',winner:'Argentina'},
+        {year:'2014 半决赛',score:'0-0(点4-2)',winner:'Argentina'},
+        {year:'2006 世界杯',score:'0-0',winner:'Draw'},
+        {year:'1998 1/4决赛',score:'2-1',winner:'Argentina'},
+        {year:'1978 决赛',score:'3-1',winner:'Argentina'}
+    ],
+    'England-Brazil':[
+        {year:'2002 1/4决赛',score:'1-2',winner:'Brazil'},
+        {year:'2013 友谊赛',score:'2-2',winner:'Draw'},
+        {year:'2009 友谊赛',score:'1-0',winner:'England'},
+        {year:'2007 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'2003 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'1996 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'1992 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'1990 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'1984 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'1977 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'1970 世界杯',score:'0-1',winner:'Brazil'},
+        {year:'1962 世界杯',score:'1-3',winner:'Brazil'}
+    ],
+    'Brazil-England':[
+        {year:'2002 1/4决赛',score:'2-1',winner:'Brazil'},
+        {year:'2013 友谊赛',score:'2-2',winner:'Draw'},
+        {year:'2009 友谊赛',score:'0-1',winner:'England'},
+        {year:'2007 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'2003 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'1996 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'1992 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'1990 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'1984 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'1977 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'1970 世界杯',score:'1-0',winner:'Brazil'},
+        {year:'1962 世界杯',score:'3-1',winner:'Brazil'}
+    ],
+    'Germany-Argentina':[
+        {year:'2014 决赛',score:'1-0',winner:'Germany'},
+        {year:'2010 1/4决赛',score:'4-0',winner:'Germany'},
+        {year:'2006 1/4决赛',score:'1-1(点4-2)',winner:'Germany'},
+        {year:'1990 决赛',score:'1-0',winner:'Germany'},
+        {year:'1986 决赛',score:'3-2',winner:'Argentina'},
+        {year:'1988 友谊赛',score:'1-0',winner:'Germany'},
+        {year:'1984 友谊赛',score:'1-3',winner:'Argentina'}
+    ],
+    'Argentina-Germany':[
+        {year:'2014 决赛',score:'0-1',winner:'Germany'},
+        {year:'2010 1/4决赛',score:'0-4',winner:'Germany'},
+        {year:'2006 1/4决赛',score:'1-1(点2-4)',winner:'Germany'},
+        {year:'1990 决赛',score:'0-1',winner:'Germany'},
+        {year:'1986 决赛',score:'3-2',winner:'Argentina'},
+        {year:'1988 友谊赛',score:'0-1',winner:'Germany'},
+        {year:'1984 友谊赛',score:'3-1',winner:'Argentina'}
+    ],
+    'Italy-Brazil':[
+        {year:'1994 决赛',score:'0-0(点2-3)',winner:'Brazil'},
+        {year:'1982 世界杯',score:'3-2',winner:'Italy'},
+        {year:'1978 小组赛',score:'2-1',winner:'Italy'},
+        {year:'1970 决赛',score:'1-4',winner:'Brazil'},
+        {year:'1956 友谊赛',score:'0-3',winner:'Brazil'},
+        {year:'1954 友谊赛',score:'0-2',winner:'Brazil'}
+    ],
+    'Brazil-Italy':[
+        {year:'1994 决赛',score:'0-0(点3-2)',winner:'Brazil'},
+        {year:'1982 世界杯',score:'2-3',winner:'Italy'},
+        {year:'1978 小组赛',score:'1-2',winner:'Italy'},
+        {year:'1970 决赛',score:'4-1',winner:'Brazil'},
+        {year:'1956 友谊赛',score:'3-0',winner:'Brazil'},
+        {year:'1954 友谊赛',score:'2-0',winner:'Brazil'}
+    ],
+    'Portugal-Spain':[
+        {year:'2018 世界杯',score:'3-3',winner:'Draw'},
+        {year:'2012 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2010 友谊赛',score:'1-0',winner:'Portugal'},
+        {year:'2008 友谊赛',score:'1-2',winner:'Portugal'},
+        {year:'2003 友谊赛',score:'0-3',winner:'Spain'}
+    ],
+    'Spain-Portugal':[
+        {year:'2018 世界杯',score:'3-3',winner:'Draw'},
+        {year:'2012 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2010 友谊赛',score:'0-1',winner:'Portugal'},
+        {year:'2008 友谊赛',score:'2-1',winner:'Portugal'},
+        {year:'2003 友谊赛',score:'3-0',winner:'Spain'}
+    ],
+    'Netherlands-Germany':[
+        {year:'2019 欧国联',score:'1-1',winner:'Draw'},
+        {year:'2018 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2012 欧洲杯',score:'2-1',winner:'Germany'},
+        {year:'2004 欧洲杯',score:'1-1',winner:'Draw'},
+        {year:'1994 友谊赛',score:'0-1',winner:'Germany'},
+        {year:'1992 友谊赛',score:'3-2',winner:'Netherlands'},
+        {year:'1990 世界杯',score:'1-2',winner:'Germany'},
+        {year:'1988 欧洲杯',score:'2-1',winner:'Netherlands'},
+        {year:'1980 欧洲杯',score:'1-1',winner:'Draw'}
+    ],
+    'Germany-Netherlands':[
+        {year:'2019 欧国联',score:'1-1',winner:'Draw'},
+        {year:'2018 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2012 欧洲杯',score:'1-2',winner:'Germany'},
+        {year:'2004 欧洲杯',score:'1-1',winner:'Draw'},
+        {year:'1994 友谊赛',score:'1-0',winner:'Germany'},
+        {year:'1992 友谊赛',score:'2-3',winner:'Netherlands'},
+        {year:'1990 世界杯',score:'2-1',winner:'Germany'},
+        {year:'1988 欧洲杯',score:'1-2',winner:'Netherlands'},
+        {year:'1980 欧洲杯',score:'1-1',winner:'Draw'}
+    ],
+    'Japan-South Korea':[
+        {year:'2022 东亚杯',score:'3-0',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'1-0',winner:'Japan'},
+        {year:'2017 世预赛',score:'1-3',winner:'Japan'},
+        {year:'2015 亚洲杯',score:'1-1',winner:'Draw'},
+        {year:'2013 东亚杯',score:'2-1',winner:'Japan'},
+        {year:'2011 亚洲杯',score:'2-2',winner:'Draw'},
+        {year:'2010 世预赛',score:'3-1',winner:'Japan'},
+        {year:'2008 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2007 亚洲杯',score:'2-2',winner:'Draw'},
+        {year:'2005 东亚杯',score:'1-0',winner:'Japan'}
+    ],
+    'South Korea-Japan':[
+        {year:'2022 东亚杯',score:'0-3',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'0-1',winner:'Japan'},
+        {year:'2017 世预赛',score:'3-1',winner:'Japan'},
+        {year:'2015 亚洲杯',score:'1-1',winner:'Draw'},
+        {year:'2013 东亚杯',score:'1-2',winner:'Japan'},
+        {year:'2011 亚洲杯',score:'2-2',winner:'Draw'},
+        {year:'2010 世预赛',score:'1-3',winner:'Japan'},
+        {year:'2008 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2007 亚洲杯',score:'2-2',winner:'Draw'},
+        {year:'2005 东亚杯',score:'0-1',winner:'Japan'}
+    ],
+    'USA-Mexico':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2021 金杯赛',score:'1-0',winner:'USA'},
+        {year:'2021 国家联赛',score:'3-2',winner:'USA'},
+        {year:'2019 金杯赛决赛',score:'0-1',winner:'Mexico'},
+        {year:'2018 世预赛',score:'1-2',winner:'Mexico'},
+        {year:'2017 世预赛',score:'1-2',winner:'Mexico'},
+        {year:'2016 百年美洲杯',score:'0-2',winner:'Mexico'},
+        {year:'2015 金杯赛',score:'0-0',winner:'Draw'},
+        {year:'2014 友谊赛',score:'0-1',winner:'Mexico'},
+        {year:'2013 金杯赛',score:'0-1',winner:'Mexico'},
+        {year:'2011 金杯赛',score:'1-1',winner:'Draw'},
+        {year:'2010 友谊赛',score:'0-1',winner:'Mexico'},
+        {year:'2009 联合会杯',score:'2-0',winner:'USA'},
+        {year:'2008 友谊赛',score:'0-2',winner:'Mexico'},
+        {year:'2007 金杯赛',score:'2-1',winner:'USA'},
+        {year:'2006 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2005 世预赛',score:'0-0',winner:'Draw'},
+        {year:'2004 世预赛',score:'0-1',winner:'Mexico'},
+        {year:'2003 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2002 世界杯',score:'2-0',winner:'USA'},
+        {year:'2001 世预赛',score:'1-0',winner:'USA'},
+        {year:'2000 世预赛',score:'1-2',winner:'Mexico'}
+    ],
+    'Mexico-USA':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2021 金杯赛',score:'0-1',winner:'USA'},
+        {year:'2021 国家联赛',score:'2-3',winner:'USA'},
+        {year:'2019 金杯赛决赛',score:'1-0',winner:'Mexico'},
+        {year:'2018 世预赛',score:'2-1',winner:'Mexico'},
+        {year:'2017 世预赛',score:'2-1',winner:'Mexico'},
+        {year:'2016 百年美洲杯',score:'2-0',winner:'Mexico'},
+        {year:'2015 金杯赛',score:'0-0',winner:'Draw'},
+        {year:'2014 友谊赛',score:'1-0',winner:'Mexico'},
+        {year:'2013 金杯赛',score:'1-0',winner:'Mexico'},
+        {year:'2011 金杯赛',score:'1-1',winner:'Draw'},
+        {year:'2010 友谊赛',score:'1-0',winner:'Mexico'},
+        {year:'2009 联合会杯',score:'0-2',winner:'USA'},
+        {year:'2008 友谊赛',score:'2-0',winner:'Mexico'},
+        {year:'2007 金杯赛',score:'1-2',winner:'USA'},
+        {year:'2006 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2005 世预赛',score:'0-0',winner:'Draw'},
+        {year:'2004 世预赛',score:'1-0',winner:'Mexico'},
+        {year:'2003 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2002 世界杯',score:'0-2',winner:'USA'},
+        {year:'2001 世预赛',score:'0-1',winner:'USA'},
+        {year:'2000 世预赛',score:'2-1',winner:'Mexico'}
+    ],
+    'England-Scotland':[
+        {year:'2021 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2018 世预赛',score:'3-0',winner:'England'},
+        {year:'2017 世预赛',score:'3-0',winner:'England'},
+        {year:'2016 友谊赛',score:'3-0',winner:'England'},
+        {year:'2014 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2013 友谊赛',score:'1-0',winner:'England'},
+        {year:'2000 友谊赛',score:'1-0',winner:'England'},
+        {year:'1999 友谊赛',score:'1-0',winner:'England'},
+        {year:'1996 欧洲杯',score:'2-0',winner:'England'}
+    ],
+    'Scotland-England':[
+        {year:'2021 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2018 世预赛',score:'0-3',winner:'England'},
+        {year:'2017 世预赛',score:'0-3',winner:'England'},
+        {year:'2016 友谊赛',score:'0-3',winner:'England'},
+        {year:'2014 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2013 友谊赛',score:'0-1',winner:'England'},
+        {year:'2000 友谊赛',score:'0-1',winner:'England'},
+        {year:'1999 友谊赛',score:'0-1',winner:'England'},
+        {year:'1996 欧洲杯',score:'0-2',winner:'England'}
+    ],
+    'Uruguay-Argentina':[
+        {year:'2023 世预赛',score:'0-2',winner:'Argentina'},
+        {year:'2022 世预赛',score:'0-1',winner:'Argentina'},
+        {year:'2021 美洲杯',score:'0-1',winner:'Argentina'},
+        {year:'2019 友谊赛',score:'0-2',winner:'Argentina'},
+        {year:'2014 世界杯',score:'0-1',winner:'Uruguay'},
+        {year:'2013 世预赛',score:'3-2',winner:'Uruguay'},
+        {year:'2012 世预赛',score:'0-1',winner:'Argentina'},
+        {year:'2011 美洲杯',score:'5-4(点)',winner:'Uruguay'},
+        {year:'2010 友谊赛',score:'4-1',winner:'Argentina'},
+        {year:'2009 世预赛',score:'0-1',winner:'Argentina'},
+        {year:'2008 世预赛',score:'2-1',winner:'Argentina'},
+        {year:'2007 美洲杯',score:'3-0',winner:'Argentina'},
+        {year:'2004 美洲杯',score:'2-4',winner:'Argentina'},
+        {year:'2003 友谊赛',score:'2-1',winner:'Argentina'},
+        {year:'2001 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2000 友谊赛',score:'2-1',winner:'Argentina'}
+    ],
+    'Argentina-Uruguay':[
+        {year:'2023 世预赛',score:'2-0',winner:'Argentina'},
+        {year:'2022 世预赛',score:'1-0',winner:'Argentina'},
+        {year:'2021 美洲杯',score:'1-0',winner:'Argentina'},
+        {year:'2019 友谊赛',score:'2-0',winner:'Argentina'},
+        {year:'2014 世界杯',score:'1-0',winner:'Uruguay'},
+        {year:'2013 世预赛',score:'2-3',winner:'Uruguay'},
+        {year:'2012 世预赛',score:'1-0',winner:'Argentina'},
+        {year:'2011 美洲杯',score:'4-5(点)',winner:'Uruguay'},
+        {year:'2010 友谊赛',score:'1-4',winner:'Argentina'},
+        {year:'2009 世预赛',score:'1-0',winner:'Argentina'},
+        {year:'2008 世预赛',score:'1-2',winner:'Argentina'},
+        {year:'2007 美洲杯',score:'0-3',winner:'Argentina'},
+        {year:'2004 美洲杯',score:'4-2',winner:'Argentina'},
+        {year:'2003 友谊赛',score:'1-2',winner:'Argentina'},
+        {year:'2001 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2000 友谊赛',score:'1-2',winner:'Argentina'}
+    ],
+    'Colombia-Brazil':[
+        {year:'2023 世预赛',score:'0-2',winner:'Brazil'},
+        {year:'2022 世预赛',score:'1-0',winner:'Colombia'},
+        {year:'2021 世预赛',score:'0-0',winner:'Draw'},
+        {year:'2019 友谊赛',score:'0-1',winner:'Brazil'},
+        {year:'2017 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2016 世预赛',score:'0-1',winner:'Brazil'},
+        {year:'2015 美洲杯',score:'0-0',winner:'Draw'},
+        {year:'2014 世界杯',score:'1-2',winner:'Brazil'},
+        {year:'2013 联合会杯',score:'1-2',winner:'Brazil'},
+        {year:'2012 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2009 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2007 友谊赛',score:'0-0',winner:'Draw'}
+    ],
+    'Brazil-Colombia':[
+        {year:'2023 世预赛',score:'2-0',winner:'Brazil'},
+        {year:'2022 世预赛',score:'0-1',winner:'Colombia'},
+        {year:'2021 世预赛',score:'0-0',winner:'Draw'},
+        {year:'2019 友谊赛',score:'1-0',winner:'Brazil'},
+        {year:'2017 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2016 世预赛',score:'1-0',winner:'Brazil'},
+        {year:'2015 美洲杯',score:'0-0',winner:'Draw'},
+        {year:'2014 世界杯',score:'2-1',winner:'Brazil'},
+        {year:'2013 联合会杯',score:'2-1',winner:'Brazil'},
+        {year:'2012 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2009 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2007 友谊赛',score:'0-0',winner:'Draw'}
+    ],
+    'Croatia-France':[
+        {year:'2022 决赛',score:'2-4',winner:'France'},
+        {year:'2020 欧国联',score:'1-2',winner:'France'},
+        {year:'2018 决赛',score:'2-4',winner:'France'},
+        {year:'2004 友谊赛',score:'0-1',winner:'France'},
+        {year:'1998 半决赛',score:'1-2',winner:'France'}
+    ],
+    'France-Croatia':[
+        {year:'2022 决赛',score:'4-2',winner:'France'},
+        {year:'2020 欧国联',score:'2-1',winner:'France'},
+        {year:'2018 决赛',score:'4-2',winner:'France'},
+        {year:'2004 友谊赛',score:'1-0',winner:'France'},
+        {year:'1998 半决赛',score:'2-1',winner:'France'}
+    ],
+    'Belgium-France':[
+        {year:'2021 欧国联',score:'0-2',winner:'France'},
+        {year:'2018 半决赛',score:'0-1',winner:'France'},
+        {year:'2015 友谊赛',score:'3-4',winner:'France'},
+        {year:'2012 友谊赛',score:'2-2',winner:'Draw'},
+        {year:'2009 友谊赛',score:'2-0',winner:'France'},
+        {year:'2004 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2002 友谊赛',score:'2-2',winner:'Draw'}
+    ],
+    'France-Belgium':[
+        {year:'2021 欧国联',score:'2-0',winner:'France'},
+        {year:'2018 半决赛',score:'1-0',winner:'France'},
+        {year:'2015 友谊赛',score:'4-3',winner:'France'},
+        {year:'2012 友谊赛',score:'2-2',winner:'Draw'},
+        {year:'2009 友谊赛',score:'0-2',winner:'France'},
+        {year:'2004 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2002 友谊赛',score:'2-2',winner:'Draw'}
+    ],
+    'Morocco-France':[
+        {year:'2022 半决赛',score:'0-2',winner:'France'},
+        {year:'1998 世界杯',score:'0-3',winner:'France'},
+        {year:'1988 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'1986 世界杯',score:'0-2',winner:'France'}
+    ],
+    'France-Morocco':[
+        {year:'2022 半决赛',score:'2-0',winner:'France'},
+        {year:'1998 世界杯',score:'3-0',winner:'France'},
+        {year:'1988 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'1986 世界杯',score:'2-0',winner:'France'}
+    ],
+    'Japan-Germany':[
+        {year:'2022 世界杯',score:'2-1',winner:'Japan'},
+        {year:'2018 友谊赛',score:'1-2',winner:'Germany'},
+        {year:'2016 友谊赛',score:'0-1',winner:'Germany'},
+        {year:'2015 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2013 洲际杯',score:'3-4',winner:'Germany'},
+        {year:'2009 友谊赛',score:'1-4',winner:'Germany'},
+        {year:'2006 世界杯',score:'0-3',winner:'Germany'},
+        {year:'2004 友谊赛',score:'0-3',winner:'Germany'}
+    ],
+    'Germany-Japan':[
+        {year:'2022 世界杯',score:'1-2',winner:'Japan'},
+        {year:'2018 友谊赛',score:'2-1',winner:'Germany'},
+        {year:'2016 友谊赛',score:'1-0',winner:'Germany'},
+        {year:'2015 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2013 洲际杯',score:'4-3',winner:'Germany'},
+        {year:'2009 友谊赛',score:'4-1',winner:'Germany'},
+        {year:'2006 世界杯',score:'3-0',winner:'Germany'},
+        {year:'2004 友谊赛',score:'3-0',winner:'Germany'}
+    ],
+    'Japan-Spain':[
+        {year:'2022 世界杯',score:'2-1',winner:'Japan'},
+        {year:'2001 联合会杯',score:'0-1',winner:'Spain'},
+        {year:'2001 联合会杯',score:'0-1',winner:'Spain'}
+    ],
+    'Spain-Japan':[
+        {year:'2022 世界杯',score:'1-2',winner:'Japan'},
+        {year:'2001 联合会杯',score:'1-0',winner:'Spain'},
+        {year:'2001 联合会杯',score:'1-0',winner:'Spain'}
+    ],
+    'Saudi Arabia-Argentina':[
+        {year:'2022 世界杯',score:'2-1',winner:'Saudi Arabia'},
+        {year:'2012 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2009 友谊赛',score:'0-1',winner:'Argentina'},
+        {year:'2002 友谊赛',score:'1-1',winner:'Draw'}
+    ],
+    'Argentina-Saudi Arabia':[
+        {year:'2022 世界杯',score:'1-2',winner:'Saudi Arabia'},
+        {year:'2012 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2009 友谊赛',score:'1-0',winner:'Argentina'},
+        {year:'2002 友谊赛',score:'1-1',winner:'Draw'}
+    ],
+    'Senegal-Netherlands':[
+        {year:'2022 世界杯',score:'0-2',winner:'Netherlands'},
+        {year:'2008 友谊赛',score:'1-1',winner:'Draw'}
+    ],
+    'Netherlands-Senegal':[
+        {year:'2022 世界杯',score:'2-0',winner:'Netherlands'},
+        {year:'2008 友谊赛',score:'1-1',winner:'Draw'}
+    ],
+    'Australia-Denmark':[
+        {year:'2022 世界杯',score:'1-0',winner:'Australia'},
+        {year:'2018 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2014 友谊赛',score:'3-2',winner:'Australia'}
+    ],
+    'Denmark-Australia':[
+        {year:'2022 世界杯',score:'0-1',winner:'Australia'},
+        {year:'2018 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2014 友谊赛',score:'2-3',winner:'Australia'}
+    ],
+    'Tunisia-France':[
+        {year:'2022 世界杯',score:'1-0',winner:'Tunisia'},
+        {year:'2018 世界杯',score:'2-1',winner:'Tunisia'},
+        {year:'2017 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2010 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2008 友谊赛',score:'1-3',winner:'France'}
+    ],
+    'France-Tunisia':[
+        {year:'2022 世界杯',score:'0-1',winner:'Tunisia'},
+        {year:'2018 世界杯',score:'1-2',winner:'Tunisia'},
+        {year:'2017 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2010 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2008 友谊赛',score:'3-1',winner:'France'}
+    ],
+    'Ecuador-Senegal':[
+        {year:'2022 世界杯',score:'1-2',winner:'Senegal'}
+    ],
+    'Senegal-Ecuador':[
+        {year:'2022 世界杯',score:'2-1',winner:'Senegal'}
+    ],
+    'England-Netherlands':[
+        {year:'2019 欧国联',score:'1-1(点3-4)',winner:'Netherlands'},
+        {year:'2018 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2016 友谊赛',score:'2-3',winner:'Netherlands'},
+        {year:'2012 友谊赛',score:'2-3',winner:'Netherlands'},
+        {year:'2009 友谊赛',score:'2-2',winner:'Draw'},
+        {year:'2006 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2002 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'1998 友谊赛',score:'2-0',winner:'England'},
+        {year:'1996 欧洲杯',score:'1-0',winner:'France'},
+        {year:'1994 友谊赛',score:'0-2',winner:'Netherlands'}
+    ],
+    'Netherlands-England':[
+        {year:'2019 欧国联',score:'1-1(点4-3)',winner:'Netherlands'},
+        {year:'2018 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2016 友谊赛',score:'3-2',winner:'Netherlands'},
+        {year:'2012 友谊赛',score:'3-2',winner:'Netherlands'},
+        {year:'2009 友谊赛',score:'2-2',winner:'Draw'},
+        {year:'2006 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2002 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'1998 友谊赛',score:'0-2',winner:'England'},
+        {year:'1996 欧洲杯',score:'0-1',winner:'France'},
+        {year:'1994 友谊赛',score:'2-0',winner:'Netherlands'}
+    ],
+    'England-Italy':[
+        {year:'2023 欧国联',score:'0-1',winner:'Italy'},
+        {year:'2021 欧洲杯决赛',score:'1-1(点2-3)',winner:'Italy'},
+        {year:'2018 世预赛',score:'0-1',winner:'Italy'},
+        {year:'2017 世预赛',score:'1-0',winner:'England'},
+        {year:'2015 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2014 友谊赛',score:'1-2',winner:'Italy'},
+        {year:'2013 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2012 友谊赛',score:'1-2',winner:'Italy'},
+        {year:'2007 友谊赛',score:'1-2',winner:'Italy'},
+        {year:'1997 友谊赛',score:'0-1',winner:'Italy'}
+    ],
+    'Italy-England':[
+        {year:'2023 欧国联',score:'1-0',winner:'Italy'},
+        {year:'2021 欧洲杯决赛',score:'1-1(点3-2)',winner:'Italy'},
+        {year:'2018 世预赛',score:'1-0',winner:'Italy'},
+        {year:'2017 世预赛',score:'0-1',winner:'England'},
+        {year:'2015 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2014 友谊赛',score:'2-1',winner:'Italy'},
+        {year:'2013 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2012 友谊赛',score:'2-1',winner:'Italy'},
+        {year:'2007 友谊赛',score:'2-1',winner:'Italy'},
+        {year:'1997 友谊赛',score:'1-0',winner:'Italy'}
+    ],
+    'England-Belgium':[
+        {year:'2020 欧国联',score:'0-2',winner:'Belgium'},
+        {year:'2019 欧国联',score:'2-1',winner:'England'},
+        {year:'2018 世界杯',score:'0-2',winner:'Belgium'},
+        {year:'2018 友谊赛',score:'1-0',winner:'England'},
+        {year:'2012 友谊赛',score:'1-0',winner:'England'},
+        {year:'2006 友谊赛',score:'1-3',winner:'England'},
+        {year:'2003 友谊赛',score:'2-1',winner:'England'},
+        {year:'2000 友谊赛',score:'1-0',winner:'England'}
+    ],
+    'Belgium-England':[
+        {year:'2020 欧国联',score:'2-0',winner:'Belgium'},
+        {year:'2019 欧国联',score:'1-2',winner:'England'},
+        {year:'2018 世界杯',score:'2-0',winner:'Belgium'},
+        {year:'2018 友谊赛',score:'0-1',winner:'England'},
+        {year:'2012 友谊赛',score:'0-1',winner:'England'},
+        {year:'2006 友谊赛',score:'3-1',winner:'England'},
+        {year:'2003 友谊赛',score:'1-2',winner:'England'},
+        {year:'2000 友谊赛',score:'0-1',winner:'England'}
+    ],
+    'Croatia-Belgium':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2021 欧国联',score:'1-1',winner:'Draw'},
+        {year:'2021 欧国联',score:'1-0',winner:'Croatia'},
+        {year:'2017 友谊赛',score:'3-3',winner:'Draw'},
+        {year:'2014 世界杯',score:'1-2',winner:'Belgium'}
+    ],
+    'Belgium-Croatia':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2021 欧国联',score:'1-1',winner:'Draw'},
+        {year:'2021 欧国联',score:'0-1',winner:'Croatia'},
+        {year:'2017 友谊赛',score:'3-3',winner:'Draw'},
+        {year:'2014 世界杯',score:'2-1',winner:'Belgium'}
+    ],
+    'Japan-Australia':[
+        {year:'2022 世预赛',score:'2-1',winner:'Japan'},
+        {year:'2021 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2017 世预赛',score:'2-0',winner:'Japan'},
+        {year:'2016 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2015 亚洲杯决赛',score:'1-2',winner:'Australia'},
+        {year:'2014 世界杯',score:'1-0',winner:'Japan'},
+        {year:'2013 东亚杯',score:'3-2',winner:'Japan'},
+        {year:'2011 亚洲杯',score:'1-0',winner:'Japan'}
+    ],
+    'Australia-Japan':[
+        {year:'2022 世预赛',score:'1-2',winner:'Japan'},
+        {year:'2021 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2017 世预赛',score:'0-2',winner:'Japan'},
+        {year:'2016 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2015 亚洲杯决赛',score:'2-1',winner:'Australia'},
+        {year:'2014 世界杯',score:'0-1',winner:'Japan'},
+        {year:'2013 东亚杯',score:'2-3',winner:'Japan'},
+        {year:'2011 亚洲杯',score:'0-1',winner:'Japan'}
+    ],
+    'Iran-USA':[
+        {year:'2022 世界杯',score:'0-1',winner:'USA'},
+        {year:'1998 世界杯',score:'2-1',winner:'Iran'}
+    ],
+    'USA-Iran':[
+        {year:'2022 世界杯',score:'1-0',winner:'USA'},
+        {year:'1998 世界杯',score:'1-2',winner:'Iran'}
+    ],
+    'Uruguay-South Korea':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2018 友谊赛',score:'2-1',winner:'Uruguay'},
+        {year:'2014 友谊赛',score:'1-0',winner:'Uruguay'}
+    ],
+    'South Korea-Uruguay':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2018 友谊赛',score:'1-2',winner:'Uruguay'},
+        {year:'2014 友谊赛',score:'0-1',winner:'Uruguay'}
+    ],
+    'Switzerland-France':[
+        {year:'2021 欧洲杯',score:'3-3',winner:'Draw'},
+        {year:'2020 欧国联',score:'0-0',winner:'Draw'},
+        {year:'2019 欧国联',score:'0-1',winner:'France'},
+        {year:'2016 友谊赛',score:'0-1',winner:'France'},
+        {year:'2014 世界杯',score:'2-5',winner:'France'},
+        {year:'2012 友谊赛',score:'1-2',winner:'France'},
+        {year:'2006 世界杯',score:'0-2',winner:'France'}
+    ],
+    'France-Switzerland':[
+        {year:'2021 欧洲杯',score:'3-3(点4-5)',winner:'Switzerland'},
+        {year:'2020 欧国联',score:'0-0',winner:'Draw'},
+        {year:'2019 欧国联',score:'1-0',winner:'France'},
+        {year:'2016 友谊赛',score:'1-0',winner:'France'},
+        {year:'2014 世界杯',score:'5-2',winner:'France'},
+        {year:'2012 友谊赛',score:'2-1',winner:'France'},
+        {year:'2006 世界杯',score:'2-0',winner:'France'}
+    ],
+    'Germany-Italy':[
+        {year:'2016 欧洲杯',score:'1-1(点5-6)',winner:'Italy'},
+        {year:'2012 欧洲杯',score:'1-2',winner:'Italy'},
+        {year:'2011 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2010 世界杯',score:'0-1',winner:'Italy'},
+        {year:'2007 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2006 半决赛',score:'0-2',winner:'Italy'},
+        {year:'2003 友谊赛',score:'1-0',winner:'Germany'},
+        {year:'1996 友谊赛',score:'2-0',winner:'Germany'}
+    ],
+    'Italy-Germany':[
+        {year:'2016 欧洲杯',score:'1-1(点6-5)',winner:'Italy'},
+        {year:'2012 欧洲杯',score:'2-1',winner:'Italy'},
+        {year:'2011 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2010 世界杯',score:'1-0',winner:'Italy'},
+        {year:'2007 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2006 半决赛',score:'2-0',winner:'Italy'},
+        {year:'2003 友谊赛',score:'0-1',winner:'Germany'},
+        {year:'1996 友谊赛',score:'0-2',winner:'Germany'}
+    ],
+    'Germany-Portugal':[
+        {year:'2021 欧洲杯',score:'4-2',winner:'Germany'},
+        {year:'2018 世界杯',score:'1-0',winner:'Germany'},
+        {year:'2014 世界杯',score:'4-0',winner:'Germany'},
+        {year:'2012 欧洲杯',score:'1-0',winner:'Germany'},
+        {year:'2008 欧洲杯',score:'3-2',winner:'Germany'},
+        {year:'2006 世界杯',score:'3-1',winner:'Germany'}
+    ],
+    'Portugal-Germany':[
+        {year:'2021 欧洲杯',score:'2-4',winner:'Germany'},
+        {year:'2018 世界杯',score:'0-1',winner:'Germany'},
+        {year:'2014 世界杯',score:'0-4',winner:'Germany'},
+        {year:'2012 欧洲杯',score:'0-1',winner:'Germany'},
+        {year:'2008 欧洲杯',score:'2-3',winner:'Germany'},
+        {year:'2006 世界杯',score:'1-3',winner:'Germany'}
+    ],
+    'Spain-Italy':[
+        {year:'2023 欧国联决赛',score:'0-0(点5-4)',winner:'Spain'},
+        {year:'2021 欧洲杯',score:'1-1(点3-4)',winner:'Italy'},
+        {year:'2016 欧洲杯',score:'2-0',winner:'Spain'},
+        {year:'2014 世界杯',score:'1-0',winner:'Spain'},
+        {year:'2013 联合会杯',score:'0-0(点7-6)',winner:'Spain'},
+        {year:'2012 欧洲杯决赛',score:'4-0',winner:'Spain'},
+        {year:'2008 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'1994 世界杯',score:'1-1',winner:'Draw'}
+    ],
+    'Italy-Spain':[
+        {year:'2023 欧国联决赛',score:'0-0(点4-5)',winner:'Spain'},
+        {year:'2021 欧洲杯',score:'1-1(点4-3)',winner:'Italy'},
+        {year:'2016 欧洲杯',score:'0-2',winner:'Spain'},
+        {year:'2014 世界杯',score:'0-1',winner:'Spain'},
+        {year:'2013 联合会杯',score:'0-0(点6-7)',winner:'Spain'},
+        {year:'2012 欧洲杯决赛',score:'0-4',winner:'Spain'},
+        {year:'2008 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'1994 世界杯',score:'1-1',winner:'Draw'}
+    ],
+    'Spain-Netherlands':[
+        {year:'2014 世界杯',score:'1-5',winner:'Netherlands'},
+        {year:'2010 决赛',score:'1-0',winner:'Spain'},
+        {year:'2008 欧洲杯',score:'2-1',winner:'Spain'},
+        {year:'2002 友谊赛',score:'1-0',winner:'Spain'}
+    ],
+    'Netherlands-Spain':[
+        {year:'2014 世界杯',score:'5-1',winner:'Netherlands'},
+        {year:'2010 决赛',score:'0-1',winner:'Spain'},
+        {year:'2008 欧洲杯',score:'1-2',winner:'Spain'},
+        {year:'2002 友谊赛',score:'0-1',winner:'Spain'}
+    ],
+    'England-Spain':[
+        {year:'2024 欧洲杯决赛',score:'1-2',winner:'Spain'},
+        {year:'2018 欧国联',score:'3-2',winner:'England'},
+        {year:'2016 友谊赛',score:'0-2',winner:'Spain'},
+        {year:'2015 友谊赛',score:'0-2',winner:'Spain'},
+        {year:'2013 友谊赛',score:'2-3',winner:'England'},
+        {year:'2011 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2009 友谊赛',score:'0-2',winner:'Spain'},
+        {year:'1996 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'1982 世界杯',score:'0-0',winner:'Draw'}
+    ],
+    'Spain-England':[
+        {year:'2024 欧洲杯决赛',score:'2-1',winner:'Spain'},
+        {year:'2018 欧国联',score:'2-3',winner:'England'},
+        {year:'2016 友谊赛',score:'2-0',winner:'Spain'},
+        {year:'2015 友谊赛',score:'2-0',winner:'Spain'},
+        {year:'2013 友谊赛',score:'3-2',winner:'England'},
+        {year:'2011 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2009 友谊赛',score:'2-0',winner:'Spain'},
+        {year:'1996 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'1982 世界杯',score:'0-0',winner:'Draw'}
+    ],
+    'Netherlands-Portugal':[
+        {year:'2024 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2019 欧国联决赛',score:'0-1',winner:'Portugal'},
+        {year:'2012 欧洲杯',score:'1-1',winner:'Draw'},
+        {year:'2006 世界杯',score:'1-0',winner:'Portugal'},
+        {year:'2004 欧洲杯',score:'1-2',winner:'Portugal'},
+        {year:'2003 友谊赛',score:'1-1',winner:'Draw'}
+    ],
+    'Portugal-Netherlands':[
+        {year:'2024 欧洲杯',score:'0-0',winner:'Draw'},
+        {year:'2019 欧国联决赛',score:'1-0',winner:'Portugal'},
+        {year:'2012 欧洲杯',score:'1-1',winner:'Draw'},
+        {year:'2006 世界杯',score:'0-1',winner:'Portugal'},
+        {year:'2004 欧洲杯',score:'2-1',winner:'Portugal'},
+        {year:'2003 友谊赛',score:'1-1',winner:'Draw'}
+    ],
+    'Belgium-Netherlands':[
+        {year:'2022 欧国联',score:'1-0',winner:'Belgium'},
+        {year:'2022 欧国联',score:'4-1',winner:'Belgium'},
+        {year:'2021 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2018 友谊赛',score:'3-3',winner:'Draw'},
+        {year:'2016 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2014 友谊赛',score:'0-2',winner:'Netherlands'}
+    ],
+    'Netherlands-Belgium':[
+        {year:'2022 欧国联',score:'0-1',winner:'Belgium'},
+        {year:'2022 欧国联',score:'1-4',winner:'Belgium'},
+        {year:'2021 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2018 友谊赛',score:'3-3',winner:'Draw'},
+        {year:'2016 友谊赛',score:'1-1',winner:'Draw'},
+        {year:'2014 友谊赛',score:'2-0',winner:'Netherlands'}
+    ],
+    'Germany-Croatia':[
+        {year:'2022 世界杯',score:'1-2',winner:'Croatia'},
+        {year:'1998 世界杯',score:'0-3',winner:'Croatia'}
+    ],
+    'Croatia-Germany':[
+        {year:'2022 世界杯',score:'2-1',winner:'Croatia'},
+        {year:'1998 世界杯',score:'3-0',winner:'Croatia'}
+    ],
+    'Germany-Switzerland':[
+        {year:'2024 欧洲杯',score:'1-1',winner:'Draw'},
+        {year:'2022 欧国联',score:'0-1',winner:'Switzerland'},
+        {year:'2022 欧国联',score:'0-0',winner:'Draw'},
+        {year:'2018 友谊赛',score:'2-1',winner:'Germany'},
+        {year:'2012 友谊赛',score:'3-5',winner:'Switzerland'}
+    ],
+    'Switzerland-Germany':[
+        {year:'2024 欧洲杯',score:'1-1',winner:'Draw'},
+        {year:'2022 欧国联',score:'1-0',winner:'Switzerland'},
+        {year:'2022 欧国联',score:'0-0',winner:'Draw'},
+        {year:'2018 友谊赛',score:'1-2',winner:'Germany'},
+        {year:'2012 友谊赛',score:'5-3',winner:'Switzerland'}
+    ],
+    'USA-England':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2018 友谊赛',score:'0-3',winner:'England'},
+        {year:'2010 世界杯',score:'1-1',winner:'Draw'},
+        {year:'2008 友谊赛',score:'0-2',winner:'England'},
+        {year:'2005 友谊赛',score:'1-2',winner:'England'},
+        {year:'2003 友谊赛',score:'0-3',winner:'England'}
+    ],
+    'England-USA':[
+        {year:'2022 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2018 友谊赛',score:'3-0',winner:'England'},
+        {year:'2010 世界杯',score:'1-1',winner:'Draw'},
+        {year:'2008 友谊赛',score:'2-0',winner:'England'},
+        {year:'2005 友谊赛',score:'2-1',winner:'England'},
+        {year:'2003 友谊赛',score:'3-0',winner:'England'}
+    ],
+    'Belgium-Portugal':[
+        {year:'2021 欧洲杯',score:'1-0',winner:'Belgium'},
+        {year:'2018 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2016 友谊赛',score:'1-2',winner:'Portugal'},
+        {year:'2009 友谊赛',score:'1-2',winner:'Portugal'}
+    ],
+    'Portugal-Belgium':[
+        {year:'2021 欧洲杯',score:'0-1',winner:'Belgium'},
+        {year:'2018 友谊赛',score:'0-0',winner:'Draw'},
+        {year:'2016 友谊赛',score:'2-1',winner:'Portugal'},
+        {year:'2009 友谊赛',score:'2-1',winner:'Portugal'}
+    ],
+    'France-Portugal':[
+        {year:'2021 欧洲杯',score:'2-2(点4-3)',winner:'France'},
+        {year:'2020 欧国联',score:'0-0',winner:'Draw'},
+        {year:'2019 欧国联',score:'1-0',winner:'France'},
+        {year:'2018 友谊赛',score:'1-0',winner:'France'},
+        {year:'2016 欧洲杯决赛',score:'0-1',winner:'Portugal'},
+        {year:'2015 友谊赛',score:'1-0',winner:'France'}
+    ],
+    'Portugal-France':[
+        {year:'2021 欧洲杯',score:'2-2(点3-4)',winner:'France'},
+        {year:'2020 欧国联',score:'0-0',winner:'Draw'},
+        {year:'2019 欧国联',score:'0-1',winner:'France'},
+        {year:'2018 友谊赛',score:'0-1',winner:'France'},
+        {year:'2016 欧洲杯决赛',score:'1-0',winner:'Portugal'},
+        {year:'2015 友谊赛',score:'0-1',winner:'France'}
+    ],
+    'Brazil-Spain':[
+        {year:'2013 联合会杯',score:'3-0',winner:'Brazil'},
+        {year:'2011 友谊赛',score:'0-1',winner:'Spain'},
+        {year:'2003 友谊赛',score:'1-0',winner:'Brazil'}
+    ],
+    'Spain-Brazil':[
+        {year:'2013 联合会杯',score:'0-3',winner:'Brazil'},
+        {year:'2011 友谊赛',score:'1-0',winner:'Spain'},
+        {year:'2003 友谊赛',score:'0-1',winner:'Brazil'}
+    ],
+    'Argentina-Spain':[
+        {year:'2018 友谊赛',score:'1-2',winner:'Spain'},
+        {year:'2010 友谊赛',score:'4-1',winner:'Argentina'},
+        {year:'2006 友谊赛',score:'1-2',winner:'Spain'}
+    ],
+    'Spain-Argentina':[
+        {year:'2018 友谊赛',score:'2-1',winner:'Spain'},
+        {year:'2010 友谊赛',score:'1-4',winner:'Argentina'},
+        {year:'2006 友谊赛',score:'2-1',winner:'Spain'}
+    ],
+    'Argentina-England':[
+        {year:'2005 友谊赛',score:'3-2',winner:'Argentina'},
+        {year:'2002 世界杯',score:'2-2(点2-3)',winner:'England'},
+        {year:'1998 世界杯',score:'2-2(点4-3)',winner:'Argentina'},
+        {year:'1986 世界杯',score:'2-1',winner:'Argentina'},
+        {year:'1980 友谊赛',score:'1-0',winner:'Argentina'}
+    ],
+    'England-Argentina':[
+        {year:'2005 友谊赛',score:'2-3',winner:'Argentina'},
+        {year:'2002 世界杯',score:'2-2(点3-2)',winner:'England'},
+        {year:'1998 世界杯',score:'2-2(点3-4)',winner:'Argentina'},
+        {year:'1986 世界杯',score:'1-2',winner:'Argentina'},
+        {year:'1980 友谊赛',score:'0-1',winner:'Argentina'}
+    ],
+    'Netherlands-Brazil':[
+        {year:'2014 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2011 友谊赛',score:'3-2',winner:'Brazil'},
+        {year:'1998 世界杯',score:'1-2',winner:'Brazil'},
+        {year:'1996 友谊赛',score:'0-2',winner:'Brazil'},
+        {year:'1994 世界杯',score:'2-3',winner:'Brazil'},
+        {year:'1989 友谊赛',score:'1-0',winner:'Brazil'}
+    ],
+    'Brazil-Netherlands':[
+        {year:'2014 世界杯',score:'0-0',winner:'Draw'},
+        {year:'2011 友谊赛',score:'2-3',winner:'Brazil'},
+        {year:'1998 世界杯',score:'2-1',winner:'Brazil'},
+        {year:'1996 友谊赛',score:'2-0',winner:'Brazil'},
+        {year:'1994 世界杯',score:'3-2',winner:'Brazil'},
+        {year:'1989 友谊赛',score:'0-1',winner:'Brazil'}
+    ],
+    'Argentina-Germany':[
+        {year:'2014 决赛',score:'0-1',winner:'Germany'},
+        {year:'2010 1/4决赛',score:'0-4',winner:'Germany'},
+        {year:'2006 1/4决赛',score:'1-1(点2-4)',winner:'Germany'},
+        {year:'1990 决赛',score:'0-1',winner:'Germany'},
+        {year:'1986 决赛',score:'3-2',winner:'Argentina'}
+    ],
+    'Germany-Argentina':[
+        {year:'2014 决赛',score:'1-0',winner:'Germany'},
+        {year:'2010 1/4决赛',score:'4-0',winner:'Germany'},
+        {year:'2006 1/4决赛',score:'1-1(点4-2)',winner:'Germany'},
+        {year:'1990 决赛',score:'1-0',winner:'Germany'},
+        {year:'1986 决赛',score:'2-3',winner:'Argentina'}
+    ],
+    'Japan-South Korea':[
+        {year:'2022 东亚杯',score:'3-0',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'1-0',winner:'Japan'},
+        {year:'2017 世预赛',score:'1-3',winner:'Japan'},
+        {year:'2015 亚洲杯',score:'1-1',winner:'Draw'}
+    ],
+    'South Korea-Japan':[
+        {year:'2022 东亚杯',score:'0-3',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'0-1',winner:'Japan'},
+        {year:'2017 世预赛',score:'3-1',winner:'Japan'},
+        {year:'2015 亚洲杯',score:'1-1',winner:'Draw'}
+    ],
+    'Iran-South Korea':[
+        {year:'2022 世预赛',score:'2-0',winner:'Iran'},
+        {year:'2021 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2019 亚洲杯',score:'0-0',winner:'Draw'},
+        {year:'2017 世预赛',score:'1-0',winner:'Iran'}
+    ],
+    'South Korea-Iran':[
+        {year:'2022 世预赛',score:'0-2',winner:'Iran'},
+        {year:'2021 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2019 亚洲杯',score:'0-0',winner:'Draw'},
+        {year:'2017 世预赛',score:'0-1',winner:'Iran'}
+    ],
+    'Saudi Arabia-South Korea':[
+        {year:'2022 世预赛',score:'0-1',winner:'South Korea'},
+        {year:'2021 世预赛',score:'0-1',winner:'South Korea'},
+        {year:'2019 亚洲杯',score:'0-0',winner:'Draw'}
+    ],
+    'South Korea-Saudi Arabia':[
+        {year:'2022 世预赛',score:'1-0',winner:'South Korea'},
+        {year:'2021 世预赛',score:'1-0',winner:'South Korea'},
+        {year:'2019 亚洲杯',score:'0-0',winner:'Draw'}
+    ],
+    'Japan-Iran':[
+        {year:'2022 世预赛',score:'2-0',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'3-0',winner:'Japan'},
+        {year:'2017 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2016 世预赛',score:'1-1',winner:'Draw'}
+    ],
+    'Iran-Japan':[
+        {year:'2022 世预赛',score:'0-2',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'0-3',winner:'Japan'},
+        {year:'2017 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2016 世预赛',score:'1-1',winner:'Draw'}
+    ],
+    'Japan-Saudi Arabia':[
+        {year:'2022 世预赛',score:'2-0',winner:'Japan'},
+        {year:'2021 世预赛',score:'1-0',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'0-1',winner:'Saudi Arabia'}
+    ],
+    'Saudi Arabia-Japan':[
+        {year:'2022 世预赛',score:'0-2',winner:'Japan'},
+        {year:'2021 世预赛',score:'0-1',winner:'Japan'},
+        {year:'2019 亚洲杯',score:'1-0',winner:'Saudi Arabia'}
+    ],
+    'USA-Canada':[
+        {year:'2023 金杯赛决赛',score:'0-2',winner:'Canada'},
+        {year:'2022 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2021 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2019 金杯赛',score:'4-1',winner:'USA'},
+        {year:'2018 友谊赛',score:'1-0',winner:'USA'}
+    ],
+    'Canada-USA':[
+        {year:'2023 金杯赛决赛',score:'2-0',winner:'Canada'},
+        {year:'2022 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2021 世预赛',score:'1-1',winner:'Draw'},
+        {year:'2019 金杯赛',score:'1-4',winner:'USA'},
+        {year:'2018 友谊赛',score:'0-1',winner:'USA'}
+    ],
+    'Mexico-Canada':[
+        {year:'2023 金杯赛',score:'0-1',winner:'Canada'},
+        {year:'2022 世预赛',score:'2-1',winner:'Mexico'},
+        {year:'2021 世预赛',score:'2-1',winner:'Mexico'},
+        {year:'2019 金杯赛',score:'3-2',winner:'Mexico'},
+        {year:'2018 友谊赛',score:'3-2',winner:'Mexico'}
+    ],
+    'Canada-Mexico':[
+        {year:'2023 金杯赛',score:'1-0',winner:'Canada'},
+        {year:'2022 世预赛',score:'1-2',winner:'Mexico'},
+        {year:'2021 世预赛',score:'1-2',winner:'Mexico'},
+        {year:'2019 金杯赛',score:'2-3',winner:'Mexico'},
+        {year:'2018 友谊赛',score:'2-3',winner:'Mexico'}
+    ],
+    'Uruguay-Colombia':[
+        {year:'2023 世预赛',score:'2-2',winner:'Draw'},
+        {year:'2022 世预赛',score:'0-0',winner:'Draw'},
+        {year:'2021 美洲杯',score:'0-0',winner:'Draw'},
+        {year:'2019 友谊赛',score:'3-0',winner:'Uruguay'},
+        {year:'2018 世预赛',score:'2-2',winner:'Draw'},
+        {year:'2017 世预赛',score:'2-2',winner:'Draw'}
+    ],
+    'Colombia-Uruguay':[
+        {year:'2023 世预赛',score:'2-2',winner:'Draw'},
+        {year:'2022 世预赛',score:'0-0',winner:'Draw'},
+        {year:'2021 美洲杯',score:'0-0',winner:'Draw'},
+        {year:'2019 友谊赛',score:'0-3',winner:'Uruguay'},
+        {year:'2018 世预赛',score:'2-2',winner:'Draw'},
+        {year:'2017 世预赛',score:'2-2',winner:'Draw'}
+    ],
+    'Argentina-Uruguay':[
+        {year:'2023 世预赛',score:'2-0',winner:'Argentina'},
+        {year:'2022 世预赛',score:'1-0',winner:'Argentina'},
+        {year:'2021 美洲杯',score:'1-0',winner:'Argentina'}
+    ],
+    'Uruguay-Argentina':[
+        {year:'2023 世预赛',score:'0-2',winner:'Argentina'},
+        {year:'2022 世预赛',score:'0-1',winner:'Argentina'},
+        {year:'2021 美洲杯',score:'0-1',winner:'Argentina'}
+    ]
+};
+
+function getH2H(teamA, teamB){
+    var key=teamA+'-'+teamB;
+    if(H2H[key]) return H2H[key];
+    var rkey=teamB+'-'+teamA;
+    if(H2H[rkey]) return H2H[rkey].map(function(m){
+        var parts=m.score.split('-');
+        return {year:m.year,score:parts[1]+'-'+parts[0],winner:m.winner==='Draw'?'Draw':m.winner===teamA?teamB:teamA};
+    });
+    return [];
+}
 function kp(name){ return TEAM_KEY[name] || ['暂无数据']; }
 
 function getTodayStr(){
@@ -550,6 +1556,38 @@ function buildMatchCard(match, stats){
     html+='<div style="color:#555;font-size:1.2rem;padding:0 12px">VS</div>';
     html+='<div style="text-align:center;padding:10px"><div style="font-size:1.3rem;font-weight:bold;color:#e74c3c">'+aVal+'</div><div style="color:#888;font-size:0.8rem;margin-top:4px">'+cn(a)+'</div><div style="color:#aaa;font-size:0.75rem">FIFA #'+rk(a)+'</div></div>';
     html+='</div></div>';
+
+    // Head-to-head history
+    var h2h=getH2H(h,a);
+    html+='<div class="box full"><h4>⚔️ 历史交锋 '+cn(h)+' vs '+cn(a)+'</h4>';
+    if(h2h.length>0){
+        var h2hW={};
+        h2h.forEach(function(m){
+            if(!h2hW[m.winner]) h2hW[m.winner]=0;
+            h2hW[m.winner]++;
+        });
+        var hWin=h2hW[h]||0;
+        var aWin2=h2hW[a]||0;
+        var draw=h2hW['Draw']||0;
+        html+='<div style="display:flex;justify-content:center;gap:16px;margin-bottom:10px;font-size:0.85rem">';
+        html+='<span style="color:#2ecc71">'+cn(h)+' '+hWin+'胜</span>';
+        html+='<span style="color:#f1c40f">平 '+draw+'</span>';
+        html+='<span style="color:#e74c3c">'+cn(a)+' '+aWin2+'胜</span>';
+        html+='</div>';
+        html+='<div style="max-height:180px;overflow-y:auto">';
+        h2h.forEach(function(m){
+            var wc=m.winner===h?'w':m.winner===a?'l':'d';
+            html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem">';
+            html+='<span style="color:#888;width:90px;flex-shrink:0">'+m.year+'</span>';
+            html+='<span class="'+wc+'" style="padding:1px 6px;border-radius:3px;font-size:0.72rem;flex-shrink:0">'+m.winner+'</span>';
+            html+='<span style="color:#f1c40f;font-weight:bold;margin-left:auto">'+m.score+'</span>';
+            html+='</div>';
+        });
+        html+='</div>';
+    } else {
+        html+='<div style="color:#888;font-size:0.82rem;text-align:center;padding:10px 0">暂无历史交锋记录</div>';
+    }
+    html+='</div>';
 
     // Matchup comparison
     if(s1&&s2&&s1.played>0&&s2.played>0){
