@@ -125,7 +125,7 @@
     <div id="main"><div class="load"><div class="spin"></div><p>加载中...</p></div></div>
 
     <div class="warn">免责声明：预测基于历史数据统计分析，仅供娱乐参考，不构成投注建议。请理性看待，切勿沉迷。</div>
-    <div class="foot">数据来源：26worldcup.cn API | 自动更新</div>
+    <div class="foot">数据来源：26worldcup.cn API | 赔率来源：The Odds API（国际博彩，非中国体彩） | 自动更新</div>
 </div>
 
 <script>
@@ -568,6 +568,7 @@ function buildMatchCard(match, stats){
         var realOdds=getOddsForMatch(h,a);
 
         html+='<div class="pred"><h4>🎯 智能比分预测</h4>';
+        html+='<div style="text-align:center;color:#888;font-size:0.72rem;margin-bottom:10px;padding:4px 8px;background:rgba(255,255,255,0.05);border-radius:4px">⚠️ 赔率为国际博彩公司数据，非中国体彩竞彩赔率</div>';
 
         if(realOdds){
             // 1X2 odds
