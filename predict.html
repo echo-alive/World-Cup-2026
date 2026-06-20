@@ -694,17 +694,17 @@ function buildBetView(matches,stats){
         if(o){
             var hP=o.homeOdds, dP=o.drawOdds, aP=o.awayOdds;
             var bestPick, bestOdds, bestReason;
-            if(hP>=aP && hP>=dP){ bestPick='主胜'; bestOdds=hP; bestReason='赔率最高+主场优势'; }
-            else if(aP>=hP && aP>=dP){ bestPick='客胜'; bestOdds=aP; bestReason='赔率最高+客队实力强'; }
-            else { bestPick='平局'; bestOdds=dP; bestReason='两队实力接近'; }
+            if(hP<=aP && hP<=dP){ bestPick='主胜'; bestOdds=hP; bestReason='赔率最低=最可能打出'; }
+            else if(aP<=hP && aP<=dP){ bestPick='客胜'; bestOdds=aP; bestReason='赔率最低=最可能打出'; }
+            else { bestPick='平局'; bestOdds=dP; bestReason='赔率最低=最可能打出'; }
             items.push({type:'胜平负',pick:bestPick,odds:bestOdds,reason:bestReason,
-                risk:bestOdds>2.5?'low':bestOdds>1.8?'mid':'high'});
+                risk:bestOdds<1.8?'low':bestOdds<2.5?'mid':'high'});
         } else {
             var hWin=(hs.winRate||33)/100, aWin=(as.winRate||33)/100;
             var best=hWin>aWin?'主胜':'客胜';
             var prob=Math.max(hWin,aWin);
             var fakeOdds=+(1/prob*0.85).toFixed(2);
-            items.push({type:'胜平负',pick:best,odds:fakeOdds,reason:'无赔率，基于实力推算',risk:'mid'});
+            items.push({type:'胜平负',pick:best,odds:fakeOdds,reason:'无赔率，基于实力推算',risk:fakeOdds<2?'low':'mid'});
         }
 
         var mainBet=items[0];
