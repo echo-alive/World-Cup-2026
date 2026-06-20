@@ -161,6 +161,9 @@
         .history-correct{color:#2ecc71}.history-wrong{color:#e74c3c}.history-pending{color:#f39c12}
         img[data-src]{opacity:0;transition:opacity 0.3s}
         img[data-src].loaded{opacity:1}
+        .back-top{display:none;position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f39c12,#e74c3c);color:#fff;border:none;font-size:1.2rem;cursor:pointer;z-index:99;box-shadow:0 4px 12px rgba(243,156,18,0.4);transition:all 0.3s}
+        .back-top:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(243,156,18,0.5)}
+        @media(min-width:768px){.back-top{display:block}}
         .tip{background:linear-gradient(135deg,rgba(52,152,219,0.2),rgba(41,128,185,0.15));border-radius:10px;padding:14px;margin-top:12px;border:1px solid rgba(52,152,219,0.25)}
         .tip-t{color:#5dade2;font-weight:bold;margin-bottom:6px;font-size:0.88rem}
         .tip-c{color:#ddd;font-size:0.82rem;line-height:1.6}
@@ -219,6 +222,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
+    <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
     <div class="compare-bar" id="compareBar">
         <div class="compare-items" id="compareItems"></div>
         <button class="lottery-btn" onclick="openCompareModal()" style="padding:6px 12px;font-size:0.78rem">对比分析</button>
@@ -2658,15 +2662,18 @@ function buildTournamentAnalysis(matches){
 
 function render(){
     var main=document.getElementById('main');
+    var navEl=document.getElementById('match-nav');
     if(allMatches.length===0) return;
 
     if(currentView==='standings'){
+        navEl.style.display='none';
         var html=buildStandings(allMatches);
         html+=buildTournamentAnalysis(allMatches);
         main.innerHTML=html;
         return;
     }
 
+    navEl.style.display='';
     var stats=buildTeamStats(allMatches);
 
     var targetDate=selectedDate;
