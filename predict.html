@@ -1471,6 +1471,112 @@ function buildStandings(matches){
     return html;
 }
 
+function getGroupForTeams(matches, teamA, teamB){
+    var round1=matches.filter(function(m){return m.round==='Group Stage - 1';});
+    var adj={};
+    function addEdge(a,b){
+        if(!adj[a]) adj[a]={};
+        if(!adj[b]) adj[b]={};
+        adj[a][b]=1; adj[b][a]=1;
+    }
+    round1.forEach(function(m){ addEdge(m.home_team, m.away_team); });
+    var visited={};
+    var groups={};
+    var gLetters='ABCDEFGHIJKL'.split('');
+    var gIdx=0;
+    Object.keys(adj).forEach(function(t){
+        if(visited[t]) return;
+        var comp=[];
+        var queue=[t];
+        visited[t]=1;
+        while(queue.length>0){
+            var cur=queue.shift();
+            comp.push(cur);
+            Object.keys(adj[cur]).forEach(function(nb){
+                if(!visited[nb]){visited[nb]=1;queue.push(nb);}
+            });
+        }
+        if(comp.length>=2 && gIdx<12){
+            var g=gLetters[gIdx++];
+            groups[g]={};
+            comp.forEach(function(team){
+                groups[g][team]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+            });
+        }
+    });
+    matches.forEach(function(m){
+        if(m.status!=='FT') return;
+        var hh=m.home_team, aa=m.away_team;
+        var g=null;
+        Object.keys(groups).forEach(function(k){ if(groups[k][hh]) g=k; });
+        if(!g||!groups[g][hh]||!groups[g][aa]) return;
+        var hScore=m.home_score||0, aScore=m.away_score||0;
+        var t1=groups[g][hh], t2=groups[g][aa];
+        t1.p++;t2.p++;
+        t1.gf+=hScore;t1.ga+=aScore;t2.gf+=aScore;t2.ga+=hScore;
+        if(hScore>aScore){t1.w++;t1.pts+=3;t2.l++;}
+        else if(hScore===aScore){t1.d++;t2.d++;t1.pts+=1;t2.pts+=1;}
+        else{t1.l++;t2.w++;t2.pts+=3;}
+    });
+    var found=null;
+    Object.keys(groups).forEach(function(k){
+        if(groups[k][teamA]&&groups[k][teamB]) found={letter:k,teams:groups[k]};
+    });
+    return found;
+}
+
+function simulateGroupImpact(grp, homeTeam, awayTeam, result){
+    var sim={};
+    Object.keys(grp.teams).forEach(function(t){
+        var s=grp.teams[t];
+        sim[t]={p:s.p,w:s.w,d:s.d,l:s.l,gf:s.gf,ga:s.ga,pts:s.pts,gd:s.gf-s.ga};
+    });
+    sim[homeTeam].p++; sim[awayTeam].p++;
+    if(result==='H'){
+        sim[homeTeam].w++;sim[homeTeam].pts+=3;sim[homeTeam].gf++;sim[homeTeam].gd++;
+        sim[awayTeam].l++;sim[awayTeam].ga++;sim[awayTeam].gd--;
+    } else if(result==='D'){
+        sim[homeTeam].d++;sim[homeTeam].pts++;sim[homeTeam].gf++;sim[homeTeam].ga++;
+        sim[awayTeam].d++;sim[awayTeam].pts++;sim[awayTeam].gf++;sim[awayTeam].ga++;
+    } else {
+        sim[awayTeam].w++;sim[awayTeam].pts+=3;sim[awayTeam].gf++;sim[awayTeam].gd++;
+        sim[homeTeam].l++;sim[homeTeam].ga++;sim[homeTeam].gd--;
+    }
+    var teams=Object.keys(sim).map(function(t){var s=sim[t];s.name=t;return s;});
+    teams.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+    return teams;
+}
+
+function buildGroupImpact(matches, homeTeam, awayTeam){
+    var grp=getGroupForTeams(matches, homeTeam, awayTeam);
+    if(!grp) return '';
+    var results=['H','D','A'];
+    var labels=['主胜','平局','客胜'];
+    var colors=['#2ecc71','#f1c40f','#e74c3c'];
+    var html='<div style="margin-top:10px">';
+    html+='<div style="color:#bbb;font-size:0.78rem;margin-bottom:6px">小组排名影响分析</div>';
+    results.forEach(function(r,i){
+        var ranked=simulateGroupImpact(grp,r==='H'?homeTeam:awayTeam,r==='A'?awayTeam:homeTeam,r);
+        html+='<div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid '+colors[i]+'">';
+        html+='<div style="color:'+colors[i]+';font-weight:bold;font-size:0.82rem;margin-bottom:4px">'+labels[i]+'</div>';
+        ranked.forEach(function(t,idx){
+            var pos=idx+1;
+            var status=pos<=2?'✅晋级':pos===3?'⚠️待定':'❌出局';
+            var statusColor=pos<=2?'#2ecc71':pos===3?'#f39c12':'#e74c3c';
+            var isCur=(t.name===homeTeam||t.name===awayTeam);
+            html+='<div style="display:flex;align-items:center;gap:4px;font-size:0.75rem;padding:1px 0;'+(isCur?'font-weight:bold;color:#fff':'color:#aaa')+'">';
+            html+='<span style="width:14px;text-align:center;color:#888">'+pos+'</span>';
+            html+='<span style="flex:1">'+cn(t.name)+'</span>';
+            html+='<span style="color:#888">'+t.pts+'分</span>';
+            html+='<span style="color:'+statusColor+';font-size:0.7rem;width:45px;text-align:right">'+status+'</span>';
+            html+='</div>';
+        });
+        html+='</div>';
+    });
+    html+='</div>';
+    return html;
+}
+
 function buildMatchCard(match, stats){
     var h=match.home_team, a=match.away_team;
     var hs=match.home_score, as=match.away_score;
@@ -1647,6 +1753,11 @@ function buildMatchCard(match, stats){
             html+='<div style="text-align:center;color:#bbb;padding:20px">赔率数据暂未获取，请稍后刷新</div>';
         }
         html+='</div>';
+    }
+
+    // Group impact analysis for NS matches
+    if(isNS){
+        html+=buildGroupImpact(allMatches,h,a);
     }
 
     html+='</div>';
