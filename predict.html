@@ -1472,7 +1472,8 @@ function buildStandings(matches){
 }
 
 function getGroupForTeams(matches, teamA, teamB){
-    var round1=matches.filter(function(m){return m.round==='Group Stage - 1';});
+    var round1=matches.filter(function(m){return m.round&&m.round.indexOf('Group')===0;});
+    if(round1.length===0) round1=matches;
     var adj={};
     function addEdge(a,b){
         if(!adj[a]) adj[a]={};
