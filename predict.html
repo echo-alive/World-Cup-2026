@@ -1557,7 +1557,7 @@ function buildGroupImpact(matches, homeTeam, awayTeam){
     var uid='gi_'+Math.random().toString(36).substr(2,6);
     var html='<div style="margin-top:10px">';
     html+='<div onclick="var el=document.getElementById(\''+uid+'\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=el.style.display===\'none\'?\'▶\' :\'▼\'" style="color:#bbb;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none"><span style="font-size:0.65rem">▶</span> 小组排名影响分析</div>';
-    html+='<div id="'+uid+'" style="display:none">';
+    html+='<div id="'+uid+'">';
     results.forEach(function(r,i){
         var ranked=simulateGroupImpact(grp,r==='H'?homeTeam:awayTeam,r==='A'?awayTeam:homeTeam,r);
         html+='<div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid '+colors[i]+'">';
