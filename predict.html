@@ -60,7 +60,10 @@
         .box.full{grid-column:span 2}
         .box h4{color:#f39c12;margin-bottom:8px;font-size:0.85rem}
         .stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.8rem;color:#ccc}
-        .stat-row span:last-child{font-weight:bold;color:#fff}
+        .stat-row span{flex:1}
+        .stat-row span:first-child{text-align:left;font-weight:bold;color:#fff}
+        .stat-row span:nth-child(2){text-align:center;color:#888}
+        .stat-row span:last-child{text-align:right;font-weight:bold;color:#fff}
         .bar-wrap{background:rgba(255,255,255,0.1);border-radius:4px;height:6px;margin-top:4px}
         .bar{height:100%;border-radius:4px;transition:width 0.5s}
         .bar-home{background:#3498db;float:left}
