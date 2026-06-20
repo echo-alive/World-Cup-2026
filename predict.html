@@ -1749,6 +1749,7 @@ function render(){
 
 async function loadData(){
     var el=document.getElementById('api-status');
+    var scrollY=window.scrollY;
     el.className='api loading';el.textContent='获取数据中...';
     try{
         var r=await fetch('https://www.26worldcup.cn/api/v1/cup/2026/schedule');
@@ -1765,6 +1766,7 @@ async function loadData(){
             }
             buildDateBar();
             render();
+            window.scrollTo(0,scrollY);
         } else throw 0;
     }catch(e){
         el.className='api err';el.textContent='❌ API连接失败，请检查网络';
