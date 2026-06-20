@@ -20,12 +20,9 @@
         .team-search-wrapper{position:relative;display:inline-block;width:160px}
         .team-search-input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;font-size:0.82rem;color:#fff;width:100%;box-sizing:border-box}
         .team-search-input::placeholder{color:rgba(255,255,255,0.5)}
-        .team-dropdown{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;width:100%;cursor:pointer;position:relative}
-        .team-dropdown-header{padding:6px 10px;display:flex;justify-content:space-between;align-items:center}
         .team-dropdown-content{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.15);border-radius:8px;z-index:1000;margin-top:2px;max-height:250px;overflow-y:auto}
         .team-dropdown-option{padding:6px 10px;cursor:pointer;transition:all 0.2s}
         .team-dropdown-option:hover{background:rgba(255,255,255,0.1)}
-        .dropdown-arrow{font-size:0.7rem}
         .btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s}
         .btn:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
         .btn:active{transform:scale(0.95);box-shadow:0 0 12px rgba(52,152,219,0.6)}
@@ -193,7 +190,7 @@
         .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
-        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-search-wrapper{width:130px}.team-search-input{font-size:0.75rem}.team-dropdown-header{font-size:0.75rem}.team-dropdown-option{font-size:0.75rem}}
+        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-search-wrapper{width:130px}.team-search-input{font-size:0.75rem}.team-dropdown-option{font-size:0.75rem}}
         @media(min-width:768px){.match-nav{max-width:940px;margin:0 -5px 12px;border-radius:12px}}
     </style>
 </head>
@@ -212,14 +209,8 @@
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
             <div class="team-search-wrapper">
                 <input type="text" id="team-search" class="team-search-input" placeholder="🔍 搜索球队..." oninput="filterTeams(this.value)" onfocus="showTeamDropdown()" autocomplete="off">
-                <div class="team-dropdown" id="team-dropdown">
-                    <div class="team-dropdown-header" onclick="toggleTeamDropdown()">
-                        <span id="selected-team-display">🔍 筛选球队</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </div>
-                    <div class="team-dropdown-content" id="team-dropdown-content">
-                        <div class="team-dropdown-option" data-value="" onclick="selectTeam('')">🔍 全部球队</div>
-                    </div>
+                <div class="team-dropdown-content" id="team-dropdown-content">
+                    <div class="team-dropdown-option" data-value="" onclick="selectTeam('')">🔍 全部球队</div>
                 </div>
             </div>
         </div>
@@ -2449,36 +2440,19 @@ function populateTeamDropdown(){
     dropdown.innerHTML=html;
 }
 
-var isTeamDropdownOpen=false;
-function toggleTeamDropdown(){
-    var content=document.getElementById('team-dropdown-content');
-    if(isTeamDropdownOpen){
-        content.style.display='none';
-        isTeamDropdownOpen=false;
-    } else {
-        content.style.display='block';
-        isTeamDropdownOpen=true;
-    }
-}
-
 function showTeamDropdown(){
     var content=document.getElementById('team-dropdown-content');
     content.style.display='block';
-    isTeamDropdownOpen=true;
 }
 
 function selectTeam(team){
     selectedTeam=team;
-    var display=document.getElementById('selected-team-display');
     var searchInput=document.getElementById('team-search');
     if(team===''){
-        display.textContent='🔍 筛选球队';
         searchInput.value='';
     } else {
-        display.textContent=cn(team);
         searchInput.value=cn(team);
     }
-    isTeamDropdownOpen=false;
     document.getElementById('team-dropdown-content').style.display='none';
     buildDateBar();
     render();
@@ -2497,7 +2471,6 @@ function filterTeams(searchText){
     }
     var content=document.getElementById('team-dropdown-content');
     content.style.display='block';
-    isTeamDropdownOpen=true;
 }
 
 function selectDate(d){
