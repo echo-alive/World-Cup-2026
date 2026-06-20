@@ -24,9 +24,8 @@
         .api{margin-top:10px;padding:6px;border-radius:8px;font-size:0.8rem;text-align:center}
         .api.ok{color:#27ae60}.api.err{color:#e74c3c}.api.loading{color:#f39c12}
         .match-nav{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);margin:0 0 12px;box-shadow:0 4px 20px rgba(0,0,0,0.4);overflow:hidden}
-        .nav-list{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(243,156,18,0.3) transparent}
-        .nav-list::-webkit-scrollbar{height:4px}
-        .nav-list::-webkit-scrollbar-thumb{background:rgba(243,156,18,0.3);border-radius:2px}
+        .nav-list{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+        .nav-list::-webkit-scrollbar{display:none}
         .nav-item{scroll-snap-align:start;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 14px;font-size:0.76rem;color:#bbb;cursor:pointer;transition:all 0.25s;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
         .nav-item:hover{background:linear-gradient(135deg,rgba(243,156,18,0.2),rgba(231,76,60,0.15));border-color:rgba(243,156,18,0.5);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(243,156,18,0.2)}
         .nav-item.ft{}
@@ -2457,7 +2456,7 @@ function openCompareModal(){
         var ou=predictOverUnder(c.home,c.away);
     });
     var rows=[
-        {label:'预测比分',fn:function(c){var p=predictScore(c.home,c.away);return p.home.toFixed(1)+'-'+p.away.toFixed(1);}},
+        {label:'预测比分',fn:function(c){var s=calcScoreProbs(c.home,c.away);return s[0]?s[0].home+'-'+s[0].away:'--';}},
         {label:'主胜概率',fn:function(c){var p=predictScore(c.home,c.away);return p.homeWin+'%';}},
         {label:'平局概率',fn:function(c){var p=predictScore(c.home,c.away);return p.draw+'%';}},
         {label:'客胜概率',fn:function(c){var p=predictScore(c.home,c.away);return p.awayWin+'%';}},
