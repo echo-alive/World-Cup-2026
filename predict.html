@@ -23,6 +23,19 @@
         .btn.active{background:#3498db;border-color:#3498db;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .api{margin-top:10px;padding:6px;border-radius:8px;font-size:0.8rem;text-align:center}
         .api.ok{color:#27ae60}.api.err{color:#e74c3c}.api.loading{color:#f39c12}
+        .match-nav{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);margin:0 0 12px;box-shadow:0 4px 20px rgba(0,0,0,0.4);overflow:hidden}
+        .nav-list{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(243,156,18,0.3) transparent}
+        .nav-list::-webkit-scrollbar{height:4px}
+        .nav-list::-webkit-scrollbar-thumb{background:rgba(243,156,18,0.3);border-radius:2px}
+        .nav-item{scroll-snap-align:start;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 14px;font-size:0.76rem;color:#bbb;cursor:pointer;transition:all 0.25s;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
+        .nav-item:hover{background:linear-gradient(135deg,rgba(243,156,18,0.2),rgba(231,76,60,0.15));border-color:rgba(243,156,18,0.5);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(243,156,18,0.2)}
+        .nav-item.ft{opacity:0.4}
+        .nav-item.ft:hover{opacity:0.85}
+        .nav-item.ns{border-color:rgba(46,204,113,0.35);background:rgba(46,204,113,0.06)}
+        .nav-item.ns:hover{border-color:rgba(46,204,113,0.6);background:rgba(46,204,113,0.15)}
+        .nav-item .ni-score{color:#f39c12;font-weight:bold;font-size:0.74rem}
+        .nav-item .ni-vs{color:#27ae60;font-weight:bold;font-size:0.74rem;margin:0 4px}
+        .nav-item.active,.nav-item.active.ns{background:rgba(243,156,18,0.3);border-color:#f39c12;color:#fff;box-shadow:0 0 12px rgba(243,156,18,0.4)}
         .section-title{font-size:1.1rem;margin:25px 0 15px;padding-left:12px;border-left:3px solid #f39c12}
 
         .standings{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
@@ -101,7 +114,8 @@
         .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
-        @media(max-width:600px){.teams{flex-direction:column;gap:12px}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}}
+        @media(max-width:600px){.teams{flex-direction:column;gap:12px}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.nav-list{padding:10px 0}}
+        @media(min-width:768px){.match-nav{max-width:940px;margin:0 -5px 12px;border-radius:12px}}
     </style>
 </head>
 <body>
@@ -121,6 +135,10 @@
         <div class="date-bar" id="date-bar"></div>
         <div class="api loading" id="api-status">连接API中...</div>
     </header>
+
+    <div id="match-nav" class="match-nav">
+        <div class="nav-list" id="nav-list"></div>
+    </div>
 
     <div id="main"><div class="load"><div class="spin"></div><p>加载中...</p></div></div>
 
@@ -216,7 +234,12 @@ var TEAM_KEY = {
 };
 
 function cn(name){ return TEAM_CN[name] || name; }
-function rk(name){ return TEAM_RANK[name] || '--'; }
+function rk(name){
+    if(TEAM_RANK[name]) return TEAM_RANK[name];
+    var en;
+    Object.keys(TEAM_CN).forEach(function(k){if(TEAM_CN[k]===name) en=k;});
+    return en&&TEAM_RANK[en]?TEAM_RANK[en]:'--';
+}
 
 var H2H = {
     'Brazil-Germany':[
@@ -1556,11 +1579,11 @@ function buildGroupImpact(matches, homeTeam, awayTeam){
     var colors=['#2ecc71','#f1c40f','#e74c3c'];
     var uid='gi_'+Math.random().toString(36).substr(2,6);
     var html='<div style="margin-top:10px">';
-    html+='<div onclick="var el=document.getElementById(\''+uid+'\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=el.style.display===\'none\'?\'▶\' :\'▼\'" style="color:#bbb;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none"><span style="font-size:0.65rem">▶</span> 小组排名影响分析</div>';
+    html+='<div onclick="var el=document.getElementById(\''+uid+'\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=el.style.display===\'none\'?\'▶\' :\'▼\'" style="color:#bbb;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;padding:8px 0"><span style="font-size:0.65rem">▶</span> 小组排名影响分析</div>';
     html+='<div id="'+uid+'">';
     results.forEach(function(r,i){
         var ranked=simulateGroupImpact(grp,r==='H'?homeTeam:awayTeam,r==='A'?awayTeam:homeTeam,r);
-        html+='<div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid '+colors[i]+'">';
+        html+='<div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px 10px;margin-bottom:12px;border-left:3px solid '+colors[i]+'">';
         html+='<div style="color:'+colors[i]+';font-weight:bold;font-size:0.82rem;margin-bottom:4px">'+labels[i]+'</div>';
         ranked.forEach(function(t,idx){
             var pos=idx+1;
@@ -1580,7 +1603,7 @@ function buildGroupImpact(matches, homeTeam, awayTeam){
     return html;
 }
 
-function buildMatchCard(match, stats){
+function buildMatchCard(match, stats, idx){
     var h=match.home_team, a=match.away_team;
     var hs=match.home_score, as=match.away_score;
     var s1=stats[h], s2=stats[a];
@@ -1593,7 +1616,7 @@ function buildMatchCard(match, stats){
     else scoreHtml='<div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">'+statusText(match.status)+'</div>';
 
     var html='';
-    html+='<div class="match '+matchClass(match.status)+'">';
+    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'">';
     html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span></div>';
     html+='<div class="teams">';
     html+='<div class="team"><img class="logo" src="'+match.home_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(h)+'</div><div class="t-rank">FIFA #'+rk(h)+'</div></div>';
@@ -1617,7 +1640,7 @@ function buildMatchCard(match, stats){
                 var rc=rm.result==='胜'?'w':rm.result==='平'?'d':'l';
                 html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:0.8rem">';
                 html+='<span class="'+rc+'" style="width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;font-size:0.65rem;flex-shrink:0">'+rm.result+'</span>';
-                html+='<span style="color:#ccc">'+rm.opponent+'</span>';
+                html+='<span style="color:#ccc">'+rm.opponent+' <span style="color:#888;font-size:0.7rem">FIFA #'+rk(rm.opponent)+'</span></span>';
                 html+='<span style="color:#f1c40f;font-weight:bold;margin-left:auto">'+rm.hs+'-'+rm.as+'</span>';
                 html+='</div>';
             });
@@ -1643,7 +1666,7 @@ function buildMatchCard(match, stats){
                 var rc=rm.result==='胜'?'w':rm.result==='平'?'d':'l';
                 html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:0.8rem">';
                 html+='<span class="'+rc+'" style="width:16px;height:16px;line-height:16px;text-align:center;border-radius:3px;font-size:0.65rem;flex-shrink:0">'+rm.result+'</span>';
-                html+='<span style="color:#ccc">'+rm.opponent+'</span>';
+                html+='<span style="color:#ccc">'+rm.opponent+' <span style="color:#888;font-size:0.7rem">FIFA #'+rk(rm.opponent)+'</span></span>';
                 html+='<span style="color:#f1c40f;font-weight:bold;margin-left:auto">'+rm.hs+'-'+rm.as+'</span>';
                 html+='</div>';
             });
@@ -1767,6 +1790,52 @@ function buildMatchCard(match, stats){
     return html;
 }
 
+function buildMatchNav(matches){
+    var list=document.getElementById('nav-list');
+    var html='';
+    matches.forEach(function(m,i){
+        var h=cn(m.home_team), a=cn(m.away_team);
+        var cls=m.status==='FT'?'ft':m.status==='NS'?'ns':'';
+        var score=m.status==='FT'?'<span class="ni-score">'+m.home_score+'-'+m.away_score+'</span>':'';
+        html+='<div class="nav-item '+cls+'" onclick="scrollToMatch('+i+')">'+h+'<span class="ni-vs">VS</span>'+a+score+'</div>';
+    });
+    list.innerHTML=html;
+}
+
+function scrollToMatch(idx){
+    isScrolling=true;
+    var navItems=document.querySelectorAll('.nav-item');
+    navItems.forEach(function(item){item.classList.remove('active');});
+    if(navItems[idx]) navItems[idx].classList.add('active');
+    var el=document.getElementById('match-'+idx);
+    if(!el) return;
+    var top=el.getBoundingClientRect().top+window.pageYOffset-80;
+    window.scrollTo({top:top,behavior:'smooth'});
+    setTimeout(function(){isScrolling=false;},800);
+}
+
+var isScrolling=false;
+
+function setupNavObserver(){
+    var navItems=document.querySelectorAll('.nav-item');
+    var cards=document.querySelectorAll('.match');
+    if(!cards.length) return;
+    var observer=new IntersectionObserver(function(entries){
+        if(isScrolling) return;
+        entries.forEach(function(entry){
+            if(entry.isIntersecting){
+                var id=entry.target.id.replace('match-','');
+                navItems.forEach(function(item){item.classList.remove('active');});
+                if(navItems[id]){
+                    navItems[id].classList.add('active');
+                    navItems[id].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+                }
+            }
+        });
+    },{rootMargin:'-20% 0px -60% 0px'});
+    cards.forEach(function(card){observer.observe(card);});
+}
+
 function toggleView(v){
     currentView=v;
     document.getElementById('btn-standings').className='btn'+(v==='standings'?' active':'');
@@ -1858,12 +1927,12 @@ function render(){
     // Show finished first
     var ft=dateMatches.filter(function(m){return m.status==='FT';});
     var ns=dateMatches.filter(function(m){return m.status!=='FT';});
-    if(ft.length>0){
-        ft.forEach(function(m){html+=buildMatchCard(m,stats);});
-    }
-    ns.forEach(function(m){html+=buildMatchCard(m,stats);});
+    var ordered=ft.concat(ns);
+    ordered.forEach(function(m,i){html+=buildMatchCard(m,stats,i);});
 
     main.innerHTML=html;
+    buildMatchNav(ordered);
+    setupNavObserver();
 }
 
 async function loadData(){
