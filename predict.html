@@ -2379,7 +2379,11 @@ function toggleView(v){
     currentView=v;
     document.getElementById('btn-standings').className='btn'+(v==='standings'?' active':'');
     document.getElementById('btn-predict').className='btn'+(v==='predict'?' active':'');
-    render();
+    if(v==='predict'){
+        resetToInitialState();
+    }else{
+        render();
+    }
 }
 
 function buildDateBar(){
@@ -2433,6 +2437,29 @@ function populateTeamFilter(){
     sel.innerHTML=html;
 }
 
+function resetToInitialState(){
+    selectedTeam='';
+    var today=new Date();
+    var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+    var hasToday=allMatches.some(function(m){return m.kickoff_time.indexOf(todayStr)===0;});
+    if(hasToday){
+        selectedDate=todayStr;
+    }else{
+        var dates={};
+        allMatches.forEach(function(m){
+            var d=m.kickoff_time.split(' ')[0];
+            dates[d]=1;
+        });
+        var sortedDates=Object.keys(dates).sort();
+        selectedDate=sortedDates[0];
+    }
+    var sel=document.getElementById('team-filter');
+    if(sel) sel.value='';
+    buildDateBar();
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function onTeamFilterChange(val){
     selectedTeam=val;
     if(val){
@@ -2448,22 +2475,8 @@ function onTeamFilterChange(val){
             selectedDate=nearestDate;
         }
     }else{
-        // 清空选择时恢复到今天的日期
-        var today=new Date();
-        var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-        var hasToday=allMatches.some(function(m){return m.kickoff_time.indexOf(todayStr)===0;});
-        if(hasToday){
-            selectedDate=todayStr;
-        }else{
-            // 如果没有今天的比赛，选择最近的日期
-            var dates={};
-            allMatches.forEach(function(m){
-                var d=m.kickoff_time.split(' ')[0];
-                dates[d]=1;
-            });
-            var sortedDates=Object.keys(dates).sort();
-            selectedDate=sortedDates[0];
-        }
+        resetToInitialState();
+        return;
     }
     buildDateBar();
     render();
