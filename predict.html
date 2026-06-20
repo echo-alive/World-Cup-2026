@@ -1828,8 +1828,8 @@ function findNearestMatchDay(allMs){
 }
 
 function buildStandings(matches){
-    // Dynamically infer groups from Round 1 match pairings using graph connectivity
-    var round1=matches.filter(function(m){return m.round==='Group Stage - 1';});
+    // Dynamically infer groups from all group stage matches using graph connectivity
+    var groupMatches=matches.filter(function(m){return m.round&&m.round.indexOf('Group Stage')===0;});
     // Build adjacency: team -> set of teams they play
     var adj={};
     function addEdge(a,b){
@@ -1837,7 +1837,7 @@ function buildStandings(matches){
         if(!adj[b]) adj[b]={};
         adj[a][b]=1; adj[b][a]=1;
     }
-    round1.forEach(function(m){ addEdge(m.home_team, m.away_team); });
+    groupMatches.forEach(function(m){ addEdge(m.home_team, m.away_team); });
 
     // BFS to find connected components of size 4
     var visited={};
