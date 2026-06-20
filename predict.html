@@ -2791,56 +2791,57 @@ function render(){
 
 async function loadData(){
     var el=document.getElementById('api-status');
+    if(!el) return;
     var scrollY=window.scrollY;
     el.className='api loading';el.textContent='获取数据中...';
     var apiUrl='https://www.26worldcup.cn/api/v1/cup/2026/schedule';
-    var retries=2;
-    for(var attempt=0;attempt<=retries;attempt++){
-        try{
-            var controller=new AbortController();
-            var timeoutId=setTimeout(function(){controller.abort();},8000);
-            var r=await fetch(apiUrl,{signal:controller.signal});
-            clearTimeout(timeoutId);
-            var d=await r.json();
-            if(d.code===0&&d.data.matches){
-                allMatches=d.data.matches;
-                var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
-                var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
-                el.className='api ok';
-                el.textContent='✅ 已连接 | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';
-                if(!selectedDate){
-                    var nearest=findNearestMatchDay(allMatches);
-                    if(nearest) selectedDate=nearest.date;
-                }
-                buildDateBar();
-                render();
-                setTimeout(function(){window.scrollTo(0,scrollY);},50);
-                return;
-            } else throw 0;
-        }catch(e){
-            if(attempt<retries){
-                el.textContent='⚠️ 重试中...('+(attempt+1)+'/'+retries+')';
-                await new Promise(function(r){setTimeout(r,1500);});
+    try{
+        var controller=new AbortController();
+        var timeoutId=setTimeout(function(){controller.abort();},10000);
+        var r=await fetch(apiUrl,{signal:controller.signal});
+        clearTimeout(timeoutId);
+        var d=await r.json();
+        if(d.code===0&&d.data&&d.data.matches){
+            allMatches=d.data.matches;
+            var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
+            var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
+            el.className='api ok';
+            el.textContent='✅ 已连接 | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';
+            if(!selectedDate){
+                var nearest=findNearestMatchDay(allMatches);
+                if(nearest) selectedDate=nearest.date;
             }
+            try{buildDateBar();}catch(e2){console.error('buildDateBar error:',e2);}
+            try{render();}catch(e3){console.error('render error:',e3);}
+            setTimeout(function(){window.scrollTo(0,scrollY);},50);
+            return;
+        } else {
+            el.className='api err';el.innerHTML='❌ API数据异常 <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
+            return;
         }
+    }catch(e){
+        console.error('loadData error:',e);
+        el.className='api err';el.innerHTML='❌ API连接失败('+e.message+') <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
     }
-    el.className='api err';el.innerHTML='❌ API连接失败 <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
 }
 
 async function initOdds(){
-    await fetchOdds();
-    if(Object.keys(oddsData).length>0){
-        var el=document.getElementById('api-status');
-        if(el) el.textContent+=' | 赔率:已获取('+Object.keys(oddsData).length+'场)';
-        render();
-    }
+    try{
+        await fetchOdds();
+        if(Object.keys(oddsData).length>0){
+            var el=document.getElementById('api-status');
+            if(el&&el.className.indexOf('ok')>=0) el.textContent+=' | 赔率:已获取('+Object.keys(oddsData).length+'场)';
+            try{render();}catch(e){console.error('render after odds:',e);}
+        }
+    }catch(e){console.error('initOdds error:',e);}
 }
 
+window.addEventListener('unhandledrejection',function(e){console.error('Unhandled promise rejection:',e.reason);});
 document.addEventListener('DOMContentLoaded', function(){
     loadData();
-    initOdds(); // Only fetch odds once on page load (cached for 1 hour)
+    initOdds();
+    setInterval(loadData, 60000);
 });
-setInterval(loadData, 60000); // Match data refreshes every 60s, odds cached
 </script>
 </body>
 </html>
