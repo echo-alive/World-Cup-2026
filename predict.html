@@ -2020,10 +2020,8 @@ function buildMatchCard(match, stats, idx){
 
     var html='';
     var matchId=match.id||idx;
-    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'" style="position:relative">';
-    html+='<button class="fav-btn'+(isFav(matchId)?' active':'')+'" onclick="event.stopPropagation();toggleFav('+matchId+',\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">'+(isFav(matchId)?'❤️':'🤍')+'</button>';
-    html+='<button class="share-btn" onclick="event.stopPropagation();shareMatch(\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">📤</button>';
-    html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span></div>';
+    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'">';
+    html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span>'+(isNS?'<span style="margin-left:auto;font-size:0.72rem;color:#3498db;cursor:pointer" onclick="event.stopPropagation();toggleCompare('+matchId+',\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">📊 对比</span>':'')+'</div>';
     html+='<div class="teams">';
     html+='<div class="team"><img class="logo" data-src="'+match.home_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(h)+'</div><div class="t-rank">FIFA #'+rk(h)+'</div></div>';
     html+=scoreHtml;
@@ -2637,6 +2635,23 @@ function buildTournamentAnalysis(matches){
     Object.keys(defChamp).forEach(function(y){defHtml+=y+' '+cn(defChamp[y])+' | ';});
     html+='<div class="stat-row"><span>历届冠军</span><span style="font-size:0.7rem">'+defHtml.slice(0,-3)+'</span></div>';
     html+='</div></div>';
+
+    // Prediction history
+    if(predHistory.length>0){
+        var hStats=getHistoryStats();
+        html+='<div class="section-title">📈 预测历史</div>';
+        html+='<div class="standings"><div class="group-card" style="grid-column:span 2">';
+        html+='<div class="stat-row"><span>总预测数</span><span>'+hStats.total+'</span></div>';
+        html+='<div class="stat-row"><span>正确数</span><span style="color:#2ecc71">'+hStats.correct+'</span></div>';
+        html+='<div class="stat-row"><span>准确率</span><span style="color:'+(hStats.rate>=60?'#2ecc71':'#f39c12')+'">'+hStats.rate+'%</span></div>';
+        html+='<div style="margin-top:10px;max-height:300px;overflow-y:auto">';
+        predHistory.slice(-20).reverse().forEach(function(h){
+            var cls=h.actual?(h.actual===h.pred?'history-correct':'history-wrong'):'history-pending';
+            var status=h.actual?(h.actual===h.pred?'✅':'❌'):'⏳';
+            html+='<div class="history-item"><span>'+cn(h.home)+' vs '+cn(h.away)+'</span><span style="color:#f39c12">'+h.pred+'</span><span>'+(h.actual||'待验证')+'</span><span class="'+cls+'">'+status+'</span></div>';
+        });
+        html+='</div></div></div>';
+    }
 
     return html;
 }
