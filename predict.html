@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="select2.min.css">
+    <script src="jquery.min.js"></script>
+    <script src="select2.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
@@ -21,13 +21,15 @@
         .b-ns{background:linear-gradient(135deg,#8e44ad,#9b59b6)}
         .ctrls{display:flex;justify-content:center;gap:10px;margin-top:15px;flex-wrap:wrap}
         .team-filter{min-width:160px}
-        .select2-container--default .select2-selection--single{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;height:34px}
-        .select2-container--default .select2-selection--single .select2-selection__rendered{color:#fff;line-height:32px}
-        .select2-container--default .select2-selection--single .select2-selection__arrow b{border-color:#888 transparent transparent transparent}
-        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b{border-color:transparent transparent #888 transparent}
-        .select2-dropdown{background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.15);border-radius:8px}
+        .select2-container{width:100%!important}
+        .select2-container .select2-selection--single{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#fff;height:36px;padding:0 20px}
+        .select2-container .select2-selection--single .select2-selection__rendered{color:#fff;line-height:34px;padding:0}
+        .select2-container .select2-selection--single .select2-selection__arrow{height:34px;right:10px}
+        .select2-container .select2-selection--single .select2-selection__arrow b{border-color:#888 transparent transparent transparent}
+        .select2-container.select2-container--open .select2-selection--single .select2-selection__arrow b{border-color:transparent transparent #888 transparent}
+        .select2-dropdown{background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.2);border-radius:12px}
         .select2-search__field{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fff}
-        .select2-results__option{color:#fff}
+        .select2-results__option{color:#fff;padding:8px 15px}
         .select2-results__option--highlighted{background:rgba(52,152,219,0.8)}
         .select2-container--default .select2-results__option--selected{background:rgba(52,152,219,0.4)}
         .btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s}
