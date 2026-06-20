@@ -83,6 +83,25 @@
         .bar-away{background:#e74c3c;float:right}
         .players{display:flex;flex-wrap:wrap;gap:4px}
         .pl{background:rgba(255,255,255,0.08);padding:3px 7px;border-radius:8px;font-size:0.72rem}
+        .prob-bar{height:6px;border-radius:3px;margin:3px 0;transition:width 0.5s}
+        .prob-bar.over{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+        .prob-bar.under{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+        .prob-row{display:flex;align-items:center;gap:8px;font-size:0.78rem;padding:2px 0}
+        .prob-label{width:60px;color:#888;flex-shrink:0}
+        .prob-val{width:40px;text-align:right;font-weight:bold;flex-shrink:0}
+        .rest-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:bold}
+        .rest-good{background:rgba(39,174,96,0.2);color:#27ae60}
+        .rest-ok{background:rgba(243,156,18,0.2);color:#f39c12}
+        .rest-bad{background:rgba(231,76,60,0.2);color:#e74c3c}
+        .bracket{display:flex;flex-direction:column;gap:8px}
+        .bracket-r{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+        .bracket-m{background:rgba(0,0,0,0.25);border-radius:6px;padding:6px 8px;font-size:0.75rem}
+        .bracket-m .bm-teams{display:flex;justify-content:space-between;color:#ccc}
+        .bracket-m .bm-w{color:#f39c12;font-weight:bold}
+        .bracket-r-title{color:#f39c12;font-size:0.85rem;font-weight:bold;margin:8px 0 4px;text-align:center}
+        .champion-box{text-align:center;padding:16px;background:linear-gradient(135deg,rgba(243,156,18,0.15),rgba(231,76,60,0.1));border:1px solid rgba(243,156,18,0.3);border-radius:12px;margin-top:12px}
+        .champion-box .c-name{font-size:1.3rem;font-weight:bold;color:#f39c12;margin-top:6px}
+        .champion-box .c-prob{font-size:0.85rem;color:#888}
 
         .pred{background:linear-gradient(135deg,rgba(243,156,18,0.25),rgba(231,76,60,0.25));border:2px solid rgba(243,156,18,0.5);border-radius:12px;padding:18px;margin-top:18px}
         .pred h4{color:#f1c40f;text-align:center;margin-bottom:12px;font-size:0.95rem}
@@ -233,7 +252,189 @@ var TEAM_KEY = {
     'Curaçao':['巴库纳','马西亚诺','纳瓦罗']
 };
 
-function cn(name){ return TEAM_CN[name] || name; }
+var TEAM_ELO={
+    'Argentina':2145,'France':2065,'England':2040,'Brazil':2070,'Spain':2060,
+    'Netherlands':1990,'Portugal':2010,'Colombia':1895,'Uruguay':1965,'Germany':1970,
+    'Croatia':1850,'Morocco':1775,'Japan':1745,'USA':1800,'Switzerland':1840,
+    'Mexico':1790,'Senegal':1735,'Australia':1680,'Egypt':1700,'Ecuador':1720,
+    'Algeria':1575,'Austria':1640,'Norway':1740,'Belgium':1820,'Scotland':1635,
+    'Saudi Arabia':1545,'Paraguay':1555,'Ivory Coast':1560,'Tunisia':1540,
+    'South Korea':1685,'Iran':1630,'Czechia':1695,'Congo DR':1520,'Panama':1510,
+    'Bosnia & Herzegovina':1535,'Canada':1650,'Ghana':1525,'Iraq':1480,'Qatar':1505,
+    'Haiti':1380,'South Africa':1455,'New Zealand':1360,'Jordan':1440,
+    'Cape Verde Islands':1400,'Uzbekistan':1465,'Türkiye':1755,'Curaçao':1350
+};
+
+var TEAM_XG={
+    'Argentina':1.8,'France':2.0,'England':1.9,'Brazil':1.85,'Spain':1.75,
+    'Netherlands':1.7,'Portugal':1.8,'Colombia':1.4,'Uruguay':1.6,'Germany':1.7,
+    'Croatia':1.5,'Morocco':1.3,'Japan':1.5,'USA':1.4,'Switzerland':1.3,
+    'Mexico':1.3,'Senegal':1.35,'Australia':1.1,'Egypt':1.2,'Ecuador':1.25,
+    'Algeria':1.15,'Austria':1.2,'Norway':1.6,'Belgium':1.5,'Scotland':1.1,
+    'Saudi Arabia':1.0,'Paraguay':1.05,'Ivory Coast':1.15,'Tunisia':1.0,
+    'South Korea':1.4,'Iran':1.1,'Czechia':1.25,'Congo DR':1.0,'Panama':0.9,
+    'Bosnia & Herzegovina':1.1,'Canada':1.2,'Ghana':1.1,'Iraq':0.95,'Qatar':1.0,
+    'Haiti':0.7,'South Africa':0.9,'New Zealand':0.7,'Jordan':0.85,
+    'Cape Verde Islands':0.8,'Uzbekistan':0.95,'Türkiye':1.45,'Curaçao':0.65
+};
+
+var TEAM_CONCEDED={
+    'Argentina':0.6,'France':0.8,'England':0.5,'Brazil':0.7,'Spain':0.6,
+    'Netherlands':0.7,'Portugal':0.8,'Colombia':0.9,'Uruguay':0.7,'Germany':0.9,
+    'Croatia':1.0,'Morocco':0.6,'Japan':0.9,'USA':1.0,'Switzerland':0.8,
+    'Mexico':1.0,'Senegal':0.9,'Australia':1.1,'Egypt':1.0,'Ecuador':0.9,
+    'Algeria':1.0,'Austria':1.1,'Norway':1.0,'Belgium':1.1,'Scotland':1.2,
+    'Saudi Arabia':1.3,'Paraguay':1.2,'Ivory Coast':1.1,'Tunisia':1.0,
+    'South Korea':0.9,'Iran':1.0,'Czechia':1.0,'Congo DR':1.2,'Panama':1.4,
+    'Bosnia & Herzegovina':1.2,'Canada':1.1,'Ghana':1.2,'Iraq':1.3,'Qatar':1.2,
+    'Haiti':1.8,'South Africa':1.4,'New Zealand':1.6,'Jordan':1.5,
+    'Cape Verde Islands':1.3,'Uzbekistan':1.2,'Türkiye':1.0,'Curaçao':1.8
+};
+
+var TEAM_HTGF={
+    'Argentina':0.9,'France':1.0,'England':0.9,'Brazil':0.9,'Spain':0.8,
+    'Netherlands':0.8,'Portugal':0.9,'Colombia':0.7,'Uruguay':0.8,'Germany':0.8,
+    'Croatia':0.7,'Morocco':0.6,'Japan':0.7,'USA':0.7,'Switzerland':0.6,
+    'Mexico':0.6,'Senegal':0.7,'Australia':0.5,'Egypt':0.6,'Ecuador':0.6,
+    'Algeria':0.6,'Austria':0.6,'Norway':0.8,'Belgium':0.7,'Scotland':0.5,
+    'Saudi Arabia':0.5,'Paraguay':0.5,'Ivory Coast':0.6,'Tunisia':0.5,
+    'South Korea':0.7,'Iran':0.5,'Czechia':0.6,'Congo DR':0.5,'Panama':0.4,
+    'Bosnia & Herzegovina':0.5,'Canada':0.6,'Ghana':0.5,'Iraq':0.4,'Qatar':0.5,
+    'Haiti':0.3,'South Africa':0.4,'New Zealand':0.3,'Jordan':0.4,
+    'Cape Verde Islands':0.4,'Uzbekistan':0.5,'Türkiye':0.7,'Curaçao':0.3
+};
+
+var WC_HISTORY={
+    'defenderFinal':{2002:'Brazil',2006:'Italy',2010:'Spain',2014:'Germany',2018:'France',2022:'Argentina'},
+    'thirdPlaceGroup':60,
+    'minPtsAdvance':4,
+    'avgGoalsPerMatch':2.6
+};
+
+function eloWinProb(eloA,eloB){
+    var ea=Math.pow(10,eloA/400), eb=Math.pow(10,eloB/400);
+    return ea/(ea+eb);
+}
+
+function getTeamStrength(name){
+    var elo=TEAM_ELO[name]||1500;
+    var xg=TEAM_XG[name]||1.0;
+    var conc=TEAM_CONCEDED[name]||1.2;
+    return elo*0.6+(xg*500-conc*200)*0.4;
+}
+
+function predictScore(home,away){
+    var eloH=TEAM_ELO[home]||1500, eloA=TEAM_ELO[away]||1500;
+    var homeAdv=60;
+    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
+    var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
+    var ph=eloWinProb(eloH+homeAdv,eloA);
+    var avgH=(xgH+concA)/2;
+    var avgA=(xgA+concH)/2;
+    var h=Math.round(avgH*10)/10;
+    var a=Math.round(avgA*10)/10;
+    return {home:Math.round(h*10)/10,away:Math.round(a*10)/10,homeWin:Math.round(ph*100),draw:Math.round((1-ph-eloWinProb(eloA,eloH+homeAdv))*100),awayWin:Math.round(eloWinProb(eloA,eloH+homeAdv)*100)};
+}
+
+function predictOverUnder(home,away){
+    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
+    var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
+    var avgGoals=((xgH+concA)/2)+((xgA+concH)/2);
+    var over25=Math.min(95,Math.max(5,Math.round((avgGoals-2.0)*50+50)));
+    return {avg:avgGoals.toFixed(1),over25:over25,under25:100-over25};
+}
+
+function predictHalfTime(home,away){
+    var htH=TEAM_HTGF[home]||0.5, htA=TEAM_HTGF[away]||0.5;
+    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
+    var htRatio=0.42;
+    var htGoals=(htH+htA)*htRatio;
+    var htHome=htH*htRatio;
+    var htAway=htA*htRatio;
+    var hWin=Math.round(eloWinProb((TEAM_ELO[home]||1500)+40,(TEAM_ELO[away]||1500))*50);
+    var aWin=Math.round(eloWinProb((TEAM_ELO[away]||1500),(TEAM_ELO[home]||1500)+40)*50);
+    var draw=100-hWin-aWin;
+    return {avgGoals:htGoals.toFixed(1),htHome:htHome.toFixed(1),htAway:htAway.toFixed(1),hWin:hWin,draw:Math.max(0,draw),aWin:aWin};
+}
+
+function calcRestDays(matches,team){
+    var played=matches.filter(function(m){return m.status==='FT'&&(m.home_team===team||m.away_team===team);});
+    if(played.length===0) return {days:0,lastDate:'-'};
+    played.sort(function(a,b){return b.kickoff_time.localeCompare(a.kickoff_time);});
+    var last=played[0].kickoff_time.split(' ')[0];
+    var today=new Date();
+    var lastDate=new Date(last);
+    var diff=Math.floor((today-lastDate)/(1000*60*60*24));
+    return {days:Math.max(0,diff),lastDate:last};
+}
+
+function getAdvancementProb(groupTeams,remainingMatches,team){
+    var pts=groupTeams[team]?groupTeams[team].pts:0;
+    var played=groupTeams[team]?groupTeams[team].p:0;
+    var remaining=3-played;
+    var maxPts=pts+remaining*3;
+    var prob=0;
+    if(maxPts<3) prob=0;
+    else if(maxPts>=9) prob=95;
+    else if(maxPts>=7) prob=75+Math.min(20,remaining*5);
+    else if(maxPts>=6) prob=55+Math.min(25,remaining*8);
+    else if(maxPts>=4) prob=30+Math.min(20,remaining*10);
+    else prob=5+remaining*5;
+    if(pts>=6) prob=Math.max(prob,85);
+    else if(pts>=4) prob=Math.max(prob,55);
+    else if(pts>=3) prob=Math.max(prob,25);
+    else if(pts>=1) prob=Math.max(prob,10);
+    return Math.min(99,Math.max(1,prob));
+}
+
+function simulateKnockout(teams){
+    if(teams.length<16) return [];
+    var bracket=[];
+    var order=[0,7,3,4,1,6,2,5];
+    for(var r=0;r<8;r++){
+        var t1=teams[order[r*2]];
+        var t2=teams[order[r*2+1]];
+        var p1=eloWinProb(TEAM_ELO[t1]||1500,TEAM_ELO[t2]||1500);
+        bracket.push({home:t1,away:t2,homeProb:Math.round(p1*100),awayProb:Math.round((1-p1)*100),winner:p1>0.5?t1:t2});
+    }
+    var qf=[];
+    for(var r2=0;r2<4;r2++){
+        var w1=bracket[r2*2].winner;
+        var w2=bracket[r2*2+1].winner;
+        var pw=eloWinProb(TEAM_ELO[w1]||1500,TEAM_ELO[w2]||1500);
+        qf.push({home:w1,away:w2,homeProb:Math.round(pw*100),awayProb:Math.round((1-pw)*100),winner:pw>0.5?w1:w2});
+    }
+    var sf=[];
+    for(var r3=0;r3<2;r3++){
+        var w3=qf[r3*2].winner;
+        var w4=qf[r3*2+1].winner;
+        var pw2=eloWinProb(TEAM_ELO[w3]||1500,TEAM_ELO[w4]||1500);
+        sf.push({home:w3,away:w4,homeProb:Math.round(pw2*100),awayProb:Math.round((1-pw2)*100),winner:pw2>0.5?w3:w4});
+    }
+    var fw=eloWinProb(TEAM_ELO[sf[0].winner]||1500,TEAM_ELO[sf[1].winner]||1500);
+    var final_={home:sf[0].winner,away:sf[1].winner,homeProb:Math.round(fw*100),awayProb:Math.round((1-fw)*100),champion:fw>0.5?sf[0].winner:sf[1].winner};
+    return {r16:bracket,qf:qf,sf:sf,final:final_};
+}
+
+function getTournamentWinProb(teams){
+    var probs=[];
+    teams.forEach(function(t){
+        var elo=TEAM_ELO[t]||1500;
+        var prob=Math.pow(10,elo/400);
+        probs.push({team:t,prob:prob});
+    });
+    var total=probs.reduce(function(s,p){return s+p.prob;},0);
+    probs.forEach(function(p){p.prob=Math.round(p.prob/total*1000)/10;});
+    probs.sort(function(a,b){return b.prob-a.prob;});
+    return probs.slice(0,10);
+}
+
+function cn(name){
+    if(TEAM_CN[name]) return TEAM_CN[name];
+    var en;
+    Object.keys(TEAM_CN).forEach(function(k){if(TEAM_CN[k]===name) en=k;});
+    return en||name;
+}
 function rk(name){
     if(TEAM_RANK[name]) return TEAM_RANK[name];
     var en;
@@ -1582,7 +1783,7 @@ function buildGroupImpact(matches, homeTeam, awayTeam){
     html+='<div onclick="var el=document.getElementById(\''+uid+'\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=el.style.display===\'none\'?\'▶\' :\'▼\'" style="color:#bbb;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;padding:8px 0"><span style="font-size:0.65rem">▶</span> 小组排名影响分析</div>';
     html+='<div id="'+uid+'">';
     results.forEach(function(r,i){
-        var ranked=simulateGroupImpact(grp,r==='H'?homeTeam:awayTeam,r==='A'?awayTeam:homeTeam,r);
+        var ranked=simulateGroupImpact(grp,homeTeam,awayTeam,r);
         html+='<div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px 10px;margin-bottom:12px;border-left:3px solid '+colors[i]+'">';
         html+='<div style="color:'+colors[i]+';font-weight:bold;font-size:0.82rem;margin-bottom:4px">'+labels[i]+'</div>';
         ranked.forEach(function(t,idx){
@@ -1786,6 +1987,66 @@ function buildMatchCard(match, stats, idx){
         html+=buildGroupImpact(allMatches,h,a);
     }
 
+    // ELO Power Index & Advanced Predictions for NS matches
+    if(isNS){
+        var elo1=TEAM_ELO[h]||1500, elo2=TEAM_ELO[a]||1500;
+        var pred=predictScore(h,a);
+        var ou=predictOverUnder(h,a);
+        var ht=predictHalfTime(h,a);
+        var rest1=calcRestDays(allMatches,h);
+        var rest2=calcRestDays(allMatches,a);
+        var eloAdv=elo1>elo2?(elo1-elo2):-(elo2-elo1);
+
+        // Power Index
+        html+='<div class="box full"><h4>⚡ 实力指数对比</h4>';
+        html+='<div class="stat-row"><span>'+cn(h)+'</span><span>指标</span><span>'+cn(a)+'</span></div>';
+        html+='<div class="stat-row"><span>'+elo1+'</span><span>ELO评分</span><span>'+elo2+'</span></div>';
+        html+='<div class="stat-row"><span>'+(TEAM_XG[h]||'--')+'</span><span>场均xG</span><span>'+(TEAM_XG[a]||'--')+'</span></div>';
+        html+='<div class="stat-row"><span>'+(TEAM_CONCEDED[h]||'--')+'</span><span>场均失球</span><span>'+(TEAM_CONCEDED[a]||'--')+'</span></div>';
+        html+='<div class="stat-row"><span style="color:'+(elo1>elo2?'#2ecc71':'#e74c3c')+'">'+(elo1>elo2?'+'+eloAdv:eloAdv)+'</span><span>ELO差值</span><span style="color:'+(elo2>elo1?'#2ecc71':'#e74c3c')+'">'+(elo2>elo1?'+'+eloAdv:eloAdv)+'</span></div>';
+        html+='</div>';
+
+        // Rest days
+        html+='<div class="box full"><h4>💪 体能状态</h4>';
+        html+='<div style="display:flex;justify-content:space-around;text-align:center">';
+        var r1c=rest1.days<=3?'rest-good':rest1.days<=5?'rest-ok':'rest-bad';
+        var r2c=rest2.days<=3?'rest-good':rest2.days<=5?'rest-ok':'rest-bad';
+        html+='<div><div style="font-size:0.8rem;color:#888">'+cn(h)+'</div><span class="rest-badge '+r1c+'">休息'+rest1.days+'天</span><div style="color:#666;font-size:0.7rem;margin-top:4px">上次: '+rest1.lastDate+'</div></div>';
+        html+='<div style="color:#555;font-size:0.9rem">VS</div>';
+        html+='<div><div style="font-size:0.8rem;color:#888">'+cn(a)+'</div><span class="rest-badge '+r2c+'">休息'+rest2.days+'天</span><div style="color:#666;font-size:0.7rem;margin-top:4px">上次: '+rest2.lastDate+'</div></div>';
+        html+='</div></div>';
+
+        // Over/Under
+        html+='<div class="box full"><h4>📊 大小球预测</h4>';
+        html+='<div style="text-align:center;margin-bottom:8px"><span style="font-size:1.3rem;font-weight:bold;color:#f39c12">'+ou.avg+'</span><span style="color:#888;font-size:0.8rem;margin-left:4px">预计总进球</span></div>';
+        html+='<div class="prob-row"><span class="prob-label">大 2.5</span><div style="flex:1"><div class="prob-bar over" style="width:'+ou.over25+'%"></div></div><span class="prob-val" style="color:#2ecc71">'+ou.over25+'%</span></div>';
+        html+='<div class="prob-row"><span class="prob-label">小 2.5</span><div style="flex:1"><div class="prob-bar under" style="width:'+ou.under25+'%"></div></div><span class="prob-val" style="color:#e74c3c">'+ou.under25+'%</span></div>';
+        html+='</div>';
+
+        // Half-time
+        html+='<div class="box full"><h4>⏱️ 半场预测</h4>';
+        html+='<div style="text-align:center;margin-bottom:8px"><span style="color:#888;font-size:0.78rem">预计半场总进球 </span><span style="font-size:1.1rem;font-weight:bold;color:#f39c12">'+ht.avgGoals+'</span></div>';
+        html+='<div style="display:flex;justify-content:center;gap:16px;font-size:0.8rem">';
+        html+='<div><span style="color:#2ecc71">'+cn(h)+'胜</span> <b>'+ht.hWin+'%</b></div>';
+        html+='<div><span style="color:#f1c40f">平局</span> <b>'+ht.draw+'%</b></div>';
+        html+='<div><span style="color:#e74c3c">'+cn(a)+'胜</span> <b>'+ht.aWin+'%</b></div>';
+        html+='</div></div>';
+
+        // Group advancement prob
+        var grp=getGroupForTeams(allMatches,h,a);
+        if(grp){
+            html+='<div class="box full"><h4>晋级概率分析</h4>';
+            var gTeams=grp.teams;
+            var hProb=getAdvancementProb(gTeams,allMatches,h);
+            var aProb=getAdvancementProb(gTeams,allMatches,a);
+            html+='<div style="display:flex;justify-content:space-around;text-align:center">';
+            html+='<div><div style="font-size:0.8rem;color:#888">'+cn(h)+'</div><div style="font-size:1.5rem;font-weight:bold;color:'+(hProb>=60?'#2ecc71':hProb>=30?'#f39c12':'#e74c3c')+'">'+hProb+'%</div></div>';
+            html+='<div style="color:#555">小组出线率</div>';
+            html+='<div><div style="font-size:0.8rem;color:#888">'+cn(a)+'</div><div style="font-size:1.5rem;font-weight:bold;color:'+(aProb>=60?'#2ecc71':aProb>=30?'#f39c12':'#e74c3c')+'">'+aProb+'%</div></div>';
+            html+='</div></div>';
+        }
+    }
+
     html+='</div>';
     return html;
 }
@@ -1883,12 +2144,115 @@ function selectDate(d){
     render();
 }
 
+function buildTournamentAnalysis(matches){
+    var html='';
+    var allTeams=[];
+    Object.keys(TEAM_ELO).forEach(function(t){allTeams.push(t);});
+
+    // 1. Tournament win probability
+    var winProb=getTournamentWinProb(allTeams);
+    html+='<div class="section-title">🏆 夺冠概率排名</div>';
+    html+='<div class="standings"><div class="group-card" style="grid-column:span 2"><table><tr><th>#</th><th>球队</th><th>ELO</th><th>夺冠概率</th><th></th></tr>';
+    winProb.forEach(function(wp,i){
+        var barW=Math.max(5,wp.prob*2);
+        html+='<tr><td>'+(i+1)+'</td><td>'+cn(wp.team)+'</td><td>'+TEAM_ELO[wp.team]+'</td><td><b style="color:#f39c12">'+wp.prob+'%</b></td><td><div class="bar-wrap" style="width:120px;display:inline-block;vertical-align:middle"><div class="bar" style="width:'+barW+'%;background:linear-gradient(90deg,#f39c12,#e74c3c)"></div></div></td></tr>';
+    });
+    html+='</table></div></div>';
+
+    // 2. Best 3rd place analysis
+    var groups={};
+    var round1=matches.filter(function(m){return m.round&&m.round.indexOf('Group')===0;});
+    var adj={};
+    function addEdge(a,b){if(!adj[a])adj[a]={};if(!adj[b])adj[b]={};adj[a][b]=1;adj[b][a]=1;}
+    round1.forEach(function(m){addEdge(m.home_team,m.away_team);});
+    var visited={};var gLetters='ABCDEFGHIJKL'.split('');var gIdx=0;
+    Object.keys(adj).forEach(function(t){
+        if(visited[t])return;
+        var comp=[];var queue=[t];visited[t]=1;
+        while(queue.length>0){var cur=queue.shift();comp.push(cur);Object.keys(adj[cur]).forEach(function(nb){if(!visited[nb]){visited[nb]=1;queue.push(nb);}});}
+        if(comp.length>=2&&gIdx<12){var g=gLetters[gIdx++];groups[g]={};comp.forEach(function(team){groups[g][team]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};});}
+    });
+    matches.forEach(function(m){
+        if(m.status!=='FT')return;
+        var hh=m.home_team,aa=m.away_team;var g=null;
+        Object.keys(groups).forEach(function(k){if(groups[k][hh])g=k;});
+        if(!g||!groups[g][hh]||!groups[g][aa])return;
+        var hs=m.home_score||0,as=m.away_score||0;
+        var t1=groups[g][hh],t2=groups[g][aa];
+        t1.p++;t2.p++;t1.gf+=hs;t1.ga+=as;t2.gf+=as;t2.ga+=hs;
+        if(hs>as){t1.w++;t1.pts+=3;t2.l++;}
+        else if(hs===as){t1.d++;t2.d++;t1.pts+=1;t2.pts+=1;}
+        else{t1.l++;t2.w++;t2.pts+=3;}
+    });
+    var thirds=[];
+    Object.keys(groups).forEach(function(g){
+        var teams=Object.keys(groups[g]).map(function(t){var s=groups[g][t];s.gd=s.gf-s.ga;s.name=t;return s;});
+        teams.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+        if(teams[2]) thirds.push(teams[2]);
+    });
+    thirds.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+    html+='<div class="section-title">📋 最佳第三名排名（前8晋级）</div>';
+    html+='<div class="standings"><div class="group-card" style="grid-column:span 2"><table><tr><th>#</th><th>球队</th><th>小组</th><th>积分</th><th>净胜球</th><th>状态</th></tr>';
+    thirds.forEach(function(t,i){
+        var status=i<8?'✅晋级':'❌出局';
+        var sColor=i<8?'#2ecc71':'#e74c3c';
+        var gLetter='';
+        Object.keys(groups).forEach(function(g){if(groups[g][t.name])gLetter=g;});
+        html+='<tr><td>'+(i+1)+'</td><td>'+cn(t.name)+'</td><td>'+gLetter+'</td><td><b>'+t.pts+'</b></td><td>'+(t.gd>0?'+':'')+t.gd+'</td><td style="color:'+sColor+'">'+status+'</td></tr>';
+    });
+    html+='</table></div></div>';
+
+    // 3. Knockout bracket simulation
+    var advanceTeams=[];
+    Object.keys(groups).forEach(function(g){
+        var teams=Object.keys(groups[g]).map(function(t){var s=groups[g][t];s.gd=s.gf-s.ga;s.name=t;return s;});
+        teams.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+        if(teams[0]) advanceTeams.push(teams[0].name);
+        if(teams[1]) advanceTeams.push(teams[1].name);
+    });
+    advanceTeams=advanceTeams.concat(thirds.slice(0,8).map(function(t){return t.name;}));
+    if(advanceTeams.length>=16){
+        var bracket=simulateKnockout(advanceTeams);
+        html+='<div class="section-title">🏅 淘汰赛对阵推演</div>';
+        html+='<div class="bracket">';
+        var roundNames=['16强','8强','半决赛','决赛'];
+        [bracket.r16,bracket.qf,bracket.sf,[bracket.final]].forEach(function(round,ri){
+            html+='<div class="bracket-r-title">'+roundNames[ri]+'</div><div class="bracket-r">';
+            round.forEach(function(m){
+                html+='<div class="bracket-m"><div class="bm-teams"><span'+(m.winner===m.home?' class="bm-w"':'')+'>'+cn(m.home)+'</span><span style="color:#555">'+m.homeProb+'%</span></div>';
+                html+='<div class="bm-teams"><span'+(m.winner===m.away?' class="bm-w"':'')+'>'+cn(m.away)+'</span><span style="color:#555">'+m.awayProb+'%</span></div></div>';
+            });
+            html+='</div>';
+        });
+        html+='<div class="champion-box">🏆 预测冠军<div class="c-name">'+cn(bracket.final.champion)+'</div><div class="c-prob">夺冠概率 '+bracket.final.homeProb+'%</div></div>';
+        html+='</div>';
+    }
+
+    // 4. Historical patterns
+    html+='<div class="section-title">📜 历史规律</div>';
+    html+='<div class="standings"><div class="group-card" style="grid-column:span 2">';
+    html+='<div class="stat-row"><span>世界杯场均进球</span><span>'+WC_HISTORY.avgGoalsPerMatch+'</span></div>';
+    html+='<div class="stat-row"><span>第三名出线历史概率</span><span>'+WC_HISTORY.thirdPlaceGroup+'%</span></div>';
+    html+='<div class="stat-row"><span>最低出线积分(历史)</span><span>'+WC_HISTORY.minPtsAdvance+'分</span></div>';
+    html+='<div class="stat-row"><span>卫冕冠军进决赛率</span><span>约30%</span></div>';
+    html+='<div class="stat-row"><span>东道主进四强率</span><span>约45%</span></div>';
+    var defChamp=WC_HISTORY.defenderFinal;
+    var defHtml='近6届: ';
+    Object.keys(defChamp).forEach(function(y){defHtml+=y+' '+cn(defChamp[y])+' | ';});
+    html+='<div class="stat-row"><span>历届冠军</span><span style="font-size:0.7rem">'+defHtml.slice(0,-3)+'</span></div>';
+    html+='</div></div>';
+
+    return html;
+}
+
 function render(){
     var main=document.getElementById('main');
     if(allMatches.length===0) return;
 
     if(currentView==='standings'){
-        main.innerHTML=buildStandings(allMatches);
+        var html=buildStandings(allMatches);
+        html+=buildTournamentAnalysis(allMatches);
+        main.innerHTML=html;
         return;
     }
 
