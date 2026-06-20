@@ -36,19 +36,21 @@
         .nav-item .ni-score{color:#f39c12;font-weight:bold;font-size:0.74rem}
         .nav-item .ni-vs{color:#27ae60;font-weight:bold;font-size:0.74rem;margin:0 4px}
         .nav-item.active,.nav-item.active.ns{background:rgba(243,156,18,0.3);border-color:#f39c12;color:#fff;box-shadow:0 0 12px rgba(243,156,18,0.4)}
-        .section-title{font-size:1.1rem;margin:25px 0 15px;padding-left:12px;border-left:3px solid #f39c12}
+        .section-title{font-size:1.1rem;margin:25px 0 15px;padding:10px 14px;border-left:4px solid #f39c12;background:rgba(243,156,18,0.06);border-radius:0 8px 8px 0}
 
         .standings{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
-        .group-card{background:rgba(255,255,255,0.05);border-radius:12px;padding:15px;border:1px solid rgba(255,255,255,0.08)}
+        .group-card{background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.15);transition:all 0.2s}
+        .group-card:hover{border-color:rgba(255,255,255,0.15);box-shadow:0 4px 15px rgba(0,0,0,0.2)}
         .group-card h3{color:#f39c12;font-size:0.9rem;margin-bottom:10px;text-align:center}
-        .group-card table{width:100%;font-size:0.78rem;border-collapse:collapse}
-        .group-card th{text-align:left;color:#888;padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.1)}
-        .group-card td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.05)}
-        .group-card tr.q {color:#27ae60;font-weight:bold}
+        .group-card table{width:100%;font-size:0.8rem;border-collapse:collapse}
+        .group-card th{text-align:left;color:#999;padding:6px 8px;border-bottom:2px solid rgba(255,255,255,0.1);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px}
+        .group-card td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.05)}
+        .group-card tr.q{color:#2ecc70;font-weight:bold}
+        .group-card tr:hover{background:rgba(255,255,255,0.03)}
         .gd-pos{color:#27ae60}.gd-neg{color:#e74c3c}.gd-zero{color:#888}
 
-        .match{background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;margin:15px 0;border:1px solid rgba(255,255,255,0.08);transition:all 0.3s}
-        .match:hover{border-color:rgba(243,156,18,0.3)}
+        .match{background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border-radius:16px;padding:20px;margin:15px 0;border:1px solid rgba(255,255,255,0.08);transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+        .match:hover{border-color:rgba(243,156,18,0.3);box-shadow:0 4px 15px rgba(0,0,0,0.15);transform:translateY(-1px)}
         .match.ft{border-left:3px solid #27ae60}
         .match.live{border-left:3px solid #e74c3c}
         .match.ns{border-left:3px solid #3498db}
@@ -69,54 +71,56 @@
         .score-sub{font-size:0.75rem;color:#888}
 
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
-        .box{background:rgba(0,0,0,0.3);border-radius:10px;padding:12px}
+        .box{background:linear-gradient(135deg,rgba(0,0,0,0.35),rgba(15,12,41,0.35));border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;transition:all 0.2s}
+        .box:hover{border-color:rgba(255,255,255,0.12)}
         .box.full{grid-column:span 2}
-        .box h4{color:#f39c12;margin-bottom:8px;font-size:0.85rem}
-        .stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.8rem;color:#ccc}
+        .box h4{color:#f39c12;margin-bottom:10px;font-size:0.88rem;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)}
+        .stat-row{display:flex;justify-content:space-between;padding:4px 0;font-size:0.8rem;color:#ccc}
         .stat-row span{flex:1}
         .stat-row span:first-child{text-align:left;font-weight:bold;color:#fff}
-        .stat-row span:nth-child(2){text-align:center;color:#888}
+        .stat-row span:nth-child(2){text-align:center;color:#999;font-size:0.75rem}
         .stat-row span:last-child{text-align:right;font-weight:bold;color:#fff}
-        .bar-wrap{background:rgba(255,255,255,0.1);border-radius:4px;height:6px;margin-top:4px}
+        .bar-wrap{background:rgba(255,255,255,0.08);border-radius:4px;height:6px;margin-top:4px}
         .bar{height:100%;border-radius:4px;transition:width 0.5s}
         .bar-home{background:#3498db;float:left}
         .bar-away{background:#e74c3c;float:right}
         .players{display:flex;flex-wrap:wrap;gap:4px}
         .pl{background:rgba(255,255,255,0.08);padding:3px 7px;border-radius:8px;font-size:0.72rem}
-        .prob-bar{height:6px;border-radius:3px;margin:3px 0;transition:width 0.5s}
+        .prob-bar{height:8px;border-radius:4px;margin:4px 0;transition:width 0.5s;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
         .prob-bar.over{background:linear-gradient(90deg,#27ae60,#2ecc71)}
         .prob-bar.under{background:linear-gradient(90deg,#e74c3c,#c0392b)}
-        .prob-row{display:flex;align-items:center;gap:8px;font-size:0.78rem;padding:2px 0}
-        .prob-label{width:60px;color:#888;flex-shrink:0}
-        .prob-val{width:40px;text-align:right;font-weight:bold;flex-shrink:0}
-        .rest-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:bold}
-        .rest-good{background:rgba(39,174,96,0.2);color:#27ae60}
-        .rest-ok{background:rgba(243,156,18,0.2);color:#f39c12}
-        .rest-bad{background:rgba(231,76,60,0.2);color:#e74c3c}
-        .bracket{display:flex;flex-direction:column;gap:8px}
-        .bracket-r{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
-        .bracket-m{background:rgba(0,0,0,0.25);border-radius:6px;padding:6px 8px;font-size:0.75rem}
-        .bracket-m .bm-teams{display:flex;justify-content:space-between;color:#ccc}
-        .bracket-m .bm-w{color:#f39c12;font-weight:bold}
-        .bracket-r-title{color:#f39c12;font-size:0.85rem;font-weight:bold;margin:8px 0 4px;text-align:center}
-        .champion-box{text-align:center;padding:16px;background:linear-gradient(135deg,rgba(243,156,18,0.15),rgba(231,76,60,0.1));border:1px solid rgba(243,156,18,0.3);border-radius:12px;margin-top:12px}
-        .champion-box .c-name{font-size:1.3rem;font-weight:bold;color:#f39c12;margin-top:6px}
-        .champion-box .c-prob{font-size:0.85rem;color:#888}
+        .prob-row{display:flex;align-items:center;gap:10px;font-size:0.8rem;padding:4px 0}
+        .prob-label{width:65px;color:#aaa;flex-shrink:0;font-weight:500}
+        .prob-val{width:45px;text-align:right;font-weight:bold;flex-shrink:0}
+        .rest-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:bold;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+        .rest-good{background:linear-gradient(135deg,rgba(39,174,96,0.25),rgba(46,204,113,0.15));color:#2ecc71;border:1px solid rgba(46,204,113,0.3)}
+        .rest-ok{background:linear-gradient(135deg,rgba(243,156,18,0.25),rgba(241,196,15,0.15));color:#f39c12;border:1px solid rgba(243,156,18,0.3)}
+        .rest-bad{background:linear-gradient(135deg,rgba(231,76,60,0.25),rgba(192,57,43,0.15));color:#e74c3c;border:1px solid rgba(231,76,60,0.3)}
+        .bracket{display:flex;flex-direction:column;gap:10px}
+        .bracket-r{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+        .bracket-m{background:linear-gradient(135deg,rgba(0,0,0,0.35),rgba(20,20,40,0.35));border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;font-size:0.78rem;transition:all 0.2s}
+        .bracket-m:hover{border-color:rgba(243,156,18,0.3);transform:translateY(-1px)}
+        .bracket-m .bm-teams{display:flex;justify-content:space-between;color:#ccc;padding:2px 0}
+        .bracket-m .bm-w{color:#f39c12;font-weight:bold;text-shadow:0 0 6px rgba(243,156,18,0.3)}
+        .bracket-r-title{color:#f39c12;font-size:0.9rem;font-weight:bold;margin:12px 0 6px;text-align:center;padding:6px;background:rgba(243,156,18,0.08);border-radius:8px;border:1px solid rgba(243,156,18,0.15)}
+        .champion-box{text-align:center;padding:20px;background:linear-gradient(135deg,rgba(243,156,18,0.2),rgba(231,76,60,0.15));border:2px solid rgba(243,156,18,0.4);border-radius:14px;margin-top:16px;box-shadow:0 4px 20px rgba(243,156,18,0.15)}
+        .champion-box .c-name{font-size:1.5rem;font-weight:bold;color:#f39c12;margin-top:8px;text-shadow:0 0 10px rgba(243,156,18,0.3)}
+        .champion-box .c-prob{font-size:0.85rem;color:#bbb;margin-top:4px}
 
-        .pred{background:linear-gradient(135deg,rgba(243,156,18,0.25),rgba(231,76,60,0.25));border:2px solid rgba(243,156,18,0.5);border-radius:12px;padding:18px;margin-top:18px}
-        .pred h4{color:#f1c40f;text-align:center;margin-bottom:12px;font-size:0.95rem}
+        .pred{background:linear-gradient(135deg,rgba(243,156,18,0.2),rgba(231,76,60,0.15));border:2px solid rgba(243,156,18,0.4);border-radius:14px;padding:20px;margin-top:18px;box-shadow:0 4px 15px rgba(243,156,18,0.1)}
+        .pred h4{color:#f1c40f;text-align:center;margin-bottom:14px;font-size:1rem;text-shadow:0 0 8px rgba(243,156,18,0.2)}
         .scores{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-        .so{background:rgba(255,255,255,0.08);border-radius:8px;padding:10px 6px;text-align:center;border:2px solid transparent;cursor:pointer;transition:all 0.3s}
-        .so:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.12)}
-        .so.rec{background:linear-gradient(135deg,#27ae60,#2ecc71);border-color:#2ecc71;box-shadow:0 0 12px rgba(46,204,113,0.4)}
+        .so{background:rgba(255,255,255,0.06);border-radius:10px;padding:12px 8px;text-align:center;border:2px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;position:relative}
+        .so:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+        .so.rec{background:linear-gradient(135deg,#27ae60,#2ecc71);border-color:#2ecc71;box-shadow:0 4px 15px rgba(46,204,113,0.35)}
         .sv{font-size:1.1rem;font-weight:bold;color:#fff}
         .odds{color:#f1c40f;font-size:0.8rem;font-weight:bold}
         .prob{color:#ecf0f1;font-size:0.7rem}
         .desc{color:#ddd;font-size:0.7rem;margin-top:2px}
         .rec-badge{display:inline-block;background:#fff;color:#27ae60;padding:1px 6px;border-radius:5px;font-size:0.6rem;font-weight:bold;margin-top:3px}
-        .tip{background:rgba(52,152,219,0.25);border-radius:8px;padding:12px;margin-top:10px;border:1px solid rgba(52,152,219,0.3)}
-        .tip-t{color:#5dade2;font-weight:bold;margin-bottom:4px;font-size:0.85rem}
-        .tip-c{color:#ecf0f1;font-size:0.82rem;line-height:1.5}
+        .tip{background:linear-gradient(135deg,rgba(52,152,219,0.2),rgba(41,128,185,0.15));border-radius:10px;padding:14px;margin-top:12px;border:1px solid rgba(52,152,219,0.25)}
+        .tip-t{color:#5dade2;font-weight:bold;margin-bottom:6px;font-size:0.88rem}
+        .tip-c{color:#ddd;font-size:0.82rem;line-height:1.6}
         .tip-c b{color:#f1c40f}
 
         .warn{background:rgba(231,76,60,0.15);padding:10px;border-radius:8px;margin-top:15px;font-size:0.78rem;text-align:center;color:#e74c3c}
