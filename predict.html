@@ -2439,11 +2439,12 @@ function populateTeamFilter(){
 
 function resetToInitialState(){
     selectedTeam='';
-    var today=new Date();
-    var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-    var hasToday=allMatches.some(function(m){return m.kickoff_time.indexOf(todayStr)===0;});
-    if(hasToday){
-        selectedDate=todayStr;
+    var tomorrow=new Date();
+    tomorrow.setDate(tomorrow.getDate()+1);
+    var tomorrowStr=tomorrow.getFullYear()+'-'+String(tomorrow.getMonth()+1).padStart(2,'0')+'-'+String(tomorrow.getDate()).padStart(2,'0');
+    var hasTomorrow=allMatches.some(function(m){return m.kickoff_time.indexOf(tomorrowStr)===0;});
+    if(hasTomorrow){
+        selectedDate=tomorrowStr;
     }else{
         var dates={};
         allMatches.forEach(function(m){
