@@ -2094,7 +2094,7 @@ function buildMatchCard(match, stats, idx){
 
     var html='';
     var matchId=match.id||idx;
-    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'">';
+    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'" data-home="'+h+'" data-away="'+a+'">';
     html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span>'+(isNS?'<span style="margin-left:auto;font-size:0.72rem;color:#3498db;cursor:pointer" onclick="event.stopPropagation();toggleCompare('+matchId+',\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">📊 对比</span>':'')+'</div>';
     html+='<div class="teams">';
     var pts1=s1?s1.pts:null, pts2=s2?s2.pts:null;
@@ -2379,7 +2379,11 @@ function toggleView(v){
     currentView=v;
     document.getElementById('btn-standings').className='btn'+(v==='standings'?' active':'');
     document.getElementById('btn-predict').className='btn'+(v==='predict'?' active':'');
-    render();
+    if(v==='predict'){
+        resetToInitialState();
+    }else{
+        render();
+    }
 }
 
 function buildDateBar(){
@@ -2428,15 +2432,70 @@ function populateTeamFilter(){
     var names=Object.keys(teams).sort();
     var html='<option value="">🔍 筛选球队</option>';
     names.forEach(function(t){
-        html+='<option value="'+t+'">'+cn(t)+' ('+t+')</option>';
+        html+='<option value="'+t+'">'+cn(t)+'</option>';
     });
     sel.innerHTML=html;
 }
 
-function onTeamFilterChange(val){
-    selectedTeam=val;
+function resetToInitialState(){
+    selectedTeam='';
+    var tomorrow=new Date();
+    tomorrow.setDate(tomorrow.getDate()+1);
+    var tomorrowStr=tomorrow.getFullYear()+'-'+String(tomorrow.getMonth()+1).padStart(2,'0')+'-'+String(tomorrow.getDate()).padStart(2,'0');
+    var hasTomorrow=allMatches.some(function(m){return m.kickoff_time.indexOf(tomorrowStr)===0;});
+    if(hasTomorrow){
+        selectedDate=tomorrowStr;
+    }else{
+        var dates={};
+        allMatches.forEach(function(m){
+            var d=m.kickoff_time.split(' ')[0];
+            dates[d]=1;
+        });
+        var sortedDates=Object.keys(dates).sort();
+        selectedDate=sortedDates[0];
+    }
+    var sel=document.getElementById('team-filter');
+    if(sel) sel.value='';
     buildDateBar();
     render();
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function onTeamFilterChange(val){
+    selectedTeam=val;
+    if(val){
+        var now=new Date();
+        var teamMatches=allMatches.filter(function(m){
+            return (m.home_team===val||m.away_team===val)&&new Date(m.kickoff_time)>now;
+        });
+        if(teamMatches.length>0){
+            teamMatches.sort(function(a,b){
+                return new Date(a.kickoff_time)-new Date(b.kickoff_time);
+            });
+            var nearestDate=teamMatches[0].kickoff_time.split(' ')[0];
+            selectedDate=nearestDate;
+        }
+    }else{
+        resetToInitialState();
+        return;
+    }
+    buildDateBar();
+    render();
+    if(val){
+        setTimeout(function(){
+            var matchCards=document.querySelectorAll('.match');
+            for(var i=0;i<matchCards.length;i++){
+                var homeTeam=matchCards[i].getAttribute('data-home');
+                var awayTeam=matchCards[i].getAttribute('data-away');
+                if(homeTeam===val||awayTeam===val){
+                    var rect=matchCards[i].getBoundingClientRect();
+                    var offset=window.pageYOffset+rect.top-100;
+                    window.scrollTo({top:offset,behavior:'smooth'});
+                    break;
+                }
+            }
+        },100);
+    }
 }
 
 function selectDate(d){
