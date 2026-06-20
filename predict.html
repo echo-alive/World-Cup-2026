@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
-    <link rel="stylesheet" href="select2.min.css">
-    <script src="jquery.min.js"></script>
-    <script src="select2.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
@@ -20,23 +17,9 @@
         .b-live{background:linear-gradient(135deg,#27ae60,#2ecc71)}
         .b-ns{background:linear-gradient(135deg,#8e44ad,#9b59b6)}
         .ctrls{display:flex;justify-content:center;gap:10px;margin-top:15px;flex-wrap:wrap}
-        .team-filter{min-width:160px}
-        .select2-container .select2-selection--single{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#fff;height:36px}
-        .select2-container .select2-selection--single .select2-selection__rendered{color:#fff;line-height:36px;padding:0 30px 0 15px}
-        .select2-container .select2-selection--single .select2-selection__arrow{height:36px;right:10px}
-        .select2-container .select2-selection--single .select2-selection__arrow b{border-color:#888 transparent transparent transparent}
-        .select2-container.select2-container--open .select2-selection--single .select2-selection__arrow b{border-color:transparent transparent #888 transparent}
-        .select2-container .select2-selection__clear{color:#fff;font-size:18px;line-height:36px;margin-right:5px}
-        .select2-dropdown{background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.2);border-radius:12px}
-        .select2-search__field{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fff}
-        .select2-results{max-height:250px;overflow-y:auto}
-        .select2-results::-webkit-scrollbar{width:6px}
-        .select2-results::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:3px}
-        .select2-results::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:3px}
-        .select2-results::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.3)}
-        .select2-results__option{color:#fff;padding:8px 15px}
-        .select2-results__option--highlighted{background:rgba(52,152,219,0.8)}
-        .select2-container--default .select2-results__option--selected{background:rgba(52,152,219,0.4)}
+        .team-filter{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s;min-width:160px}
+        .team-filter:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+        .team-filter option{background:#1a1a2e;color:#fff}
         .btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s}
         .btn:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
         .btn:active{transform:scale(0.95);box-shadow:0 0 12px rgba(52,152,219,0.6)}
@@ -221,7 +204,7 @@
             <button class="btn" onclick="loadData()">刷新数据</button>
             <button class="btn" id="btn-standings" onclick="toggleView('standings')">积分榜</button>
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
-            <select id="team-filter" class="team-filter">
+            <select id="team-filter" class="team-filter" onchange="onTeamFilterChange(this.value)">
                 <option value="">🔍 筛选球队</option>
             </select>
         </div>
@@ -2448,18 +2431,12 @@ function populateTeamFilter(){
         html+='<option value="'+t+'">'+cn(t)+' ('+t+')</option>';
     });
     sel.innerHTML=html;
-    if(typeof jQuery!=='undefined'&&jQuery.fn.select2){
-        jQuery('#team-filter').select2({
-            placeholder:'🔍 搜索球队...',
-            allowClear:true,
-            width:'160px',
-            dropdownParent:jQuery(sel.parentElement)
-        }).on('change',function(){
-            selectedTeam=this.value||'';
-            buildDateBar();
-            render();
-        });
-    }
+}
+
+function onTeamFilterChange(val){
+    selectedTeam=val;
+    buildDateBar();
+    render();
 }
 
 function selectDate(d){
