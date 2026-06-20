@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
         .container{max-width:960px;margin:0 auto;padding:15px}
         header{text-align:center;padding:20px 0}
@@ -18,8 +18,9 @@
         .b-ns{background:linear-gradient(135deg,#8e44ad,#9b59b6)}
         .ctrls{display:flex;justify-content:center;gap:10px;margin-top:15px;flex-wrap:wrap}
         .btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s}
-        .btn:hover{background:rgba(255,255,255,0.2)}
-        .btn.active{background:#3498db;border-color:#3498db}
+        .btn:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+        .btn:active{transform:scale(0.95);box-shadow:0 0 12px rgba(52,152,219,0.6)}
+        .btn.active{background:#3498db;border-color:#3498db;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .api{margin-top:10px;padding:6px;border-radius:8px;font-size:0.8rem;text-align:center}
         .api.ok{color:#27ae60}.api.err{color:#e74c3c}.api.loading{color:#f39c12}
         .section-title{font-size:1.1rem;margin:25px 0 15px;padding-left:12px;border-left:3px solid #f39c12}
@@ -89,11 +90,36 @@
         .spin{border:3px solid rgba(255,255,255,0.1);border-top:3px solid #f39c12;border-radius:50%;width:40px;height:40px;animation:sp 1s linear infinite;margin:0 auto 15px}
         @keyframes sp{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
         .empty{text-align:center;padding:40px;color:#888}
+        .bet-card{background:rgba(255,255,255,0.05);border-radius:12px;padding:15px;margin:12px 0;border:1px solid rgba(255,255,255,0.08)}
+        .bet-card.hot{border:2px solid #e74c3c;box-shadow:0 0 15px rgba(231,76,60,0.2)}
+        .bet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08)}
+        .bet-match{font-weight:bold;font-size:0.95rem}
+        .bet-time{color:#f39c12;font-size:0.8rem}
+        .bet-items{display:flex;flex-direction:column;gap:8px}
+        .bet-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:rgba(0,0,0,0.2)}
+        .bet-item.best{background:linear-gradient(135deg,rgba(39,174,96,0.3),rgba(46,204,113,0.15));border:1px solid rgba(46,204,113,0.4)}
+        .bet-label{flex-shrink:0;width:60px;font-size:0.75rem;color:#bbb}
+        .bet-pick{flex:1;font-weight:bold;font-size:0.9rem;color:#fff}
+        .bet-odds{width:60px;text-align:center;font-weight:bold;color:#f1c40f;font-size:0.9rem}
+        .bet-return{width:70px;text-align:right;font-size:0.75rem;color:#2ecc71}
+        .bet-tag{padding:2px 8px;border-radius:10px;font-size:0.65rem;font-weight:bold}
+        .bet-tag.high{background:#e74c3c;color:#fff}
+        .bet-tag.mid{background:#f39c12;color:#fff}
+        .bet-tag.low{background:#27ae60;color:#fff}
+        .bet-summary{background:linear-gradient(135deg,rgba(243,156,18,0.2),rgba(231,76,60,0.2));border:2px solid rgba(243,156,18,0.4);border-radius:12px;padding:18px;margin-top:20px}
+        .bet-summary h4{color:#f1c40f;text-align:center;margin-bottom:12px}
+        .bet-plan{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .bet-plan-item{background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;text-align:center}
+        .bet-plan-item .label{color:#bbb;font-size:0.75rem;margin-bottom:4px}
+        .bet-plan-item .value{font-size:1.1rem;font-weight:bold;color:#fff}
+        .bet-plan-item .sub{color:#888;font-size:0.7rem;margin-top:2px}
+        @media(max-width:600px){.bet-plan{grid-template-columns:1fr}.bet-items{gap:6px}}
         .date-bar{display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:10px 0;scrollbar-width:none;-ms-overflow-style:none}
         .date-bar::-webkit-scrollbar{display:none}
         .date-pill{flex-shrink:0;padding:6px 14px;border-radius:16px;font-size:0.78rem;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#ccc;transition:all 0.3s;white-space:nowrap}
-        .date-pill:hover{background:rgba(255,255,255,0.12)}
-        .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold}
+        .date-pill:hover{background:rgba(255,255,255,0.12);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+        .date-pill:active{transform:scale(0.95);box-shadow:0 0 10px rgba(52,152,219,0.5)}
+        .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
         @media(max-width:600px){.teams{flex-direction:column;gap:12px}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}}
@@ -112,6 +138,7 @@
             <button class="btn" onclick="loadData()">刷新数据</button>
             <button class="btn" id="btn-standings" onclick="toggleView('standings')">积分榜</button>
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
+            <button class="btn" id="btn-bet" onclick="toggleView('bet')">今日推荐</button>
         </div>
         <div class="date-bar" id="date-bar"></div>
         <div class="api loading" id="api-status">连接API中...</div>
@@ -558,6 +585,7 @@ function toggleView(v){
     currentView=v;
     document.getElementById('btn-standings').className='btn'+(v==='standings'?' active':'');
     document.getElementById('btn-predict').className='btn'+(v==='predict'?' active':'');
+    document.getElementById('btn-bet').className='btn'+(v==='bet'?' active':'');
     render();
 }
 
@@ -608,7 +636,6 @@ function render(){
     var stats=buildTeamStats(allMatches);
     teamStats=stats;
 
-    // Use selectedDate or auto-detect nearest
     var targetDate=selectedDate;
     var dateMatches=[];
     if(targetDate){
@@ -638,6 +665,11 @@ function render(){
     else nsBadge.textContent='✅ '+ftCount+'场已结束';
     nsBadge.className='badge b-ns';
 
+    if(currentView==='bet'){
+        main.innerHTML=buildBetView(dateMatches,stats);
+        return;
+    }
+
     var html='';
     // Show finished first
     var ft=dateMatches.filter(function(m){return m.status==='FT';});
@@ -648,6 +680,86 @@ function render(){
     ns.forEach(function(m){html+=buildMatchCard(m,stats);});
 
     main.innerHTML=html;
+}
+
+function buildBetView(matches,stats){
+    var html='<div style="margin-bottom:18px"><h2 style="color:#f39c12;margin-bottom:5px;font-size:1.3rem">🎯 今日推荐</h2><p style="color:#888;font-size:0.8rem">基于赔率数据+球队实力综合分析</p></div>';
+    var bets=[];
+    matches.forEach(function(m){
+        var o=oddsData[m.home_team+'-'+m.away_team];
+        var hs=getTeamStats(m.home_team,stats);
+        var as=getTeamStats(m.away_team,stats);
+        var items=[];
+
+        if(o){
+            var hP=o.homeOdds, dP=o.drawOdds, aP=o.awayOdds;
+            var bestPick=aP>hP?(aP>dP?'客胜':'平局'):(hP>dP?'主胜':'平局');
+            var bestOdds=Math.max(hP,dP,aP);
+
+            items.push({type:'胜平负',pick:bestPick,odds:bestOdds.toFixed(2),
+                reason:bestPick==='主胜'?'主场优势+赔率支持':bestPick==='客胜'?'客队实力占优':'两队实力接近',
+                risk:bestOdds>2.5?'low':bestOdds>1.8?'mid':'high'});
+
+            var avgGoals=(hs.goalsFor||1.2)+(as.goalsFor||1.2);
+            items.push({type:'大小球',pick:avgGoals>2.5?'大2.5球':'小2.5球',
+                odds:avgGoals>2.5?'1.85':'1.95',
+                reason:'两队场均进'+(avgGoals/2).toFixed(1)+'球',
+                risk:avgGoals>3||avgGoals<2?'low':'mid'});
+
+            var diff=(hs.goalsFor||1.2)-(as.goalsFor||1.2);
+            if(Math.abs(diff)>0.3){
+                items.push({type:'让球',pick:diff>0?'主让1球':'客让1球',
+                    odds:diff>0?'1.90':'1.90',
+                    reason:'两队实力差约'+Math.abs(diff).toFixed(1)+'球',
+                    risk:Math.abs(diff)>0.8?'low':'mid'});
+            }
+        } else {
+            var hWin=(hs.winRate||0.33), aWin=(as.winRate||0.33);
+            var best=hWin>aWin?'主胜':'客胜';
+            var prob=Math.max(hWin,aWin);
+            var fakeOdds=(1/prob*0.85).toFixed(2);
+            items.push({type:'胜平负',pick:best,odds:fakeOdds,reason:'无赔率数据，基于实力推算',risk:'mid'});
+        }
+
+        var hot=items.some(function(x){return x.risk==='low';});
+        var timeStr=m.kickoff_time.split(' ')[1]||'';
+        html+='<div class="bet-card'+(hot?' hot':'')+'">';
+        html+='<div class="bet-header"><span class="bet-match">'+m.home_team+' vs '+m.away_team+'</span>';
+        html+='<span class="bet-time">⏰ '+timeStr+'</span></div>';
+        html+='<div class="bet-items">';
+        items.forEach(function(b){
+            var cls=b.risk==='low'?' best':'';
+            html+='<div class="bet-item'+cls+'">';
+            html+='<span class="bet-label">'+b.type+'</span>';
+            html+='<span class="bet-pick">'+b.pick+'</span>';
+            html+='<span class="bet-odds">'+b.odds+'</span>';
+            html+='<span class="bet-return">回报率 '+((b.odds-1)*100).toFixed(0)+'%</span>';
+            html+='<span class="bet-tag '+b.risk+'">'+(b.risk==='low'?'高信心':b.risk==='mid'?'中等':'谨慎')+'</span>';
+            html+='</div>';
+            html+='<div style="font-size:0.72rem;color:#aaa;padding:0 12px 4px">'+b.reason+'</div>';
+        });
+        html+='</div></div>';
+        bets.push({match:m.home_team+' vs '+m.away_team,bestItem:items[0],items:items});
+    });
+
+    var lowBets=bets.filter(function(b){return b.bestItem&&b.bestItem.risk==='low';});
+    var totalOdds=1;
+    lowBets.forEach(function(b){totalOdds*=parseFloat(b.bestItem.odds);});
+    var betAmount=100;
+    var maxReturn=(betAmount*totalOdds).toFixed(2);
+    var profit=(betAmount*(totalOdds-1)).toFixed(2);
+
+    html+='<div class="bet-summary">';
+    html+='<h4>📊 投注方案建议</h4>';
+    html+='<div class="bet-plan">';
+    html+='<div class="bet-plan-item"><div class="label">推荐场次</div><div class="value">'+lowBets.length+'场</div><div class="sub">高信心推荐</div></div>';
+    html+='<div class="bet-plan-item"><div class="label">组合赔率</div><div class="value">'+totalOdds.toFixed(2)+'</div><div class="sub">串关总赔率</div></div>';
+    html+='<div class="bet-plan-item"><div class="label">建议投注</div><div class="value">¥'+betAmount+'</div><div class="sub">仅供参考</div></div>';
+    html+='<div class="bet-plan-item"><div class="label">预计回报</div><div class="value" style="color:#2ecc71">¥'+maxReturn+'</div><div class="sub">净利润 ¥'+profit+'</div></div>';
+    html+='</div></div>';
+
+    html+='<div class="warn" style="margin-top:15px">⚠️ 以上推荐仅供娱乐参考，不构成投注建议。请理性消费，量力而行，切勿沉迷赌博。</div>';
+    return html;
 }
 
 async function loadData(){
