@@ -2112,7 +2112,7 @@ function buildMatchCard(match, stats, idx){
 
     // Lottery odds button for NS matches
     if(isNS){
-        html+='<div style="text-align:center;margin-top:12px"><button class="lottery-btn" onclick="openLotteryModal(\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">🎰 查看体彩赔率</button></div>';
+        html+='<div style="text-align:center;margin-top:12px"><button class="lottery-btn" onclick="openLotteryModal(\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">🎰 国际博彩赔率</button></div>';
     }
 
     // Group impact analysis for NS matches
@@ -2281,7 +2281,7 @@ function openLotteryModal(home,away){
     var modal=document.getElementById('lotteryModal');
     var title=document.getElementById('modalTitle');
     var body=document.getElementById('modalBody');
-    title.textContent=cn(home)+' VS '+cn(away)+' 体彩赔率';
+    title.textContent=cn(home)+' VS '+cn(away)+' 国际博彩赔率';
     var scores=calcScoreProbs(home,away);
     var totalGoals=calcTotalGoalsProbs(home,away);
     var htft=calcHTFTProbs(home,away);
@@ -2311,7 +2311,7 @@ function openLotteryModal(home,away){
         html+='<tr><td class="'+cls+'">'+h.label+'</td><td>'+odds.toFixed(2)+'</td><td>'+h.prob+'%</td></tr>';
     });
     html+='</table></div>';
-    html+='<div style="text-align:center;color:#888;font-size:0.72rem;margin-top:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px">⚠️ 赔率基于ELO评分+泊松分布模型计算，仅供参考</div>';
+    html+='<div style="text-align:center;color:#888;font-size:0.72rem;margin-top:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px">⚠️ 赔率基于ELO评分+泊松分布模型计算，非中国体彩，仅供参考</div>';
     body.innerHTML=html;
     modal.classList.add('show');
     document.body.style.overflow='hidden';
