@@ -2447,6 +2447,23 @@ function onTeamFilterChange(val){
             var nearestDate=teamMatches[0].kickoff_time.split(' ')[0];
             selectedDate=nearestDate;
         }
+    }else{
+        // 清空选择时恢复到今天的日期
+        var today=new Date();
+        var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+        var hasToday=allMatches.some(function(m){return m.kickoff_time.indexOf(todayStr)===0;});
+        if(hasToday){
+            selectedDate=todayStr;
+        }else{
+            // 如果没有今天的比赛，选择最近的日期
+            var dates={};
+            allMatches.forEach(function(m){
+                var d=m.kickoff_time.split(' ')[0];
+                dates[d]=1;
+            });
+            var sortedDates=Object.keys(dates).sort();
+            selectedDate=sortedDates[0];
+        }
     }
     buildDateBar();
     render();
@@ -2457,7 +2474,9 @@ function onTeamFilterChange(val){
                 var homeTeam=matchCards[i].getAttribute('data-home');
                 var awayTeam=matchCards[i].getAttribute('data-away');
                 if(homeTeam===val||awayTeam===val){
-                    matchCards[i].scrollIntoView({behavior:'smooth',block:'center'});
+                    var rect=matchCards[i].getBoundingClientRect();
+                    var offset=window.pageYOffset+rect.top-100;
+                    window.scrollTo({top:offset,behavior:'smooth'});
                     break;
                 }
             }
