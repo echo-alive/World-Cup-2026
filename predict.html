@@ -199,6 +199,228 @@ var TEAM_KEY = {
 };
 
 function cn(name){ return TEAM_CN[name] || name; }
+
+var H2H = {
+    'Brazil-Germany':[
+        {year:'2002 决赛',score:'0-2',winner:'Germany'},
+        {year:'2014 半决赛',score:'1-7',winner:'Germany'},
+        {year:'2018 小组赛',score:'1-2',winner:'Germany'}
+    ],
+    'Germany-Brazil':[
+        {year:'2002 决赛',score:'2-0',winner:'Germany'},
+        {year:'2014 半决赛',score:'7-1',winner:'Germany'},
+        {year:'2018 小组赛',score:'2-1',winner:'Germany'}
+    ],
+    'Argentina-France':[
+        {year:'2018 1/8决赛',score:'4-3',winner:'France'},
+        {year:'2022 决赛',score:'3-3(点4-2)',winner:'Argentina'}
+    ],
+    'France-Argentina':[
+        {year:'2018 1/8决赛',score:'4-3',winner:'France'},
+        {year:'2022 决赛',score:'3-3(点2-4)',winner:'Argentina'}
+    ],
+    'England-France':[
+        {year:'1966 小组赛',score:'2-0',winner:'England'},
+        {year:'1982 小组赛',score:'1-1',winner:'Draw'},
+        {year:'2022 1/4决赛',score:'1-2',winner:'France'}
+    ],
+    'France-England':[
+        {year:'1966 小组赛',score:'0-2',winner:'England'},
+        {year:'1982 小组赛',score:'1-1',winner:'Draw'},
+        {year:'2022 1/4决赛',score:'2-1',winner:'France'}
+    ],
+    'Brazil-Argentina':[
+        {year:'1990 1/8决赛',score:'0-1',winner:'Argentina'},
+        {year:'2005 联合会杯',score:'4-1',winner:'Brazil'},
+        {year:'2009 联合会杯',score:'3-1',winner:'Brazil'},
+        {year:'2021 美洲杯决赛',score:'0-1',winner:'Argentina'},
+        {year:'2022 世预赛',score:'0-0',winner:'Draw'}
+    ],
+    'Argentina-Brazil':[
+        {year:'1990 1/8决赛',score:'1-0',winner:'Argentina'},
+        {year:'2005 联合会杯',score:'1-4',winner:'Brazil'},
+        {year:'2009 联合会杯',score:'1-3',winner:'Brazil'},
+        {year:'2021 美洲杯决赛',score:'1-0',winner:'Argentina'},
+        {year:'2022 世预赛',score:'0-0',winner:'Draw'}
+    ],
+    'Spain-Germany':[
+        {year:'2008 欧洲杯决赛',score:'1-0',winner:'Spain'},
+        {year:'2010 半决赛',score:'1-0',winner:'Spain'},
+        {year:'2022 小组赛',score:'1-1',winner:'Draw'}
+    ],
+    'Germany-Spain':[
+        {year:'2008 欧洲杯决赛',score:'0-1',winner:'Spain'},
+        {year:'2010 半决赛',score:'0-1',winner:'Spain'},
+        {year:'2022 小组赛',score:'1-1',winner:'Draw'}
+    ],
+    'Netherlands-Argentina':[
+        {year:'1998 1/4决赛',score:'1-2',winner:'Argentina'},
+        {year:'2014 半决赛',score:'0-0(点2-4)',winner:'Argentina'},
+        {year:'2022 1/4决赛',score:'2-2(点3-4)',winner:'Argentina'}
+    ],
+    'Argentina-Netherlands':[
+        {year:'1998 1/4决赛',score:'2-1',winner:'Argentina'},
+        {year:'2014 半决赛',score:'0-0(点4-2)',winner:'Argentina'},
+        {year:'2022 1/4决赛',score:'2-2(点4-3)',winner:'Argentina'}
+    ],
+    'England-Brazil':[
+        {year:'1962 小组赛',score:'1-3',winner:'Brazil'},
+        {year:'1970 1/4决赛',score:'0-1',winner:'Brazil'},
+        {year:'2002 1/4决赛',score:'1-2',winner:'Brazil'}
+    ],
+    'Brazil-England':[
+        {year:'1962 小组赛',score:'3-1',winner:'Brazil'},
+        {year:'1970 1/4决赛',score:'1-0',winner:'Brazil'},
+        {year:'2002 1/4决赛',score:'2-1',winner:'Brazil'}
+    ],
+    'Germany-Argentina':[
+        {year:'1986 决赛',score:'3-2',winner:'Argentina'},
+        {year:'1990 决赛',score:'1-0',winner:'Germany'},
+        {year:'2006 1/4决赛',score:'1-1(点4-2)',winner:'Germany'},
+        {year:'2010 1/4决赛',score:'4-0',winner:'Germany'},
+        {year:'2014 决赛',score:'1-0',winner:'Germany'}
+    ],
+    'Argentina-Germany':[
+        {year:'1986 决赛',score:'3-2',winner:'Argentina'},
+        {year:'1990 决赛',score:'0-1',winner:'Germany'},
+        {year:'2006 1/4决赛',score:'1-1(点2-4)',winner:'Germany'},
+        {year:'2010 1/4决赛',score:'0-4',winner:'Germany'},
+        {year:'2014 决赛',score:'0-1',winner:'Germany'}
+    ],
+    'Italy-Brazil':[
+        {year:'1970 决赛',score:'1-4',winner:'Brazil'},
+        {year:'1982 2轮小组赛',score:'3-2',winner:'Italy'},
+        {year:'1994 决赛',score:'0-0(点2-3)',winner:'Brazil'}
+    ],
+    'Brazil-Italy':[
+        {year:'1970 决赛',score:'4-1',winner:'Brazil'},
+        {year:'1982 2轮小组赛',score:'2-3',winner:'Italy'},
+        {year:'1994 决赛',score:'0-0(点3-2)',winner:'Brazil'}
+    ],
+    'Portugal-Spain':[
+        {year:'2018 小组赛',score:'3-3',winner:'Draw'}
+    ],
+    'Spain-Portugal':[
+        {year:'2018 小组赛',score:'3-3',winner:'Draw'}
+    ],
+    'South Korea-Japan':[
+        {year:'2002 小组赛',score:'0-1',winner:'Japan'}
+    ],
+    'Japan-South Korea':[
+        {year:'2002 小组赛',score:'1-0',winner:'Japan'}
+    ],
+    'USA-Mexico':[
+        {year:'2002 1/8决赛',score:'2-0',winner:'USA'},
+        {year:'2010 小组赛',score:'1-2',winner:'Mexico'},
+        {year:'2014 小组赛',score:'0-1',winner:'Mexico'},
+        {year:'2022 小组赛',score:'0-0',winner:'Draw'}
+    ],
+    'Mexico-USA':[
+        {year:'2002 1/8决赛',score:'0-2',winner:'USA'},
+        {year:'2010 小组赛',score:'2-1',winner:'Mexico'},
+        {year:'2014 小组赛',score:'1-0',winner:'Mexico'},
+        {year:'2022 小组赛',score:'0-0',winner:'Draw'}
+    ],
+    'England-Scotland':[
+        {year:'1996 小组赛',score:'2-0',winner:'England'},
+        {year:'2021 小组赛',score:'0-0',winner:'Draw'}
+    ],
+    'Scotland-England':[
+        {year:'1996 小组赛',score:'0-2',winner:'England'},
+        {year:'2021 小组赛',score:'0-0',winner:'Draw'}
+    ],
+    'Uruguay-Argentina':[
+        {year:'2010 1/4决赛',score:'1-4',winner:'Argentina'},
+        {year:'2011 美洲杯',score:'0-1',winner:'Uruguay'},
+        {year:'2014 小组赛',score:'1-0',winner:'Uruguay'}
+    ],
+    'Argentina-Uruguay':[
+        {year:'2010 1/4决赛',score:'4-1',winner:'Argentina'},
+        {year:'2011 美洲杯',score:'1-0',winner:'Uruguay'},
+        {year:'2014 小组赛',score:'0-1',winner:'Uruguay'}
+    ],
+    'Colombia-Brazil':[
+        {year:'2014 1/4决赛',score:'1-2',winner:'Brazil'}
+    ],
+    'Brazil-Colombia':[
+        {year:'2014 1/4决赛',score:'2-1',winner:'Brazil'}
+    ],
+    'Croatia-France':[
+        {year:'1998 半决赛',score:'1-2',winner:'France'},
+        {year:'2018 决赛',score:'2-4',winner:'France'}
+    ],
+    'France-Croatia':[
+        {year:'1998 半决赛',score:'2-1',winner:'France'},
+        {year:'2018 决赛',score:'4-2',winner:'France'}
+    ],
+    'Belgium-France':[
+        {year:'2018 半决赛',score:'0-1',winner:'France'}
+    ],
+    'France-Belgium':[
+        {year:'2018 半决赛',score:'1-0',winner:'France'}
+    ],
+    'Morocco-France':[
+        {year:'2022 半决赛',score:'0-2',winner:'France'}
+    ],
+    'France-Morocco':[
+        {year:'2022 半决赛',score:'2-0',winner:'France'}
+    ],
+    'Japan-Germany':[
+        {year:'2022 小组赛',score:'2-1',winner:'Japan'}
+    ],
+    'Germany-Japan':[
+        {year:'2022 小组赛',score:'1-2',winner:'Japan'}
+    ],
+    'Japan-Spain':[
+        {year:'2022 小组赛',score:'2-1',winner:'Japan'}
+    ],
+    'Spain-Japan':[
+        {year:'2022 小组赛',score:'1-2',winner:'Japan'}
+    ],
+    'Saudi Arabia-Argentina':[
+        {year:'2022 小组赛',score:'2-1',winner:'Saudi Arabia'}
+    ],
+    'Argentina-Saudi Arabia':[
+        {year:'2022 小组赛',score:'1-2',winner:'Saudi Arabia'}
+    ],
+    'Senegal-Netherlands':[
+        {year:'2022 小组赛',score:'0-2',winner:'Netherlands'}
+    ],
+    'Netherlands-Senegal':[
+        {year:'2022 小组赛',score:'2-0',winner:'Netherlands'}
+    ],
+    'Australia-Denmark':[
+        {year:'2022 小组赛',score:'1-0',winner:'Australia'}
+    ],
+    'Denmark-Australia':[
+        {year:'2022 小组赛',score:'0-1',winner:'Australia'}
+    ],
+    'Tunisia-France':[
+        {year:'2018 小组赛',score:'2-1',winner:'Tunisia'},
+        {year:'2022 小组赛',score:'1-0',winner:'Tunisia'}
+    ],
+    'France-Tunisia':[
+        {year:'2018 小组赛',score:'1-2',winner:'Tunisia'},
+        {year:'2022 小组赛',score:'0-1',winner:'Tunisia'}
+    ],
+    'Ecuador-Senegal':[
+        {year:'2022 小组赛',score:'1-2',winner:'Senegal'}
+    ],
+    'Senegal-Ecuador':[
+        {year:'2022 小组赛',score:'2-1',winner:'Senegal'}
+    ]
+};
+
+function getH2H(teamA, teamB){
+    var key=teamA+'-'+teamB;
+    if(H2H[key]) return H2H[key];
+    var rkey=teamB+'-'+teamA;
+    if(H2H[rkey]) return H2H[rkey].map(function(m){
+        var parts=m.score.split('-');
+        return {year:m.year,score:parts[1]+'-'+parts[0],winner:m.winner==='Draw'?'Draw':m.winner===teamA?teamB:teamA};
+    });
+    return [];
+}
 function rk(name){ return TEAM_RANK[name] || '--'; }
 function kp(name){ return TEAM_KEY[name] || ['暂无数据']; }
 
@@ -525,6 +747,37 @@ function buildMatchCard(match, stats){
     // Key players
     html+='<div class="box"><h4>'+cn(h)+' 关键球员</h4><div class="players">'+kp(h).map(function(p){return '<span class="pl">'+p+'</span>';}).join('')+'</div></div>';
     html+='<div class="box"><h4>'+cn(a)+' 关键球员</h4><div class="players">'+kp(a).map(function(p){return '<span class="pl">'+p+'</span>';}).join('')+'</div></div>';
+
+    // Head-to-head history
+    var h2h=getH2H(h,a);
+    if(h2h.length>0){
+        html+='<div class="box full"><h4>⚔️ 历史交锋 '+cn(h)+' vs '+cn(a)+'</h4>';
+        var h2hW={};
+        h2h.forEach(function(m){
+            if(!h2hW[m.winner]) h2hW[m.winner]=0;
+            h2hW[m.winner]++;
+        });
+        var total=h2h.length;
+        var hWin=h2hW[h]||0;
+        var aWin2=h2hW[a]||0;
+        var draw=h2hW['Draw']||0;
+        html+='<div style="display:flex;justify-content:center;gap:16px;margin-bottom:10px;font-size:0.85rem">';
+        html+='<span style="color:#2ecc71">'+cn(h)+' '+hWin+'胜</span>';
+        html+='<span style="color:#f1c40f">平 '+draw+'</span>';
+        html+='<span style="color:#e74c3c">'+cn(a)+' '+aWin2+'胜</span>';
+        html+='</div>';
+        html+='<div style="max-height:180px;overflow-y:auto">';
+        h2h.forEach(function(m){
+            var wc=m.winner===h?'w':m.winner===a?'l':'d';
+            html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem">';
+            html+='<span style="color:#888;width:90px;flex-shrink:0">'+m.year+'</span>';
+            html+='<span class="'+wc+'" style="padding:1px 6px;border-radius:3px;font-size:0.72rem;flex-shrink:0">'+m.winner+'</span>';
+            html+='<span style="color:#f1c40f;font-weight:bold;margin-left:auto">'+m.score+'</span>';
+            html+='</div>';
+        });
+        html+='</div></div>';
+    }
+
     // Matchup comparison
     if(s1&&s2&&s1.played>0&&s2.played>0){
         html+='<div class="box full"><h4>📊 数据对比</h4>';
