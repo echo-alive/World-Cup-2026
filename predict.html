@@ -511,8 +511,6 @@ function buildMatchCard(match, stats){
             ];
             scoreWeights.sort(function(a,b){return b.w-a.w;});
             scoreWeights=scoreWeights.slice(0,6);
-            var t=sc.reduce(function(a,b){return a+b.w;},0);
-            // fix: use scoreWeights not sc
             var t2=scoreWeights.reduce(function(a,b){return a+b.w;},0);
             scoreWeights.forEach(function(s){
                 s.p=Math.round(s.w/t2*100);
