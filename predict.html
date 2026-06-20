@@ -2094,7 +2094,7 @@ function buildMatchCard(match, stats, idx){
 
     var html='';
     var matchId=match.id||idx;
-    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'">';
+    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'" data-home="'+h+'" data-away="'+a+'">';
     html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span>'+(isNS?'<span style="margin-left:auto;font-size:0.72rem;color:#3498db;cursor:pointer" onclick="event.stopPropagation();toggleCompare('+matchId+',\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">📊 对比</span>':'')+'</div>';
     html+='<div class="teams">';
     var pts1=s1?s1.pts:null, pts2=s2?s2.pts:null;
@@ -2450,6 +2450,19 @@ function onTeamFilterChange(val){
     }
     buildDateBar();
     render();
+    if(val){
+        setTimeout(function(){
+            var matchCards=document.querySelectorAll('.match');
+            for(var i=0;i<matchCards.length;i++){
+                var homeTeam=matchCards[i].getAttribute('data-home');
+                var awayTeam=matchCards[i].getAttribute('data-away');
+                if(homeTeam===val||awayTeam===val){
+                    matchCards[i].scrollIntoView({behavior:'smooth',block:'center'});
+                    break;
+                }
+            }
+        },100);
+    }
 }
 
 function selectDate(d){
