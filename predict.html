@@ -1682,10 +1682,15 @@ function buildDateBar(){
         html+='<div class="date-pill'+active+today+'" onclick="selectDate(\''+d+'\')">'+label+'<span class="cnt">'+dateCount[d]+'场</span></div>';
     });
     bar.innerHTML=html;
-    // scroll active into view
+    // scroll active into view (horizontal only, don't move page)
     setTimeout(function(){
         var el=bar.querySelector('.active');
-        if(el) el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+        if(el){
+            var barRect=bar.getBoundingClientRect();
+            var elRect=el.getBoundingClientRect();
+            var offset=elRect.left-barRect.left-barRect.width/2+elRect.width/2;
+            bar.scrollLeft+=offset;
+        }
     },100);
 }
 
@@ -1766,7 +1771,7 @@ async function loadData(){
             }
             buildDateBar();
             render();
-            window.scrollTo(0,scrollY);
+            setTimeout(function(){window.scrollTo(0,scrollY);},50);
         } else throw 0;
     }catch(e){
         el.className='api err';el.textContent='❌ API连接失败，请检查网络';
