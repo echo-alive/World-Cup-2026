@@ -683,7 +683,7 @@ function render(){
 }
 
 function buildBetView(matches,stats){
-    var html='<div style="margin-bottom:18px"><h2 style="color:#f39c12;margin-bottom:5px;font-size:1.3rem">🎯 今日推荐</h2><p style="color:#888;font-size:0.8rem">基于赔率数据+球队实力综合分析，给出具体投注建议</p></div>';
+    var html='<div style="margin-bottom:18px"><h2 style="color:#f39c12;margin-bottom:5px;font-size:1.3rem">🎯 今日推荐</h2><p style="color:#888;font-size:0.8rem">基于赔率+实力分析，给出具体买法</p></div>';
     var bets=[];
     matches.forEach(function(m){
         var o=oddsData[m.home_team+'-'+m.away_team];
@@ -693,97 +693,74 @@ function buildBetView(matches,stats){
 
         if(o){
             var hP=o.homeOdds, dP=o.drawOdds, aP=o.awayOdds;
-
-            // 胜平负推荐
             var bestPick, bestOdds, bestReason;
             if(hP>=aP && hP>=dP){ bestPick='主胜'; bestOdds=hP; bestReason='赔率最高+主场优势'; }
             else if(aP>=hP && aP>=dP){ bestPick='客胜'; bestOdds=aP; bestReason='赔率最高+客队实力强'; }
             else { bestPick='平局'; bestOdds=dP; bestReason='两队实力接近'; }
-            items.push({type:'胜平负',pick:bestPick,odds:bestOdds.toFixed(2),reason:bestReason,
+            items.push({type:'胜平负',pick:bestPick,odds:bestOdds,reason:bestReason,
                 risk:bestOdds>2.5?'low':bestOdds>1.8?'mid':'high'});
-
-            // 大小球推荐
-            var avgGoals=parseFloat(hs.avgGoals||1.2)+parseFloat(as.avgGoals||1.2);
-            var bigSmall=avgGoals>2.5?'大2.5球':'小2.5球';
-            var bsOdds=avgGoals>2.5?'1.85':'1.95';
-            var bsReason=avgGoals>2.5?'两队进攻强，场均'+avgGoals.toFixed(1)+'球':'两队防守稳，场均'+avgGoals.toFixed(1)+'球';
-            items.push({type:'大小球',pick:bigSmall,odds:bsOdds,reason:bsReason,
-                risk:avgGoals>3||avgGoals<2?'low':'mid'});
-
-            // 让球推荐
-            var diff=parseFloat(hs.avgGoals||1.2)-parseFloat(as.avgGoals||1.2);
-            if(Math.abs(diff)>0.3){
-                var handicap=diff>0?'主让1球':'客让1球';
-                items.push({type:'让球',pick:handicap,odds:'1.90',
-                    reason:'实力差约'+Math.abs(diff).toFixed(1)+'球',
-                    risk:Math.abs(diff)>0.8?'low':'mid'});
-            }
         } else {
             var hWin=(hs.winRate||33)/100, aWin=(as.winRate||33)/100;
             var best=hWin>aWin?'主胜':'客胜';
             var prob=Math.max(hWin,aWin);
-            var fakeOdds=(1/prob*0.85).toFixed(2);
-            items.push({type:'胜平负',pick:best,odds:fakeOdds,reason:'无赔率数据，基于实力推算',risk:'mid'});
+            var fakeOdds=+(1/prob*0.85).toFixed(2);
+            items.push({type:'胜平负',pick:best,odds:fakeOdds,reason:'无赔率，基于实力推算',risk:'mid'});
         }
 
-        var hot=items.some(function(x){return x.risk==='low';});
-        var timeStr=m.kickoff_time.split(' ')[1]||'';
         var mainBet=items[0];
-        var action='买'+mainBet.pick;
+        var timeStr=m.kickoff_time.split(' ')[1]||'';
+        var matchName=cn(m.home_team)+' 对 '+cn(m.away_team);
 
-        html+='<div class="bet-card'+(hot?' hot':'')+'">';
-        html+='<div class="bet-header"><span class="bet-match">'+m.home_team+' 对 '+m.away_team+'</span>';
+        html+='<div class="bet-card">';
+        html+='<div class="bet-header"><span class="bet-match">'+matchName+'</span>';
         html+='<span class="bet-time">⏰ '+timeStr+'</span></div>';
         html+='<div style="background:linear-gradient(135deg,rgba(243,156,18,0.25),rgba(231,76,60,0.15));border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px">';
         html+='<span style="font-size:1.3rem">💰</span>';
-        html+='<div><div style="color:#f1c40f;font-weight:bold;font-size:1rem">'+action+'</div>';
-        html+='<div style="color:#ccc;font-size:0.8rem">赔率 '+mainBet.odds+' | 回报率 '+((mainBet.odds-1)*100).toFixed(0)+'% | 投100元可赢'+(mainBet.odds*100).toFixed(0)+'元</div></div>';
-        html+='</div>';
-        html+='<div class="bet-items">';
-        items.forEach(function(b){
-            var cls=b.risk==='low'?' best':'';
-            html+='<div class="bet-item'+cls+'">';
-            html+='<span class="bet-label">'+b.type+'</span>';
-            html+='<span class="bet-pick">'+b.pick+'</span>';
-            html+='<span class="bet-odds">'+b.odds+'</span>';
-            html+='<span class="bet-tag '+b.risk+'">'+(b.risk==='low'?'高信心':b.risk==='mid'?'中等':'谨慎')+'</span>';
-            html+='</div>';
-            html+='<div style="font-size:0.72rem;color:#aaa;padding:0 12px 4px">'+b.reason+'</div>';
-        });
+        html+='<div><div style="color:#f1c40f;font-weight:bold;font-size:1rem">买'+mainBet.pick+'</div>';
+        html+='<div style="color:#ccc;font-size:0.8rem">赔率 '+mainBet.odds.toFixed(2)+' | 投100元可赢'+(mainBet.odds*100).toFixed(0)+'元</div></div>';
         html+='</div></div>';
-        bets.push({match:m.home_team+' 对 '+m.away_team,bestItem:items[0],items:items,action:action});
+
+        bets.push({match:matchName,home:m.home_team,away:m.away_team,bestItem:mainBet,action:'买'+mainBet.pick,time:timeStr});
     });
 
-    var lowBets=bets.filter(function(b){return b.bestItem&&b.bestItem.risk==='low';});
-    var totalOdds=1;
-    lowBets.forEach(function(b){totalOdds*=parseFloat(b.bestItem.odds);});
-    var betAmount=100;
-    var maxReturn=(betAmount*totalOdds).toFixed(2);
-    var profit=(betAmount*(totalOdds-1)).toFixed(2);
+    // 4串1方案：选高信心场次，不够则补中等
+    var sorted=bets.slice().sort(function(a,b){return a.bestItem.odds-b.bestItem.odds;});
+    var low=sorted.filter(function(b){return b.bestItem.risk==='low';});
+    var mid=sorted.filter(function(b){return b.bestItem.risk==='mid';});
+    var pick4=low.slice(0,4);
+    if(pick4.length<4) pick4=pick4.concat(mid.slice(0,4-pick4.length));
+    if(pick4.length<4) pick4=sorted.slice(0,4);
+
+    var comboOdds=1;
+    pick4.forEach(function(b){comboOdds*=b.bestItem.odds;});
 
     html+='<div class="bet-summary">';
-    html+='<h4>📊 投注方案建议</h4>';
-
-    // Show each recommended bet
-    if(lowBets.length>0){
-        html+='<div style="margin-bottom:12px">';
-        lowBets.forEach(function(b){
-            html+='<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 14px;margin-bottom:8px">';
-            html+='<div style="color:#f1c40f;font-weight:bold">'+b.action+'</div>';
-            html+='<div style="color:#ccc;font-size:0.8rem">'+b.match+' | 赔率'+b.bestItem.odds+' | 投100赢'+(b.bestItem.odds*100).toFixed(0)+'元</div>';
-            html+='</div>';
-        });
+    html+='<h4>🔥 4串1 方案</h4>';
+    html+='<div style="margin-bottom:14px">';
+    pick4.forEach(function(b,i){
+        html+='<div style="background:rgba(0,0,0,0.35);border-radius:8px;padding:12px 14px;margin-bottom:8px;border-left:3px solid #f39c12">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+        html+='<span style="color:#fff;font-weight:bold;font-size:0.95rem">第'+(i+1)+'场：'+b.match+'</span>';
+        html+='<span style="color:#f1c40f;font-size:0.85rem">'+b.time+'</span>';
         html+='</div>';
-    }
+        html+='<div style="margin-top:6px;color:#2ecc71;font-weight:bold;font-size:1.05rem">'+b.action+'</div>';
+        html+='<div style="color:#aaa;font-size:0.78rem;margin-top:3px">赔率 '+b.bestItem.odds.toFixed(2)+' | '+b.bestItem.reason+'</div>';
+        html+='</div>';
+    });
+    html+='</div>';
 
-    html+='<div class="bet-plan">';
-    html+='<div class="bet-plan-item"><div class="label">推荐场次</div><div class="value">'+lowBets.length+'场</div><div class="sub">高信心推荐</div></div>';
-    html+='<div class="bet-plan-item"><div class="label">组合赔率</div><div class="value">'+totalOdds.toFixed(2)+'</div><div class="sub">串关总赔率</div></div>';
-    html+='<div class="bet-plan-item"><div class="label">建议投注</div><div class="value">¥'+betAmount+'</div><div class="sub">仅供参考</div></div>';
-    html+='<div class="bet-plan-item"><div class="label">预计回报</div><div class="value" style="color:#2ecc71">¥'+maxReturn+'</div><div class="sub">净利润 ¥'+profit+'</div></div>';
+    html+='<div style="background:rgba(0,0,0,0.4);border-radius:10px;padding:16px;text-align:center">';
+    html+='<div style="color:#f39c12;font-size:1.1rem;font-weight:bold;margin-bottom:8px">4串1 投注计算</div>';
+    html+='<div style="color:#ccc;font-size:0.85rem;margin-bottom:6px">4场赔率相乘：'+pick4.map(function(b){return b.bestItem.odds.toFixed(2);}).join(' × ')+' = <span style="color:#f1c40f;font-weight:bold">'+comboOdds.toFixed(2)+'</span></div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">';
+    html+='<div><span style="color:#888;font-size:0.78rem">投 10 元</span><div style="color:#2ecc71;font-size:1.1rem;font-weight:bold">赢 '+(comboOdds*10).toFixed(2)+' 元</div></div>';
+    html+='<div><span style="color:#888;font-size:0.78rem">投 50 元</span><div style="color:#2ecc71;font-size:1.1rem;font-weight:bold">赢 '+(comboOdds*50).toFixed(2)+' 元</div></div>';
+    html+='<div><span style="color:#888;font-size:0.78rem">投 100 元</span><div style="color:#2ecc71;font-size:1.1rem;font-weight:bold">赢 '+(comboOdds*100).toFixed(2)+' 元</div></div>';
+    html+='<div><span style="color:#888;font-size:0.78rem">投 200 元</span><div style="color:#2ecc71;font-size:1.1rem;font-weight:bold">赢 '+(comboOdds*200).toFixed(2)+' 元</div></div>';
     html+='</div></div>';
+    html+='</div>';
 
-    html+='<div class="warn" style="margin-top:15px">⚠️ 以上推荐仅供娱乐参考，不构成投注建议。请理性消费，量力而行，切勿沉迷赌博。</div>';
+    html+='<div class="warn" style="margin-top:15px">⚠️ 以上推荐仅供娱乐参考，不构成投注建议。请理性消费，量力而行。</div>';
     return html;
 }
 
