@@ -2793,26 +2793,38 @@ async function loadData(){
     var el=document.getElementById('api-status');
     var scrollY=window.scrollY;
     el.className='api loading';el.textContent='获取数据中...';
-    try{
-        var r=await fetch('https://www.26worldcup.cn/api/v1/cup/2026/schedule');
-        var d=await r.json();
-        if(d.code===0&&d.data.matches){
-            allMatches=d.data.matches;
-            var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
-            var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
-            el.className='api ok';
-            el.textContent='✅ 已连接 | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';
-            if(!selectedDate){
-                var nearest=findNearestMatchDay(allMatches);
-                if(nearest) selectedDate=nearest.date;
+    var apiUrl='https://www.26worldcup.cn/api/v1/cup/2026/schedule';
+    var retries=2;
+    for(var attempt=0;attempt<=retries;attempt++){
+        try{
+            var controller=new AbortController();
+            var timeoutId=setTimeout(function(){controller.abort();},8000);
+            var r=await fetch(apiUrl,{signal:controller.signal});
+            clearTimeout(timeoutId);
+            var d=await r.json();
+            if(d.code===0&&d.data.matches){
+                allMatches=d.data.matches;
+                var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
+                var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
+                el.className='api ok';
+                el.textContent='✅ 已连接 | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';
+                if(!selectedDate){
+                    var nearest=findNearestMatchDay(allMatches);
+                    if(nearest) selectedDate=nearest.date;
+                }
+                buildDateBar();
+                render();
+                setTimeout(function(){window.scrollTo(0,scrollY);},50);
+                return;
+            } else throw 0;
+        }catch(e){
+            if(attempt<retries){
+                el.textContent='⚠️ 重试中...('+(attempt+1)+'/'+retries+')';
+                await new Promise(function(r){setTimeout(r,1500);});
             }
-            buildDateBar();
-            render();
-            setTimeout(function(){window.scrollTo(0,scrollY);},50);
-        } else throw 0;
-    }catch(e){
-        el.className='api err';el.textContent='❌ API连接失败，请检查网络';
+        }
     }
+    el.className='api err';el.innerHTML='❌ API连接失败 <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
 }
 
 async function initOdds(){
