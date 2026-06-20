@@ -750,14 +750,13 @@ function buildMatchCard(match, stats){
 
     // Head-to-head history
     var h2h=getH2H(h,a);
+    html+='<div class="box full"><h4>⚔️ 历史交锋 '+cn(h)+' vs '+cn(a)+'</h4>';
     if(h2h.length>0){
-        html+='<div class="box full"><h4>⚔️ 历史交锋 '+cn(h)+' vs '+cn(a)+'</h4>';
         var h2hW={};
         h2h.forEach(function(m){
             if(!h2hW[m.winner]) h2hW[m.winner]=0;
             h2hW[m.winner]++;
         });
-        var total=h2h.length;
         var hWin=h2hW[h]||0;
         var aWin2=h2hW[a]||0;
         var draw=h2hW['Draw']||0;
@@ -775,8 +774,11 @@ function buildMatchCard(match, stats){
             html+='<span style="color:#f1c40f;font-weight:bold;margin-left:auto">'+m.score+'</span>';
             html+='</div>';
         });
-        html+='</div></div>';
+        html+='</div>';
+    } else {
+        html+='<div style="color:#888;font-size:0.82rem;text-align:center;padding:10px 0">暂无历史交锋记录</div>';
     }
+    html+='</div>';
 
     // Matchup comparison
     if(s1&&s2&&s1.played>0&&s2.played>0){
