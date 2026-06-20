@@ -150,7 +150,8 @@
         .toast.show{opacity:1}
         .compare-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(243,156,18,0.3);padding:10px 15px;z-index:100;display:none;justify-content:space-between;align-items:center}
         .compare-bar.show{display:flex}
-        .compare-items{display:flex;gap:6px;flex:1;overflow-x:auto}
+        .compare-items{display:flex;gap:6px;flex:1;overflow-x:auto;scrollbar-width:none;margin-right:8px}
+        .compare-items::-webkit-scrollbar{display:none}
         .compare-chip{background:rgba(243,156,18,0.2);border:1px solid rgba(243,156,18,0.3);border-radius:6px;padding:3px 8px;font-size:0.72rem;color:#f39c12;white-space:nowrap;display:flex;align-items:center;gap:4px}
         .compare-chip .cc-del{cursor:pointer;opacity:0.6}
         .compare-chip .cc-del:hover{opacity:1}
