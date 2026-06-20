@@ -142,6 +142,25 @@
         .lottery-tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:0.7rem;font-weight:bold}
         .lottery-tag.green{background:rgba(39,174,96,0.2);color:#2ecc71}
         .lottery-tag.red{background:rgba(231,76,60,0.2);color:#e74c3c}
+        .fav-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all 0.2s;z-index:2}
+        .fav-btn:hover{background:rgba(231,76,60,0.2);border-color:#e74c3c}
+        .fav-btn.active{background:rgba(231,76,60,0.3);border-color:#e74c3c;color:#e74c3c}
+        .share-btn{position:absolute;top:12px;right:50px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.85rem;transition:all 0.2s;z-index:2}
+        .share-btn:hover{background:rgba(52,152,219,0.2);border-color:#3498db}
+        .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:20px;font-size:0.82rem;z-index:2000;pointer-events:none;opacity:0;transition:opacity 0.3s}
+        .toast.show{opacity:1}
+        .compare-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(243,156,18,0.3);padding:10px 15px;z-index:100;display:none;justify-content:space-between;align-items:center}
+        .compare-bar.show{display:flex}
+        .compare-items{display:flex;gap:6px;flex:1;overflow-x:auto}
+        .compare-chip{background:rgba(243,156,18,0.2);border:1px solid rgba(243,156,18,0.3);border-radius:6px;padding:3px 8px;font-size:0.72rem;color:#f39c12;white-space:nowrap;display:flex;align-items:center;gap:4px}
+        .compare-chip .cc-del{cursor:pointer;opacity:0.6}
+        .compare-chip .cc-del:hover{opacity:1}
+        .history-panel{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-top:12px}
+        .history-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.78rem}
+        .history-item:last-child{border-bottom:none}
+        .history-correct{color:#2ecc71}.history-wrong{color:#e74c3c}.history-pending{color:#f39c12}
+        img[data-src]{opacity:0;transition:opacity 0.3s}
+        img[data-src].loaded{opacity:1}
         .tip{background:linear-gradient(135deg,rgba(52,152,219,0.2),rgba(41,128,185,0.15));border-radius:10px;padding:14px;margin-top:12px;border:1px solid rgba(52,152,219,0.25)}
         .tip-t{color:#5dade2;font-weight:bold;margin-bottom:6px;font-size:0.88rem}
         .tip-c{color:#ddd;font-size:0.82rem;line-height:1.6}
@@ -197,6 +216,13 @@
             </div>
             <div class="modal-body" id="modalBody"></div>
         </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="compare-bar" id="compareBar">
+        <div class="compare-items" id="compareItems"></div>
+        <button class="lottery-btn" onclick="openCompareModal()" style="padding:6px 12px;font-size:0.78rem">对比分析</button>
+        <button style="background:rgba(255,255,255,0.1);border:none;color:#888;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:0.78rem;margin-left:6px" onclick="clearCompare()">清空</button>
     </div>
 
     <div class="warn">免责声明：预测基于历史数据统计分析，仅供娱乐参考，不构成投注建议。请理性看待，切勿沉迷。</div>
@@ -472,18 +498,31 @@ function poissonProb(lambda,k){
     return Math.exp(-lambda)*Math.pow(lambda,k)/fact;
 }
 
+var CALIBRATION_CACHE={};
+var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
+
+function loadCalibCache(){
+    try{var c=localStorage.getItem(CALIBRATION_CACHE_KEY);if(c) CALIBRATION_CACHE=JSON.parse(c);}catch(e){}
+}
+function saveCalibCache(){
+    try{localStorage.setItem(CALIBRATION_CACHE_KEY,JSON.stringify(CALIBRATION_CACHE));}catch(e){}
+}
+loadCalibCache();
+
 function calibrateLambdas(home,away,realOdds){
+    var cacheKey=home+'-'+away;
+    if(!realOdds&&CALIBRATION_CACHE[cacheKey]) return CALIBRATION_CACHE[cacheKey];
     var base_xgH=TEAM_XG[home]||1.0, base_xgA=TEAM_XG[away]||1.0;
     var base_concH=TEAM_CONCEDED[home]||1.2, base_concA=TEAM_CONCEDED[away]||1.2;
     var base_lH=(base_xgH+base_concA)/2;
     var base_lA=(base_xgA+base_concH)/2;
-    if(!realOdds) return {lH:base_lH,lA:base_lA};
+    if(!realOdds) return {lH:base_lH,lA:base_lA,htRatio:0.42};
     var target_hProb=parseFloat(realOdds.homeProb)/100;
     var target_dProb=parseFloat(realOdds.drawProb)/100;
     var target_aProb=parseFloat(realOdds.awayProb)/100;
-    var best_lH=base_lH, best_lA=base_lA, best_err=999;
-    for(var dH=-0.5;dH<=0.5;dH+=0.05){
-        for(var dA=-0.5;dA<=0.5;dA+=0.05){
+    var best_lH=base_lH, best_lA=base_lA, best_err=999, best_ht=0.42;
+    for(var dH=-0.5;dH<=0.5;dH+=0.01){
+        for(var dA=-0.5;dA<=0.5;dA+=0.01){
             var lH=base_lH+dH, lA=base_lA+dA;
             if(lH<0.3||lA<0.3) continue;
             var ph=0,pd=0,pa=0;
@@ -499,7 +538,14 @@ function calibrateLambdas(home,away,realOdds){
             if(err<best_err){best_err=err;best_lH=lH;best_lA=lA;}
         }
     }
-    return {lH:best_lH,lA:best_lA};
+    for(var ht=0.35;ht<=0.50;ht+=0.01){
+        var htErr=Math.abs(ht-0.42);
+        if(htErr<0.05) best_ht=ht;
+    }
+    var result={lH:best_lH,lA:best_lA,htRatio:best_ht};
+    if(!realOdds) CALIBRATION_CACHE[cacheKey]=result;
+    if(Object.keys(CALIBRATION_CACHE).length>200) saveCalibCache();
+    return result;
 }
 
 function calcScoreProbs(home,away,realOdds){
@@ -542,7 +588,7 @@ function calcTotalGoalsProbs(home,away,realOdds){
 function calcHTFTProbs(home,away,realOdds){
     var lam=calibrateLambdas(home,away,realOdds);
     var lambdaH=lam.lH, lambdaA=lam.lA;
-    var htRatio=0.42;
+    var htRatio=lam.htRatio||0.42;
     var lambdaH_ht=lambdaH*htRatio;
     var lambdaA_ht=lambdaA*htRatio;
     var lambdaH_ft=lambdaH*(1-htRatio);
@@ -1973,12 +2019,15 @@ function buildMatchCard(match, stats, idx){
     else scoreHtml='<div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">'+statusText(match.status)+'</div>';
 
     var html='';
-    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'">';
+    var matchId=match.id||idx;
+    html+='<div id="match-'+idx+'" class="match '+matchClass(match.status)+'" style="position:relative">';
+    html+='<button class="fav-btn'+(isFav(matchId)?' active':'')+'" onclick="event.stopPropagation();toggleFav('+matchId+',\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">'+(isFav(matchId)?'❤️':'🤍')+'</button>';
+    html+='<button class="share-btn" onclick="event.stopPropagation();shareMatch(\''+h.replace(/'/g,"\\'")+'\',\''+a.replace(/'/g,"\\'")+'\')">📤</button>';
     html+='<div class="m-head"><span class="m-time">'+fmtTime(match.kickoff_time)+'</span><span class="m-tag">'+fmtRound(match.round)+'</span><span class="m-status '+statusClass(match.status)+'">'+statusText(match.status)+'</span></div>';
     html+='<div class="teams">';
-    html+='<div class="team"><img class="logo" src="'+match.home_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(h)+'</div><div class="t-rank">FIFA #'+rk(h)+'</div></div>';
+    html+='<div class="team"><img class="logo" data-src="'+match.home_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(h)+'</div><div class="t-rank">FIFA #'+rk(h)+'</div></div>';
     html+=scoreHtml;
-    html+='<div class="team"><img class="logo" src="'+match.away_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(a)+'</div><div class="t-rank">FIFA #'+rk(a)+'</div></div>';
+    html+='<div class="team"><img class="logo" data-src="'+match.away_logo+'" onerror="this.style.display=\'none\'"><div class="t-name">'+cn(a)+'</div><div class="t-rank">FIFA #'+rk(a)+'</div></div>';
     html+='</div>';
 
     html+='<div class="grid">';
@@ -2344,6 +2393,153 @@ function closeLotteryModal(){
     document.body.style.overflow='';
 }
 
+function showToast(msg){
+    var t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+var FAV_KEY='wc2026_favs';
+var favs=[];
+try{favs=JSON.parse(localStorage.getItem(FAV_KEY))||[];}catch(e){favs=[];}
+function saveFavs(){try{localStorage.setItem(FAV_KEY,JSON.stringify(favs));}catch(e){}}
+function toggleFav(matchId,home,away){
+    var idx=favs.indexOf(matchId);
+    if(idx>=0){favs.splice(idx,1);showToast('已取消收藏');}
+    else{favs.push(matchId);showToast('已收藏 '+cn(home)+' vs '+cn(away));}
+    saveFavs();render();
+}
+function isFav(matchId){return favs.indexOf(matchId)>=0;}
+
+var COMPARE_KEY='wc2026_compare';
+var compareList=[];
+try{compareList=JSON.parse(localStorage.getItem(COMPARE_KEY))||[];}catch(e){compareList=[];}
+function saveCompare(){try{localStorage.setItem(COMPARE_KEY,JSON.stringify(compareList));}catch(e){}}
+function toggleCompare(matchId,home,away){
+    var idx=-1;
+    compareList.forEach(function(c,i){if(c.id===matchId) idx=i;});
+    if(idx>=0){compareList.splice(idx,1);showToast('已移除对比');}
+    else{
+        if(compareList.length>=4){showToast('最多对比4场');return;}
+        compareList.push({id:matchId,home:home,away:away});
+        showToast('已添加对比');
+    }
+    saveCompare();updateCompareBar();render();
+}
+function updateCompareBar(){
+    var bar=document.getElementById('compareBar');
+    var items=document.getElementById('compareItems');
+    if(compareList.length===0){bar.classList.remove('show');return;}
+    bar.classList.add('show');
+    var html='';
+    compareList.forEach(function(c,i){
+        html+='<div class="compare-chip">'+cn(c.home)+' vs '+cn(c.away)+'<span class="cc-del" onclick="removeCompare('+i+')">✕</span></div>';
+    });
+    items.innerHTML=html;
+}
+function removeCompare(idx){compareList.splice(idx,1);saveCompare();updateCompareBar();render();}
+function clearCompare(){compareList=[];saveCompare();updateCompareBar();render();showToast('已清空对比');}
+
+function openCompareModal(){
+    if(compareList.length<2){showToast('至少选择2场比赛');return;}
+    var modal=document.getElementById('lotteryModal');
+    var title=document.getElementById('modalTitle');
+    var body=document.getElementById('modalBody');
+    title.textContent='📊 比赛对比分析';
+    var stats=buildTeamStats(allMatches);
+    var html='<table class="lottery-table"><tr><th>指标</th>';
+    compareList.forEach(function(c){html+='<th>'+cn(c.home)+'<br>vs<br>'+cn(c.away)+'</th>';});
+    html+='</tr>';
+    compareList.forEach(function(c){
+        var pred=predictScore(c.home,c.away);
+        var ou=predictOverUnder(c.home,c.away);
+    });
+    var rows=[
+        {label:'预测比分',fn:function(c){var p=predictScore(c.home,c.away);return p.home.toFixed(1)+'-'+p.away.toFixed(1);}},
+        {label:'主胜概率',fn:function(c){var p=predictScore(c.home,c.away);return p.homeWin+'%';}},
+        {label:'平局概率',fn:function(c){var p=predictScore(c.home,c.away);return p.draw+'%';}},
+        {label:'客胜概率',fn:function(c){var p=predictScore(c.home,c.away);return p.awayWin+'%';}},
+        {label:'大2.5概率',fn:function(c){var o=predictOverUnder(c.home,c.away);return o.over25+'%';}},
+        {label:'预计总进球',fn:function(c){var o=predictOverUnder(c.home,c.away);return o.avg;}},
+        {label:'ELO差值',fn:function(c){return((TEAM_ELO[c.home]||1500)-(TEAM_ELO[c.away]||1500));}},
+        {label:'主队ELO',fn:function(c){return TEAM_ELO[c.home]||'--';}},
+        {label:'客队ELO',fn:function(c){return TEAM_ELO[c.away]||'--';}}
+    ];
+    rows.forEach(function(r){
+        html+='<tr><td style="color:#888">'+r.label+'</td>';
+        compareList.forEach(function(c){
+            var val=r.fn(c);
+            var style='';
+            if(r.label==='ELO差值') style='color:'+(val>0?'#2ecc71':val<0?'#e74c3c':'#888');
+            html+='<td style="'+style+'">'+val+'</td>';
+        });
+        html+='</tr>';
+    });
+    html+='</table>';
+    html+='<div style="text-align:center;color:#888;font-size:0.72rem;margin-top:10px">基于泊松分布模型 + 真实博彩赔率校准</div>';
+    body.innerHTML=html;
+    modal.classList.add('show');
+    document.body.style.overflow='hidden';
+}
+
+function setupLazyLoad(){
+    var imgs=document.querySelectorAll('img[data-src]');
+    if(!imgs.length) return;
+    if('IntersectionObserver' in window){
+        var obs=new IntersectionObserver(function(entries){
+            entries.forEach(function(e){
+                if(e.isIntersecting){
+                    var img=e.target;
+                    img.src=img.getAttribute('data-src');
+                    img.removeAttribute('data-src');
+                    img.classList.add('loaded');
+                    img.onerror=function(){this.style.display='none';};
+                    obs.unobserve(img);
+                }
+            });
+        },{rootMargin:'100px'});
+        imgs.forEach(function(img){obs.observe(img);});
+    } else {
+        imgs.forEach(function(img){img.src=img.getAttribute('data-src');img.removeAttribute('data-src');img.classList.add('loaded');});
+    }
+}
+
+var HISTORY_KEY='wc2026_history';
+var predHistory=[];
+try{predHistory=JSON.parse(localStorage.getItem(HISTORY_KEY))||[];}catch(e){predHistory=[];}
+function saveHistory(){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(predHistory.slice(-200)));}catch(e){}}
+function recordPrediction(matchId,home,away,score,prob){
+    var exists=false;
+    predHistory.forEach(function(h){if(h.id===matchId) exists=true;});
+    if(!exists) predHistory.push({id:matchId,home:home,away:away,pred:score,prob:prob,time:Date.now()});
+    saveHistory();
+}
+function getHistoryStats(){
+    var correct=0,total=0;
+    predHistory.forEach(function(h){
+        if(h.actual){
+            total++;
+            if(h.actual===h.pred) correct++;
+        }
+    });
+    return {total:total,correct:correct,rate:total>0?Math.round(correct/total*100):0};
+}
+
+function shareMatch(home,away){
+    var pred=predictScore(home,away);
+    var text='⚽ '+cn(home)+' VS '+cn(away)+'\n';
+    text+='📊 预测: '+pred.home.toFixed(1)+'-'+pred.away.toFixed(1)+'\n';
+    text+='🏠 主胜 '+pred.homeWin+'% | 平 '+pred.draw+'% | 客胜 '+pred.awayWin+'%\n';
+    text+='🔗 2026世界杯智能预测';
+    if(navigator.share){
+        navigator.share({title:'世界杯预测',text:text}).catch(function(){});
+    } else if(navigator.clipboard){
+        navigator.clipboard.writeText(text).then(function(){showToast('已复制预测到剪贴板');});
+    } else {
+        showToast(text.replace(/\n/g,' | '));
+    }
+}
+
 function buildTournamentAnalysis(matches){
     var html='';
     var allTeams=[];
@@ -2497,6 +2693,8 @@ function render(){
     main.innerHTML=html;
     buildMatchNav(ordered);
     setupNavObserver();
+    setupLazyLoad();
+    updateCompareBar();
 }
 
 async function loadData(){
