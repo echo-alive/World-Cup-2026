@@ -472,11 +472,39 @@ function poissonProb(lambda,k){
     return Math.exp(-lambda)*Math.pow(lambda,k)/fact;
 }
 
-function calcScoreProbs(home,away){
-    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
-    var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
-    var lambdaH=(xgH+concA)/2;
-    var lambdaA=(xgA+concH)/2;
+function calibrateLambdas(home,away,realOdds){
+    var base_xgH=TEAM_XG[home]||1.0, base_xgA=TEAM_XG[away]||1.0;
+    var base_concH=TEAM_CONCEDED[home]||1.2, base_concA=TEAM_CONCEDED[away]||1.2;
+    var base_lH=(base_xgH+base_concA)/2;
+    var base_lA=(base_xgA+base_concH)/2;
+    if(!realOdds) return {lH:base_lH,lA:base_lA};
+    var target_hProb=parseFloat(realOdds.homeProb)/100;
+    var target_dProb=parseFloat(realOdds.drawProb)/100;
+    var target_aProb=parseFloat(realOdds.awayProb)/100;
+    var best_lH=base_lH, best_lA=base_lA, best_err=999;
+    for(var dH=-0.5;dH<=0.5;dH+=0.05){
+        for(var dA=-0.5;dA<=0.5;dA+=0.05){
+            var lH=base_lH+dH, lA=base_lA+dA;
+            if(lH<0.3||lA<0.3) continue;
+            var ph=0,pd=0,pa=0;
+            for(var h=0;h<=6;h++){
+                for(var a=0;a<=6;a++){
+                    var p=poissonProb(lH,h)*poissonProb(lA,a);
+                    if(h>a) ph+=p;
+                    else if(h===a) pd+=p;
+                    else pa+=p;
+                }
+            }
+            var err=Math.abs(ph-target_hProb)+Math.abs(pd-target_dProb)+Math.abs(pa-target_aProb);
+            if(err<best_err){best_err=err;best_lH=lH;best_lA=lA;}
+        }
+    }
+    return {lH:best_lH,lA:best_lA};
+}
+
+function calcScoreProbs(home,away,realOdds){
+    var lam=calibrateLambdas(home,away,realOdds);
+    var lambdaH=lam.lH, lambdaA=lam.lA;
     var scores=[];
     for(var h=0;h<=5;h++){
         for(var a=0;a<=5;a++){
@@ -490,8 +518,8 @@ function calcScoreProbs(home,away){
     return scores;
 }
 
-function calcTotalGoalsProbs(home,away){
-    var scores=calcScoreProbs(home,away);
+function calcTotalGoalsProbs(home,away,realOdds){
+    var scores=calcScoreProbs(home,away,realOdds);
     var totals={};
     scores.forEach(function(s){
         var total=s.home+s.away;
@@ -511,14 +539,14 @@ function calcTotalGoalsProbs(home,away){
     return result;
 }
 
-function calcHTFTProbs(home,away){
-    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
-    var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
+function calcHTFTProbs(home,away,realOdds){
+    var lam=calibrateLambdas(home,away,realOdds);
+    var lambdaH=lam.lH, lambdaA=lam.lA;
     var htRatio=0.42;
-    var lambdaH_ht=((xgH+concA)/2)*htRatio;
-    var lambdaA_ht=((xgA+concH)/2)*htRatio;
-    var lambdaH_ft=((xgH+concA)/2)*(1-htRatio);
-    var lambdaA_ft=((xgA+concH)/2)*(1-htRatio);
+    var lambdaH_ht=lambdaH*htRatio;
+    var lambdaA_ht=lambdaA*htRatio;
+    var lambdaH_ft=lambdaH*(1-htRatio);
+    var lambdaA_ft=lambdaA*(1-htRatio);
     var htft={};
     var htResults=['H','D','A'];
     htResults.forEach(function(ht){
@@ -2078,7 +2106,7 @@ function buildMatchCard(match, stats, idx){
             html+='</div>';
 
             // Score predictions from Poisson
-            var scores=calcScoreProbs(h,a);
+            var scores=calcScoreProbs(h,a,realOdds);
             var sw=scores.slice(0,6);
             var tw=sw.reduce(function(a,b){return a+b.prob;},0);
             sw.forEach(function(s){
@@ -2275,9 +2303,10 @@ function openLotteryModal(home,away){
     var title=document.getElementById('modalTitle');
     var body=document.getElementById('modalBody');
     title.textContent=cn(home)+' VS '+cn(away)+' 国际博彩赔率';
-    var scores=calcScoreProbs(home,away);
-    var totalGoals=calcTotalGoalsProbs(home,away);
-    var htft=calcHTFTProbs(home,away);
+    var realOdds=getOddsForMatch(home,away);
+    var scores=calcScoreProbs(home,away,realOdds);
+    var totalGoals=calcTotalGoalsProbs(home,away,realOdds);
+    var htft=calcHTFTProbs(home,away,realOdds);
     var html='';
     // Score odds
     html+='<div class="lottery-section"><h4>⚽ 比分</h4><table class="lottery-table"><tr><th>比分</th><th>赔率</th><th>概率</th><th>热度</th></tr>';
