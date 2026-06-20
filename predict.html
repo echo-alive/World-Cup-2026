@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界杯预测 - 6月21日</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:20px}
+        header{text-align:center;padding:20px 0}
+        h1{font-size:2rem;background:linear-gradient(90deg,#f39c12,#e74c3c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .badge{display:inline-block;background:#e74c3c;padding:8px 20px;border-radius:20px;margin-top:10px;font-weight:bold}
+        .status{margin-top:10px;padding:8px;border-radius:8px;font-size:0.85rem}
+        .status.ok{background:rgba(39,174,96,0.2);color:#27ae60}
+        .status.err{background:rgba(231,76,60,0.2);color:#e74c3c}
+        .btn{background:#3498db;color:#fff;border:none;padding:10px 25px;border-radius:25px;cursor:pointer;margin-top:10px}
+        .card{background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;margin:20px 0;border:1px solid rgba(255,255,255,0.1)}
+        .card.hot{border:2px solid #f39c12}
+        .header{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,0.1);flex-wrap:wrap;gap:10px}
+        .time{color:#f39c12;font-weight:bold;font-size:1.1rem}
+        .tag{background:#3498db;padding:4px 12px;border-radius:15px;font-size:0.8rem}
+        .st{padding:4px 12px;border-radius:15px;font-size:0.8rem;font-weight:bold}
+        .st-ns{background:#27ae60}
+        .teams{display:flex;justify-content:space-around;align-items:center;margin:25px 0}
+        .team{text-align:center;flex:1}
+        .logo{width:70px;height:70px;margin:0 auto 8px;object-fit:contain}
+        .name{font-size:1.2rem;font-weight:bold}
+        .rank{color:#888;font-size:0.8rem}
+        .vs{font-size:1.5rem;font-weight:bold;color:#e74c3c;padding:0 15px}
+        .score{font-size:2rem;font-weight:bold;color:#f39c12}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
+        .box{background:rgba(0,0,0,0.3);border-radius:10px;padding:15px}
+        .box.full{grid-column:span 2}
+        .box h4{color:#f39c12;margin-bottom:10px;font-size:0.9rem}
+        .form{display:flex;gap:5px}
+        .fi{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:bold}
+        .w{background:#27ae60}.d{background:#f39c12}.l{background:#e74c3c}
+        .players{display:flex;flex-wrap:wrap;gap:5px}
+        .pl{background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:10px;font-size:0.75rem}
+        .h2h{display:flex;justify-content:space-around;text-align:center}
+        .hi{flex:1}
+        .hn{font-size:1.3rem;font-weight:bold;display:block}
+        .hl{color:#888;font-size:0.7rem}
+        .pred{background:linear-gradient(135deg,rgba(243,156,18,0.3),rgba(231,76,60,0.3));border:2px solid #f39c12;border-radius:12px;padding:20px;margin-top:20px}
+        .pred h4{color:#f39c12;text-align:center;margin-bottom:15px}
+        .scores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
+        .so{background:rgba(0,0,0,0.3);border-radius:8px;padding:12px 8px;text-align:center;border:2px solid transparent}
+        .so.rec{background:linear-gradient(135deg,#27ae60,#2ecc71);border-color:#27ae60}
+        .sv{font-size:1.2rem;font-weight:bold}
+        .odds{color:#f39c12;font-size:0.85rem}
+        .rate{color:#888;font-size:0.7rem}
+        .desc{color:#aaa;font-size:0.7rem;margin-top:3px}
+        .badge-rec{display:inline-block;background:#e74c3c;padding:2px 6px;border-radius:6px;font-size:0.65rem;margin-top:4px}
+        .tip{background:rgba(52,152,219,0.2);border-radius:8px;padding:12px;margin-top:10px}
+        .tip-t{color:#3498db;font-weight:bold;margin-bottom:5px}
+        .tip-c{color:#ddd;font-size:0.85rem;line-height:1.5}
+        .foot{text-align:center;padding:20px 0;color:#666;font-size:0.8rem}
+        .warn{background:rgba(231,76,60,0.2);padding:12px;border-radius:8px;margin-top:15px;font-size:0.85rem;text-align:center}
+        .load{text-align:center;padding:40px}
+        .spin{border:3px solid rgba(255,255,255,0.1);border-top:3px solid #f39c12;border-radius:50%;width:40px;height:40px;animation:s 1s linear infinite;margin:0 auto 15px}
+        @keyframes s{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+        @media(max-width:600px){.teams{flex-direction:column;gap:15px}.vs,.score{padding:8px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>世界杯比赛预测</h1>
+        <div class="badge">6月21日 星期日</div>
+        <div id="api" class="status">连接中...</div>
+        <button class="btn" onclick="load()">刷新数据</button>
+    </header>
+    <div id="main"><div class="load"><div class="spin"></div><p>加载中...</p></div></div>
+    <div class="warn">免责声明：仅供娱乐参考，不构成投注建议。请理性看待，切勿沉迷。</div>
+    <div class="foot">数据来源：26worldcup.cn API</div>
+</div>
+<script>
+var TI={
+    'Netherlands':{n:'荷兰',f:'🇳🇱',r:7,form:['平','胜','胜','负','胜'],style:'控球进攻',info:'首轮2-2平日本',kp:['范戴克','德容','加克波'],h2h:{t:20,w:9,d:5,l:6}},
+    'Sweden':{n:'瑞典',f:'🇸🇪',r:34,form:['胜','负','平','胜','胜'],style:'防守反击',info:'首轮5-1胜突尼斯',kp:['伊萨克','库卢塞夫斯基','林德洛夫'],h2h:{t:20,w:6,d:5,l:9}},
+    'Germany':{n:'德国',f:'🇩🇪',r:10,form:['胜','胜','平','胜','胜'],style:'传控压迫',info:'首轮7-1胜库拉索',kp:['穆西亚拉','维尔茨','萨内'],h2h:{t:3,w:2,d:1,l:0}},
+    'Ivory Coast':{n:'科特迪瓦',f:'🇨🇮',r:42,form:['负','平','胜','负','平'],style:'身体反击',info:'首轮0-1负厄瓜多尔',kp:['佩佩','扎哈','阿莱'],h2h:{t:3,w:0,d:1,l:2}},
+    'Ecuador':{n:'厄瓜多尔',f:'🇪🇨',r:33,form:['胜','负','平','胜','平'],style:'快速反击',info:'首轮1-0胜科特迪瓦',kp:['瓦伦西亚','凯塞多','因卡皮耶'],h2h:{t:2,w:2,d:0,l:0}},
+    'Curaçao':{n:'库拉索',f:'🇨🇼',r:88,form:['负','负','平','负','胜'],style:'防守为主',info:'首轮1-7负德国',kp:['巴库纳','马西亚诺','纳瓦罗'],h2h:{t:2,w:0,d:0,l:2}},
+    'Tunisia':{n:'突尼斯',f:'🇹🇳',r:36,form:['负','平','胜','负','平'],style:'防守反击',info:'首轮1-5负瑞典',kp:['姆萨克尼','哈兹里','西耶赫'],h2h:{t:3,w:1,d:1,l:1}},
+    'Japan':{n:'日本',f:'🇯🇵',r:18,form:['平','负','胜','胜','平'],style:'技术传切',info:'首轮2-2平荷兰',kp:['久保建英','三笘薫','远藤航'],h2h:{t:3,w:1,d:1,l:1}}
+};
+var SP={
+    'Netherlands-Sweden':{sc:[{s:'2-1',o:8.5,p:18,d:'最可能'},{s:'1-0',o:7.0,p:15,d:'小胜'},{s:'2-0',o:9.0,p:12,d:'零封'},{s:'1-1',o:6.5,p:14,d:'平局'},{s:'3-1',o:14.0,p:8,d:'大胜'},{s:'0-1',o:10.0,p:6,d:'冷门'}],rec:'2-1',sum:'荷兰实力占优但首轮不稳，瑞典状态火热。推荐荷兰小胜2-1或1-0。'},
+    'Germany-Ivory Coast':{sc:[{s:'3-0',o:7.0,p:20,d:'最可能'},{s:'2-0',o:6.5,p:18,d:'稳胜'},{s:'4-0',o:10.0,p:10,d:'大胜'},{s:'3-1',o:9.0,p:12,d:'丢球'},{s:'2-1',o:8.0,p:10,d:'小胜'},{s:'5-0',o:15.0,p:5,d:'狂胜'}],rec:'3-0',sum:'德国首轮7-1大胜状态火热，科特迪瓦实力差距明显。推荐3-0或2-0零封。'},
+    'Ecuador-Curaçao':{sc:[{s:'2-0',o:6.0,p:22,d:'最可能'},{s:'3-0',o:7.5,p:18,d:'稳胜'},{s:'1-0',o:5.5,p:15,d:'小胜'},{s:'3-1',o:10.0,p:10,d:'丢球'},{s:'2-1',o:8.0,p:10,d:'险胜'},{s:'4-0',o:12.0,p:8,d:'大胜'}],rec:'2-0',sum:'厄瓜多尔首轮获胜，库拉索首轮1-7惨败。推荐2-0或3-0轻松获胜。'},
+    'Tunisia-Japan':{sc:[{s:'1-2',o:8.0,p:16,d:'日本小胜'},{s:'0-1',o:7.0,p:15,d:'日本稳胜'},{s:'1-1',o:6.0,p:18,d:'平局'},{s:'0-2',o:9.0,p:12,d:'日本零封'},{s:'2-1',o:10.0,p:10,d:'突尼斯胜'},{s:'1-3',o:12.0,p:8,d:'日本大胜'}],rec:'1-2',sum:'日本首轮2-2平荷兰状态出色，突尼斯1-5惨败。推荐日本1-2小胜。'}
+};
+var TI2={
+    'Netherlands':{n:'荷兰',f:'🇳🇱',r:7},'Sweden':{n:'瑞典',f:'🇸🇪',r:34},
+    'Germany':{n:'德国',f:'🇩🇪',r:10},'Ivory Coast':{n:'科特迪瓦',f:'🇨🇮',r:42},
+    'Ecuador':{n:'厄瓜多尔',f:'🇪🇨',r:33},'Curaçao':{n:'库拉索',f:'🇨🇼',r:88},
+    'Tunisia':{n:'突尼斯',f:'🇹🇳',r:36},'Japan':{n:'日本',f:'🇯🇵',r:18}
+};
+function gt(n){return TI2[n]||{n:n,f:'🏳️',r:'--'}}
+function gd(n){return TI[n]||null}
+function ft(s){var d=new Date(s);return(d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()}
+function ss(s){return{NS:'未开始','1H':'上半场',HT:'中场','2H':'下半场',FT:'已结束'}[s]||s}
+function sc(s){return s==='NS'?'st-ns':''}
+
+async function load(){
+    var el=document.getElementById('api');
+    var m=document.getElementById('main');
+    el.className='status';el.textContent='获取数据中...';
+    try{
+        var r=await fetch('https://www.26worldcup.cn/api/v1/cup/2026/schedule?date=2026-06-21');
+        var d=await r.json();
+        if(d.code===0&&d.data.matches){
+            el.className='status ok';el.textContent='✅ 已连接 | '+d.data.matches.length+' 场比赛';
+            render(d.data.matches);
+        }else throw 0;
+    }catch(e){
+        el.className='status err';el.textContent='❌ API失败，使用本地数据';
+        render([
+            {home_team:'Netherlands',away_team:'Sweden',kickoff_time:'2026-06-21 01:00:00',status:'NS',home_logo:'',away_logo:''},
+            {home_team:'Germany',away_team:'Ivory Coast',kickoff_time:'2026-06-21 04:00:00',status:'NS',home_logo:'',away_logo:''},
+            {home_team:'Ecuador',away_team:'Curaçao',kickoff_time:'2026-06-21 08:00:00',status:'NS',home_logo:'',away_logo:''},
+            {home_team:'Tunisia',away_team:'Japan',kickoff_time:'2026-06-21 12:00:00',status:'NS',home_logo:'',away_logo:''}
+        ]);
+    }
+}
+
+function render(matches){
+    var m=document.getElementById('main');m.innerHTML='';
+    matches.forEach(function(match,i){
+        var t1=gt(match.home_team),t2=gt(match.away_team);
+        var d1=gd(match.home_team),d2=gd(match.away_team);
+        var pk=match.home_team+'-'+match.away_team;
+        var pr=SP[pk];
+        var sh=match.status!=='NS'?'<div class="score">'+(match.home_score||0)+' - '+(match.away_score||0)+'</div>':'<div class="vs">VS</div>';
+        var ph='';
+        if(pr&&match.status==='NS'){
+            ph='<div class="pred"><h4>🎯 比分推荐</h4><div class="scores">';
+            pr.sc.forEach(function(s){
+                ph+='<div class="so'+(s.s===pr.rec?' rec':'')+'"><div class="sv">'+s.s+'</div><div class="odds">赔率 '+s.o+'</div><div class="rate">概率 '+s.p+'%</div><div class="desc">'+s.d+'</div>'+(s.s===pr.rec?'<div class="badge-rec">推荐</div>':'')+'</div>';
+            });
+            ph+='</div><div class="tip"><div class="tip-t">💡 投注建议</div><div class="tip-c">'+pr.sum+'</div></div></div>';
+        }
+        var h='';
+        h+='<div class="card'+(i===0?' hot':'')+'">';
+        h+='<div class="header"><span class="time">⏰ '+ft(match.kickoff_time)+'</span><span class="tag">小组赛第2轮</span><span class="st '+sc(match.status)+'">'+ss(match.status)+'</span></div>';
+        h+='<div class="teams"><div class="team"><img class="logo" src="'+match.home_logo+'" alt="'+t1.n+'" onerror="this.style.display=\'none\'"><div class="name">'+t1.f+' '+t1.n+'</div><div class="rank">FIFA #'+t1.r+'</div></div><div class="vs">VS</div><div class="team"><img class="logo" src="'+match.away_logo+'" alt="'+t2.n+'" onerror="this.style.display=\'none\'"><div class="name">'+t2.n+' '+t2.f+'</div><div class="rank">FIFA #'+t2.r+'</div></div></div>';
+        h+='<div class="grid">';
+        h+='<div class="box"><h4>'+t1.n+' 近期状态</h4>';
+        if(d1){h+='<div class="form" style="margin-bottom:8px">';d1.form.forEach(function(r){h+='<div class="fi '+((r==='胜')?'w':(r==='平')?'d':'l')+'">'+r+'</div>'});h+='</div><div style="color:#888;font-size:0.8rem">风格: '+d1.style+'</div><div style="color:#f39c12;font-size:0.8rem;margin-top:4px">'+d1.info+'</div>'}
+        else h+='<div style="color:#888">暂无</div>';
+        h+='</div>';
+        h+='<div class="box"><h4>'+t2.n+' 近期状态</h4>';
+        if(d2){h+='<div class="form" style="margin-bottom:8px">';d2.form.forEach(function(r){h+='<div class="fi '+((r==='胜')?'w':(r==='平')?'d':'l')+'">'+r+'</div>'});h+='</div><div style="color:#888;font-size:0.8rem">风格: '+d2.style+'</div><div style="color:#f39c12;font-size:0.8rem;margin-top:4px">'+d2.info+'</div>'}
+        else h+='<div style="color:#888">暂无</div>';
+        h+='</div>';
+        h+='<div class="box"><h4>'+t1.n+' 关键球员</h4><div class="players">';
+        if(d1)d1.kp.forEach(function(p){h+='<span class="pl">'+p+'</span>'});
+        else h+='<span style="color:#888">暂无</span>';
+        h+='</div></div>';
+        h+='<div class="box"><h4>'+t2.n+' 关键球员</h4><div class="players">';
+        if(d2)d2.kp.forEach(function(p){h+='<span class="pl">'+p+'</span>'});
+        else h+='<span style="color:#888">暂无</span>';
+        h+='</div></div>';
+        h+='<div class="box full"><h4>📊 历史交锋</h4>';
+        if(d1&&d1.h2h){h+='<div class="h2h"><div class="hi"><span class="hn" style="color:#3498db">'+d1.h2h.t+'</span><span class="hl">总场次</span></div><div class="hi"><span class="hn" style="color:#27ae60">'+d1.h2h.w+'</span><span class="hl">'+t1.n+'胜</span></div><div class="hi"><span class="hn" style="color:#f39c12">'+d1.h2h.d+'</span><span class="hl">平局</span></div><div class="hi"><span class="hn" style="color:#e74c3c">'+d1.h2h.l+'</span><span class="hl">'+t2.n+'胜</span></div></div>'}
+        else h+='<div style="color:#888;text-align:center">暂无</div>';
+        h+='</div></div>';
+        h+=ph;
+        h+='</div>';
+        m.innerHTML+=h;
+    });
+}
+
+document.addEventListener('DOMContentLoaded',load);
+setInterval(load,60000);
+</script>
+</body>
+</html>
