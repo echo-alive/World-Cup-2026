@@ -306,27 +306,53 @@ function findNearestMatchDay(allMs){
 }
 
 function buildStandings(matches){
+    // API group field is always "S", infer groups from match pairings
+    var inferredGroups = [
+        ['Mexico','South Africa','South Korea','Czechia'],
+        ['Canada','Bosnia & Herzegovina','USA','Paraguay'],
+        ['Qatar','Switzerland','Brazil','Morocco'],
+        ['Haiti','Scotland','Australia','Türkiye'],
+        ['Germany','Curaçao','Netherlands','Japan'],
+        ['Ivory Coast','Ecuador','Sweden','Tunisia'],
+        ['Spain','Cape Verde Islands','Belgium','Egypt'],
+        ['Saudi Arabia','Uruguay','Iran','New Zealand'],
+        ['France','Senegal','Iraq','Norway'],
+        ['Argentina','Algeria','Austria','Jordan'],
+        ['Portugal','Congo DR','England','Croatia'],
+        ['Ghana','Panama','Uzbekistan','Colombia']
+    ];
+    var gLetters='ABCDEFGHIJKL'.split('');
+
+    // Build lookup: team -> group index
+    var teamGroup={};
     var groups={};
-    matches.forEach(function(m){
-        if(!m.group) return;
-        if(!groups[m.group]) groups[m.group]={};
-        var h=m.home_team, a=m.away_team;
-        if(!groups[m.group][h]) groups[m.group][h]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
-        if(!groups[m.group][a]) groups[m.group][a]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
-        if(m.status==='FT'){
-            var hs=m.home_score||0, as=m.away_score||0;
-            var t1=groups[m.group][h], t2=groups[m.group][a];
-            t1.p++;t2.p++;
-            t1.gf+=hs;t1.ga+=as;t2.gf+=as;t2.ga+=hs;
-            if(hs>as){t1.w++;t1.pts+=3;t2.l++;}
-            else if(hs===as){t1.d++;t2.d++;t1.pts+=1;t2.pts+=1;}
-            else{t1.l++;t2.w++;t2.pts+=3;}
-        }
+    inferredGroups.forEach(function(arr,i){
+        var g=gLetters[i];
+        groups[g]={};
+        arr.forEach(function(t){
+            teamGroup[t]=g;
+            groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+        });
     });
+
+    // Fill stats from completed matches
+    matches.forEach(function(m){
+        if(m.status!=='FT') return;
+        var h=m.home_team, a=m.away_team;
+        var g=teamGroup[h];
+        if(!g||!groups[g]) return;
+        var hs=m.home_score||0, as=m.away_score||0;
+        var t1=groups[g][h], t2=groups[g][a];
+        t1.p++;t2.p++;
+        t1.gf+=hs;t1.ga+=as;t2.gf+=as;t2.ga+=hs;
+        if(hs>as){t1.w++;t1.pts+=3;t2.l++;}
+        else if(hs===as){t1.d++;t2.d++;t1.pts+=1;t2.pts+=1;}
+        else{t1.l++;t2.w++;t2.pts+=3;}
+    });
+
     var html='<div class="standings">';
-    var gNames='ABCDEFGHIJKL'.split('');
-    for(var i=0;i<gNames.length;i++){
-        var g=gNames[i];
+    for(var i=0;i<gLetters.length;i++){
+        var g=gLetters[i];
         if(!groups[g]) continue;
         var teams=Object.keys(groups[g]).map(function(t){
             var s=groups[g][t];
