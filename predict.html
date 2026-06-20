@@ -306,41 +306,50 @@ function findNearestMatchDay(allMs){
 }
 
 function buildStandings(matches){
-    // API group field is always "S", infer groups from match pairings
-    var inferredGroups = [
-        ['Mexico','South Africa','South Korea','Czechia'],
-        ['Canada','Bosnia & Herzegovina','USA','Paraguay'],
-        ['Qatar','Switzerland','Brazil','Morocco'],
-        ['Haiti','Scotland','Australia','Türkiye'],
-        ['Germany','Curaçao','Netherlands','Japan'],
-        ['Ivory Coast','Ecuador','Sweden','Tunisia'],
-        ['Spain','Cape Verde Islands','Belgium','Egypt'],
-        ['Saudi Arabia','Uruguay','Iran','New Zealand'],
-        ['France','Senegal','Iraq','Norway'],
-        ['Argentina','Algeria','Austria','Jordan'],
-        ['Portugal','Congo DR','England','Croatia'],
-        ['Ghana','Panama','Uzbekistan','Colombia']
-    ];
-    var gLetters='ABCDEFGHIJKL'.split('');
+    // Dynamically infer groups from Round 1 match pairings using graph connectivity
+    var round1=matches.filter(function(m){return m.round==='Group Stage - 1';});
+    // Build adjacency: team -> set of teams they play
+    var adj={};
+    function addEdge(a,b){
+        if(!adj[a]) adj[a]={};
+        if(!adj[b]) adj[b]={};
+        adj[a][b]=1; adj[b][a]=1;
+    }
+    round1.forEach(function(m){ addEdge(m.home_team, m.away_team); });
 
-    // Build lookup: team -> group index
-    var teamGroup={};
+    // BFS to find connected components of size 4
+    var visited={};
     var groups={};
-    inferredGroups.forEach(function(arr,i){
-        var g=gLetters[i];
-        groups[g]={};
-        arr.forEach(function(t){
-            teamGroup[t]=g;
-            groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
-        });
+    var gLetters='ABCDEFGHIJKL'.split('');
+    var gIdx=0;
+    Object.keys(adj).forEach(function(t){
+        if(visited[t]) return;
+        var comp=[];
+        var queue=[t];
+        visited[t]=1;
+        while(queue.length>0){
+            var cur=queue.shift();
+            comp.push(cur);
+            Object.keys(adj[cur]).forEach(function(nb){
+                if(!visited[nb]){visited[nb]=1;queue.push(nb);}
+            });
+        }
+        if(comp.length>=2 && gIdx<12){
+            var g=gLetters[gIdx++];
+            groups[g]={};
+            comp.forEach(function(team){
+                groups[g][team]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+            });
+        }
     });
 
     // Fill stats from completed matches
     matches.forEach(function(m){
         if(m.status!=='FT') return;
         var h=m.home_team, a=m.away_team;
-        var g=teamGroup[h];
-        if(!g||!groups[g]) return;
+        var g=null;
+        Object.keys(groups).forEach(function(k){ if(groups[k][h]) g=k; });
+        if(!g||!groups[g][h]||!groups[g][a]) return;
         var hs=m.home_score||0, as=m.away_score||0;
         var t1=groups[g][h], t2=groups[g][a];
         t1.p++;t2.p++;
@@ -351,9 +360,7 @@ function buildStandings(matches){
     });
 
     var html='<div class="standings">';
-    for(var i=0;i<gLetters.length;i++){
-        var g=gLetters[i];
-        if(!groups[g]) continue;
+    Object.keys(groups).forEach(function(g){
         var teams=Object.keys(groups[g]).map(function(t){
             var s=groups[g][t];
             s.gd=s.gf-s.ga;s.name=t;
@@ -367,7 +374,7 @@ function buildStandings(matches){
             html+='<tr class="'+(q?'q':'')+'"><td>'+(idx+1)+'</td><td>'+cn(t.name)+'</td><td>'+t.p+'</td><td>'+t.w+'</td><td>'+t.d+'</td><td>'+t.l+'</td><td>'+t.gf+'</td><td>'+t.ga+'</td><td class="'+gdClass+'">'+(t.gd>0?'+':'')+t.gd+'</td><td><b>'+t.pts+'</b></td></tr>';
         });
         html+='</table></div>';
-    }
+    });
     html+='</div>';
     return html;
 }
