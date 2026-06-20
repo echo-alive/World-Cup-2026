@@ -89,6 +89,13 @@
         .spin{border:3px solid rgba(255,255,255,0.1);border-top:3px solid #f39c12;border-radius:50%;width:40px;height:40px;animation:sp 1s linear infinite;margin:0 auto 15px}
         @keyframes sp{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
         .empty{text-align:center;padding:40px;color:#888}
+        .date-bar{display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:10px 0;scrollbar-width:none;-ms-overflow-style:none}
+        .date-bar::-webkit-scrollbar{display:none}
+        .date-pill{flex-shrink:0;padding:6px 14px;border-radius:16px;font-size:0.78rem;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#ccc;transition:all 0.3s;white-space:nowrap}
+        .date-pill:hover{background:rgba(255,255,255,0.12)}
+        .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold}
+        .date-pill.today{border-color:#f39c12}
+        .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
         @media(max-width:600px){.teams{flex-direction:column;gap:12px}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}}
     </style>
 </head>
@@ -106,6 +113,7 @@
             <button class="btn" id="btn-standings" onclick="toggleView('standings')">积分榜</button>
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
         </div>
+        <div class="date-bar" id="date-bar"></div>
         <div class="api loading" id="api-status">连接API中...</div>
     </header>
 
@@ -119,6 +127,8 @@
 var allMatches = [];
 var teamStats = {};
 var currentView = 'predict';
+var selectedDate = '';
+var allDates = [];
 
 var TEAM_CN = {
     'Argentina':'阿根廷','Austria':'奥地利','Algeria':'阿尔及利亚','Australia':'澳大利亚',
@@ -427,6 +437,41 @@ function toggleView(v){
     render();
 }
 
+function buildDateBar(){
+    var dateCount={};
+    allMatches.forEach(function(m){
+        var d=m.kickoff_time.split(' ')[0];
+        if(!dateCount[d]) dateCount[d]=0;
+        dateCount[d]++;
+    });
+    allDates=Object.keys(dateCount).sort();
+    var todayStr=getTodayStr();
+    var bar=document.getElementById('date-bar');
+    var html='';
+    allDates.forEach(function(d){
+        var active=d===selectedDate?' active':'';
+        var today=d===todayStr?' today':'';
+        var parts=d.split('-');
+        var label=parseInt(parts[1])+'/'+parseInt(parts[2]);
+        var wd=['日','一','二','三','四','五','六'];
+        var dt=new Date(d);
+        label+=' 周'+wd[dt.getDay()];
+        html+='<div class="date-pill'+active+today+'" onclick="selectDate(\''+d+'\')">'+label+'<span class="cnt">'+dateCount[d]+'场</span></div>';
+    });
+    bar.innerHTML=html;
+    // scroll active into view
+    setTimeout(function(){
+        var el=bar.querySelector('.active');
+        if(el) el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    },100);
+}
+
+function selectDate(d){
+    selectedDate=d;
+    buildDateBar();
+    render();
+}
+
 function render(){
     var main=document.getElementById('main');
     if(allMatches.length===0) return;
@@ -438,34 +483,45 @@ function render(){
 
     var stats=buildTeamStats(allMatches);
     teamStats=stats;
-    var nearest=findNearestMatchDay(allMatches);
-    if(!nearest){
-        main.innerHTML='<div class="empty">暂无未来比赛</div>';
+
+    // Use selectedDate or auto-detect nearest
+    var targetDate=selectedDate;
+    var dateMatches=[];
+    if(targetDate){
+        dateMatches=allMatches.filter(function(m){return m.kickoff_time.indexOf(targetDate)===0;});
+    } else {
+        var nearest=findNearestMatchDay(allMatches);
+        if(nearest){
+            targetDate=nearest.date;
+            dateMatches=nearest.matches;
+            selectedDate=targetDate;
+            buildDateBar();
+        }
+    }
+
+    if(dateMatches.length===0){
+        main.innerHTML='<div class="empty">该日期暂无比赛</div>';
         return;
     }
 
     var dateBadge=document.getElementById('date-badge');
-    dateBadge.textContent='📅 '+fmtDate(nearest.date);
+    dateBadge.textContent='📅 '+fmtDate(targetDate);
 
+    var nsCount=dateMatches.filter(function(m){return m.status==='NS';}).length;
+    var ftCount=dateMatches.filter(function(m){return m.status==='FT';}).length;
     var nsBadge=document.getElementById('ns-badge');
-    nsBadge.textContent='⚽ '+nearest.matches.length+'场比赛待预测';
+    if(nsCount>0) nsBadge.textContent='⚽ '+nsCount+'场待预测';
+    else nsBadge.textContent='✅ '+ftCount+'场已结束';
     nsBadge.className='badge b-ns';
 
     var html='';
-    nearest.matches.forEach(function(m){
-        html+=buildMatchCard(m, stats);
-    });
-
-    // Also show today's completed matches if any
-    var todayStr=getTodayStr();
-    var todayFT=allMatches.filter(function(m){
-        return m.status==='FT' && m.kickoff_time.indexOf(todayStr)===0;
-    });
-    if(todayFT.length>0){
-        html='<div class="section-title">今日已结束</div>';
-        todayFT.forEach(function(m){html+=buildMatchCard(m,stats);});
-        html+='<div class="section-title">即将到来</div>';
+    // Show finished first
+    var ft=dateMatches.filter(function(m){return m.status==='FT';});
+    var ns=dateMatches.filter(function(m){return m.status!=='FT';});
+    if(ft.length>0){
+        ft.forEach(function(m){html+=buildMatchCard(m,stats);});
     }
+    ns.forEach(function(m){html+=buildMatchCard(m,stats);});
 
     main.innerHTML=html;
 }
@@ -482,6 +538,11 @@ async function loadData(){
             var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
             el.className='api ok';
             el.textContent='✅ 已连接 | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';
+            if(!selectedDate){
+                var nearest=findNearestMatchDay(allMatches);
+                if(nearest) selectedDate=nearest.date;
+            }
+            buildDateBar();
             render();
         } else throw 0;
     }catch(e){
