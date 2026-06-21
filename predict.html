@@ -3512,6 +3512,14 @@ function sim(a,b){
     return charScore*0.5+biScore*0.5;
 }
 function analyzeTicket(text,extraEl){
+    // Normalize OCR garbage
+    text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');    // 溃 特 阿拉 伯 → 溃特阿拉伯
+    text=text.replace(/\((\d+)\s*[；;]\s*(\d+)\)/g,'($1:$2)');            // (1;0) → (1:0)
+    text=text.replace(/(\d+)[，,](\d{3}(?!\d))/g,'$1.$2');                 // 9,000 → 9.000 (but not 3,936.60)
+    // Fix @→digit: after (score) or 平, remove leading garbage digit before odds
+    text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');
+    text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');               // some need 2 passes
+
     var lines=text.split('\n').filter(function(l){return l.trim();});
     var allText=text.replace(/\s+/g,'');
     extraEl.style.display='';
@@ -3525,8 +3533,7 @@ function analyzeTicket(text,extraEl){
         var m=l.match(/第(\d+)场/);
         if(m){cur={num:m[1],home:'',away:'',picks:[],type:''};matches.push(cur);}
         if(!cur) return;
-        // 主客队: 先用精确队名子串匹配,再退到纯中文捕获
-        var t=l.match(/主队\s*[:：]\s*([\u4e00-\u9fff&]+)/);
+        var t=l.match(/主队\s*[,:：;；]\s*([\u4e00-\u9fff&]+)/);
         if(t){
             var raw=t[1].trim();
             var best=null;
@@ -3538,7 +3545,7 @@ function analyzeTicket(text,extraEl){
             }
             cur.home=best||raw;
         }
-        var a=l.match(/客队\s*[:：]\s*([\u4e00-\u9fff&]+)/);
+        var a=l.match(/客队\s*[,:：;；]\s*([\u4e00-\u9fff&]+)/);
         if(a){
             var raw=a[1].trim();
             var best=null;
@@ -3552,14 +3559,14 @@ function analyzeTicket(text,extraEl){
         }
         if(l.indexOf('胜平负')>=0) cur.type='胜平负';
         if(l.indexOf('比分')>=0) cur.type='比分';
-        var pr=l.match(/\((\d+)[:：](\d+)\)\s*[@]?\s*(\d+\.\d{3})/g);
+        var pr=l.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
         if(pr){
             pr.forEach(function(p){
-                var pm=p.match(/\((\d+)[:：](\d+)\)\s*[@]?\s*(\d+\.\d{3})/);
+                var pm=p.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/);
                 if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
             });
         }
-        var dm=l.match(/平\s*[@]?\s*(\d+\.\d{3})/);
+        var dm=l.match(/平\s*@\s*(\d+\.\d{3})/);
         if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
     });
     // 2. 球队名称精确匹配
