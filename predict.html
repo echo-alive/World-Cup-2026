@@ -3526,7 +3526,7 @@ function analyzeTicket(text,extraEl){
         if(m){cur={num:m[1],home:'',away:'',picks:[],type:''};matches.push(cur);}
         if(!cur) return;
         // 主客队: 先用精确队名子串匹配,再退到纯中文捕获
-        var t=l.match(/主队\s*[:：]\s*([\u4e00-\u9fff()&]+)/);
+        var t=l.match(/主队\s*[:：]\s*([\u4e00-\u9fff&]+)/);
         if(t){
             var raw=t[1].trim();
             var best=null;
@@ -3538,7 +3538,7 @@ function analyzeTicket(text,extraEl){
             }
             cur.home=best||raw;
         }
-        var a=l.match(/客队\s*[:：]\s*([\u4e00-\u9fff()&]+)/);
+        var a=l.match(/客队\s*[:：]\s*([\u4e00-\u9fff&]+)/);
         if(a){
             var raw=a[1].trim();
             var best=null;
@@ -3561,10 +3561,6 @@ function analyzeTicket(text,extraEl){
         }
         var dm=l.match(/平\s*[@]?\s*(\d+\.\d{3})/);
         if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
-    });
-        // 平局选项 平@4.050
-        var dm=l.match(/平\s*[@]?\s*(\d+\.\d{3})/);
-        if(dm&&cur) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
     });
     // 2. 球队名称精确匹配
     var allCN=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
@@ -3597,72 +3593,61 @@ function analyzeTicket(text,extraEl){
         if(pm) maxPayout=parseFloat(pm[1].replace(',',''));
         if(l.indexOf('单倍注数')>=0||l.indexOf('共')>=0) info=l;
     });
-    // 4. 渲染
-    h+='<div class="lotto-card full" style="margin-bottom:10px"><h5>📋 票面结构</h5>';
-    h+='<div style="font-size:0.72rem;color:#888;margin-bottom:8px">'+info+'</div>';
+    // 4. 逐注合理性分析
+    var ns=window._nsMatches||[];
+    h+='<div class="lotto-card full"><h5>📊 逐注分析</h5>';
     matches.forEach(function(m){
-        var unsure=(m.homeCN&&m.homeCN!==m.home)||(m.awayCN&&m.awayCN!==m.away);
-        h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
-        h+='<div style="display:flex;justify-content:space-between;font-size:0.75rem">';
-        h+='<span style="color:#888">第'+m.num+'场</span>';
-        h+='<span style="color:#f39c12;font-size:0.7rem">'+m.type+'</span></div>';
-        var hn=m.homeCN||m.home,an=m.awayCN||m.away;
-        h+='<div style="font-size:0.82rem;padding:4px 0">'+hn+' <span style="color:#888">vs</span> '+an;
-        if(unsure) h+=' <span style="font-size:0.6rem;color:#f39c12">⚡修正</span>';
-        h+='</div>';
-        if(m.picks.length>0){
-            h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px">';
-            m.picks.forEach(function(p){
-                var label=p.label||p.h+'-'+p.a;
-                h+='<span style="background:rgba(243,156,18,0.1);border:1px solid rgba(243,156,18,0.12);border-radius:4px;padding:1px 6px;font-size:0.68rem;color:#ddd">'+label+' <span style="color:#f39c12">'+p.o+'</span></span>';
-            });
+        if(!m.homeCN||!m.awayCN) return;
+        var hk,ak;
+        Object.keys(TEAM_CN).forEach(function(k){if(TEAM_CN[k]===m.homeCN) hk=k;if(TEAM_CN[k]===m.awayCN) ak=k;});
+        var match=hk&&ak?ns.find(function(mm){return mm.home_team===hk&&mm.away_team===ak;}):null;
+        var odds=match?getOddsForMatch(match.home_team,match.away_team):null;
+        var pred=match?predictScore(match.home_team,match.away_team):null;
+        m.picks.forEach(function(p){
+            var impl=100/parseFloat(p.o);
+            var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='';
+            if(p.label==='平'&&pred){modelP=pred.draw;label='平局';}
+            else if(p.h!=='--'&&pred&&odds){
+                var scores=match?calcScoreProbs(match.home_team,match.away_team,odds):[];
+                var found=scores.find(function(s){return s.home===parseInt(p.h)&&s.away===parseInt(p.a);});
+                modelP=found?found.prob:0;
+            }
+            if(modelP>0){
+                var diff=modelP-impl;
+                if(diff>10){judge='偏低';color='#2ecc71';}
+                else if(diff>3){judge='略低';color='#f39c12';}
+                else if(diff>-3){judge='合理';color='#3498db';}
+                else if(diff>-10){judge='偏高';color='#f39c12';}
+                else{judge='过高';color='#e74c3c';}
+            }
+            h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
+            h+='<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
+            h+='<span style="font-size:0.8rem">'+(m.homeCN||m.home)+' vs '+(m.awayCN||m.away)+'</span>';
+            h+='<span style="font-size:0.7rem;color:#888">第'+m.num+'场</span></div>';
+            h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+            h+='<span style="font-size:0.85rem">选购: <b style="color:#f39c12">'+label+'</b> @'+parseFloat(p.o).toFixed(2)+'</span>';
+            if(modelP>0){
+                h+='<span style="font-size:0.72rem;color:'+color+';font-weight:bold">'+judge+'</span>';
+            }
             h+='</div>';
-        }
-        h+='</div>';
+            if(modelP>0){
+                h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:0.7rem;color:#888">';
+                h+='<span>模型概率: <b style="color:#3498db">'+modelP.toFixed(0)+'%</b></span>';
+                h+='<span>赔率隐含概率: <b style="color:#888">'+impl.toFixed(0)+'%</b></span>';
+                h+='<span>价值: <b style="color:'+(modelP-impl>0?'#2ecc71':'#e74c3c')+'">'+(modelP-impl>0?'+':'')+(modelP-impl).toFixed(0)+'%</b></span>';
+            } else {
+                h+='<div style="font-size:0.7rem;color:#888;margin-top:4px">未找到模型数据，无法对比</div>';
+            }
+            h+='</div>';
+        });
     });
     if(total>0||maxPayout>0){
         h+='<div style="display:flex;justify-content:space-around;padding:6px 0;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.78rem;color:#aaa">';
-        if(bei>1) h+='<span>倍数 <b style="color:#3498db">'+bei+'倍</b></span>';
         if(total>0) h+='<span>金额 <b style="color:#f39c12">'+total+'元</b></span>';
         if(maxPayout>0) h+='<span>最高奖金 <b style="color:#e74c3c">'+maxPayout.toFixed(2)+'元</b></span>';
         h+='</div>';
     }
     h+='</div>';
-    // 5. 模型对比
-    var ns=window._nsMatches||[];
-    var compared=[];
-    matches.forEach(function(m){
-        if(!m.homeCN||!m.awayCN) return;
-        var hk,ak;
-        Object.keys(TEAM_CN).forEach(function(k){
-            if(TEAM_CN[k]===m.homeCN) hk=k;
-            if(TEAM_CN[k]===m.awayCN) ak=k;
-        });
-        if(hk&&ak){
-            var match=ns.find(function(mm){return mm.home_team===hk&&mm.away_team===ak;});
-            if(match) compared.push({match:match,homeCN:m.homeCN,awayCN:m.awayCN,num:m.num});
-        }
-    });
-    if(compared.length>0){
-        h+='<div class="lotto-card full"><h5>🔍 模型对比分析</h5>';
-        compared.forEach(function(t){
-            var odds=getOddsForMatch(t.match.home_team,t.match.away_team);
-            var pred=predictScore(t.match.home_team,t.match.away_team);
-            var ho=odds?parseFloat(odds.homeOdds).toFixed(2):'--';
-            var ddo=odds?parseFloat(odds.drawOdds).toFixed(2):'--';
-            var ao=odds?parseFloat(odds.awayOdds).toFixed(2):'--';
-            h+='<div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.12);border-radius:8px;padding:10px;margin-bottom:8px">';
-            h+='<div style="display:flex;justify-content:space-between;font-size:0.85rem;font-weight:bold;color:#2ecc71;margin-bottom:6px">';
-            h+='<span>第'+t.num+'场</span><span>'+t.homeCN+' vs '+t.awayCN+'</span></div>';
-            h+='<div style="display:flex;gap:10px;font-size:0.75rem;color:#aaa">';
-            h+='<span>主 <b style="color:#f39c12">'+ho+'</b> <span style="color:#666">|'+pred.homeWin.toFixed(0)+'%</span></span>';
-            h+='<span>平 <b style="color:#f39c12">'+ddo+'</b> <span style="color:#666">|'+pred.draw.toFixed(0)+'%</span></span>';
-            h+='<span>客 <b style="color:#f39c12">'+ao+'</b> <span style="color:#666">|'+pred.awayWin.toFixed(0)+'%</span></span>';
-            h+='</div><div style="margin-top:4px;font-size:0.7rem;color:#666">预测比分: '+pred.home+':'+pred.away+' | 总进球: '+pred.totalGoals+'</div>';
-            h+='</div>';
-        });
-        h+='</div>';
-    }
     extraEl.innerHTML=h;
 }
 function closeOCRModal(){
