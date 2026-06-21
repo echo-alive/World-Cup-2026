@@ -3555,38 +3555,41 @@ function analyzeTicket(text,extraEl){
             var raw=body.substring(vsPos+2,next);
             console.log('   →比赛'+cur.num,'原始',raw);
 
-            // 找本场首个类型关键词
-            var kw=['让球胜平负','胜平负','比分'];
+            // 截取本场原文到下一场边界
+            var typeKW=['让球胜平负','胜平负','比分'];
             var fi=-1,fk='';
-            kw.forEach(function(k){
+            typeKW.forEach(function(k){
                 var idx=raw.indexOf(k);
                 if(idx>=0&&(fi<0||idx<fi)){fi=idx;fk=k;}
             });
             if(fi<0){console.log('   →无类型');return;}
-            cur.type=fk;
-            // 从关键词开始，到下一场边界（周日XXX 或 中文+VS 或结尾）
             var rel=raw.substring(fi);
             var end=rel.length;
             var sun=rel.match(/周日\d+/);
             if(sun&&sun.index>0&&sun.index<end) end=sun.index;
-            // 中文+VS 边界（跳过索引0，避免自己的队名）
             var i2=rel.substring(1).search(/[\u4e00-\u9fff]+VS/);
             if(i2>=0&&(i2+1)<end) end=i2+1;
             rel=rel.substring(0,end);
-            console.log('   →本场',cur.type,rel);
+            console.log('   →本场原文',rel);
 
-            if(cur.type==='比分'){
-                (rel.match(/(\d):(\d)/g)||[]).forEach(function(s){
+            // 提取所有类型+选购
+            // 让球胜平负
+            var hcpRe=/让球胜平负\(([^)]+)\)\s*(平|胜|负)/g;
+            var hm;
+            while((hm=hcpRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:hm[2],origType:'让球胜平负'});
+            // 胜平负（不会误配让球内的）
+            var spRe=/胜平负\s*(平|胜|负)/g;
+            var sm;
+            while((sm=spRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:sm[1],origType:'胜平负'});
+            // 比分
+            var si=rel.indexOf('比分');
+            if(si>=0){
+                (rel.substring(si+2).match(/(\d):(\d)/g)||[]).forEach(function(s){
                     var pm=s.match(/(\d):(\d)/);
-                    if(pm) cur.picks.push({h:pm[1],a:pm[2],o:''});
+                    if(pm) cur.picks.push({h:pm[1],a:pm[2],o:'',origType:'比分'});
                 });
-            }else if(cur.type==='让球胜平负'){
-                var hcp=rel.match(/让球胜平负\(([^)]+)\)\s*(平|胜|负)/);
-                if(hcp) cur.picks.push({h:'--',a:'--',o:'',label:hcp[2]});
-            }else if(cur.type==='胜平负'){
-                var l=rel.match(/胜平负\s*(平|胜|负)/);
-                if(l) cur.picks.push({h:'--',a:'--',o:'',label:l[1]});
             }
+            cur.type=cur.picks.length?cur.picks[0].origType:'';
             console.log('   →结果',cur.picks);
         });
     }else{
