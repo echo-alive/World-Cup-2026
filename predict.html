@@ -72,7 +72,7 @@
         .group-card h3{color:#f39c12;font-size:0.9rem;margin-bottom:10px;text-align:center}
         .group-card table{width:100%;font-size:0.8rem;border-collapse:collapse}
         .group-card th{text-align:left;color:#999;padding:6px 8px;border-bottom:2px solid rgba(255,255,255,0.1);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px}
-        .group-card td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.05)}
+        .group-card td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle}
         .group-card tr.q{color:#2ecc71;font-weight:bold}
         .group-card tr:hover{background:rgba(255,255,255,0.03)}
         .gd-pos{color:#27ae60}.gd-neg{color:#e74c3c}.gd-zero{color:#888}
@@ -2117,7 +2117,7 @@ function buildStandings(matches){
             var gdClass=t.gd>0?'gd-pos':t.gd<0?'gd-neg':'gd-zero';
             var formHtml='';
             if(formMap[t.name]){
-                formHtml='<span style="display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle">'+
+                formHtml='<span style="display:inline-flex;align-items:center;gap:2px">'+
                     formMap[t.name].map(function(r){
                         var bg=r==='胜'?'#27ae60':r==='平'?'#f39c12':'#e74c3c';
                         return '<span style="display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;border-radius:2px;font-size:0.6rem;background:'+bg+';color:#fff">'+r+'</span>';
@@ -2135,7 +2135,7 @@ function buildStandings(matches){
             }else{
                 statusHtml='<span class="status-badge status-pending">未赛</span>';
             }
-            html+='<tr class="'+(q?'q':'')+'"><td>'+(idx+1)+'</td><td>'+cn(t.name)+formHtml+'</td><td>'+t.p+'</td><td>'+t.w+'</td><td>'+t.d+'</td><td>'+t.l+'</td><td>'+t.gf+'</td><td>'+t.ga+'</td><td class="'+gdClass+'">'+(t.gd>0?'+':'')+t.gd+'</td><td><b>'+t.pts+'</b></td><td>'+statusHtml+'</td></tr>';
+            html+='<tr class="'+(q?'q':'')+'"><td>'+(idx+1)+'</td><td><span style="display:inline-flex;align-items:center;gap:4px">'+cn(t.name)+formHtml+'</span></td><td>'+t.p+'</td><td>'+t.w+'</td><td>'+t.d+'</td><td>'+t.l+'</td><td>'+t.gf+'</td><td>'+t.ga+'</td><td class="'+gdClass+'">'+(t.gd>0?'+':'')+t.gd+'</td><td><b>'+t.pts+'</b></td><td>'+statusHtml+'</td></tr>';
         });
         html+='</table>';
 
