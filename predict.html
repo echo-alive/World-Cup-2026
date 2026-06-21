@@ -3544,14 +3544,16 @@ function analyzeTicket(text,extraEl){
             var best=null,bestScore=0;
             allCNs.forEach(function(cn){
                 var s=sim(seg,cn);
+                if(s<=bestScore) return;
                 var thr=seg.length<=2||cn.length<=2?0.2:0.3;
-                if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
+                if(s>=thr){bestScore=s;best=cn;}
             });
             if(best&&!found.some(function(f){return f.name===best;})) found.push({name:best,score:bestScore});
         });
         found.sort(function(a,b){return b.score-a.score;});
         if(!cur.home&&found.length>=1) cur.home=found[0].name;
         if(!cur.away&&found.length>=2) cur.away=found[1].name;
+        if(found.length) console.log('[OCR行]',l,'←seg→',segs.filter(function(s){return s.length>=2;}),'→匹配',found);
         var pr=l.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
         if(pr){
             pr.forEach(function(p){
@@ -3585,6 +3587,7 @@ function analyzeTicket(text,extraEl){
         }
     });
     // 3. 总金额/倍数/最高奖金
+    console.log('[OCR]解析结果:',JSON.stringify(matches.map(function(m){return {num:m.num,home:m.home,away:m.away,homeCN:m.homeCN,awayCN:m.awayCN,picks:m.picks};})));
     var total=0,bei=1,maxPayout=0,info='';
     lines.forEach(function(l){
         var tm=l.match(/合计\s*(\d+)/);
