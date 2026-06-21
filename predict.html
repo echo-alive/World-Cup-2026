@@ -692,18 +692,12 @@ function poissonProb(lambda,k){
 
 var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
-var ocrWorker=null;
+var ocrJob=null;
 function runOCR(file,logger){
-    if(!ocrWorker) ocrWorker=new Tesseract.TesseractWorker();
-    return new Promise(function(res,rej){
-        ocrWorker.recognize(file,{lang:'chi_sim',logger:logger}).progress(function(m){
-            if(logger) logger(m);
-        }).then(function(r){
-            res({data:{text:r.text}});
-        },function(e){rej(e);});
-    });
+    if(ocrJob) ocrJob.cancel();
+    ocrJob=Tesseract.recognize(file,'chi_sim',{logger:logger});
+    return ocrJob;
 }
-
 function loadCalibCache(){
     try{var c=localStorage.getItem(CALIBRATION_CACHE_KEY);if(c) CALIBRATION_CACHE=JSON.parse(c);}catch(e){}
 }
