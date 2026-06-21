@@ -85,9 +85,10 @@
 .gu-title{font-size:0.72rem;color:#888;margin-bottom:6px}
 .gu-match{display:flex;align-items:center;padding:3px 6px;font-size:0.72rem;color:#bbb;border-radius:4px;transition:background 0.2s}
 .gu-match:hover{background:rgba(255,255,255,0.04)}
-.gu-match span{flex:1}
-.gu-match span:first-child{text-align:left}
-.gu-match span:last-child{text-align:right}
+.gu-match span.team{flex:1}
+.gu-match span.team:first-of-type{text-align:left}
+.gu-match span.team:last-of-type{text-align:right}
+.gu-date{flex:0 0 auto;color:#888;font-size:0.6rem;margin-right:8px;min-width:32px}
 .gu-vs{flex:0 0 auto !important;color:#555;font-size:0.6rem;margin:0 8px;text-align:center}
 
         .match{background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border-radius:16px;padding:20px;margin:15px 0;border:1px solid rgba(255,255,255,0.08);transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
@@ -2145,7 +2146,10 @@ function buildStandings(matches){
         if(groupRemaining.length>0){
             html+='<div class="group-upcoming"><div class="gu-title">📅 剩余赛程</div>';
             groupRemaining.forEach(function(m){
-                html+='<div class="gu-match"><span>'+cn(m.home_team)+'</span><span class="gu-vs">VS</span><span>'+cn(m.away_team)+'</span></div>';
+                var d=m.kickoff_time.split(' ')[0];
+                var parts=d.split('-');
+                var md=parseInt(parts[1])+'/'+parseInt(parts[2]);
+                html+='<div class="gu-match"><span class="gu-date">'+md+'</span><span class="team">'+cn(m.home_team)+'</span><span class="gu-vs">VS</span><span class="team">'+cn(m.away_team)+'</span></div>';
             });
             html+='</div>';
         }
