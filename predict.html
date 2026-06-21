@@ -3386,7 +3386,7 @@ function buildMixedParlay(nsMatches){
         var p1=[],used1={},ti1=0,types=['x2','score','goals'];
         var s1=[].concat(picks).sort(function(a,b){return b.x2b.p-a.x2b.p;});
         var idx1=0;
-        while(p1.length<4&&idx1<s1.length){
+        while(idx1<s1.length){
             var p=s1[idx1];idx1++;
             for(var t=0;t<3;t++){
                 var tk=types[(ti1+t)%3];
@@ -3399,7 +3399,7 @@ function buildMixedParlay(nsMatches){
         if(p1.length>=2) result.push({label:'混合轮换',html:buildParlayHtml(p1)});
         // 2. 全胜平负
         var p2=[];
-        picks.slice(0,4).forEach(function(p){p2.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+        picks.forEach(function(p){p2.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
         if(p2.length>=2) result.push({label:'全胜平负',html:buildParlayHtml(p2)});
         // 3. 高赔推荐 (每场选赔率最高的选项，即冷门)
         var h3=[];
@@ -3408,13 +3408,12 @@ function buildMixedParlay(nsMatches){
             h3.push({match:p.match,pick:{type:'胜平负',label:hi.l,prob:hi.p,oddsNum:hi.o}});
         });
         h3.sort(function(a,b){return b.pick.oddsNum-a.pick.oddsNum;});
-        var p3=h3.slice(0,4);
-        if(p3.length>=2) result.push({label:'高赔推荐',html:buildParlayHtml(p3)});
+        if(h3.length>=2) result.push({label:'高赔推荐',html:buildParlayHtml(h3)});
         // 4. 稳胆推荐 (概率最高的组合)
         var p4=[];
-        picks.slice(0,4).forEach(function(p){p4.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+        picks.forEach(function(p){p4.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
         if(p4.length>=2) result.push({label:'稳胆推荐',html:buildParlayHtml(p4)});
-        // 5. 稳胆比分（单）
+        // 5. 稳胆比分
         var p5=[];
         picks.forEach(function(p){
             if(p.scores[0]&&p.scores[0].prob>=3){
@@ -3423,8 +3422,7 @@ function buildMixedParlay(nsMatches){
             }
         });
         p5.sort(function(a,b){return b.pick.prob-a.pick.prob;});
-        var p5b=p5.slice(0,4);
-        if(p5b.length>=2) result.push({label:'稳胆比分',html:buildParlayHtml(p5b)});
+        if(p5.length>=2) result.push({label:'稳胆比分',html:buildParlayHtml(p5)});
         return result;
     }
     function tabPaneMixed(){
