@@ -3142,8 +3142,17 @@ function buildLotteryRef(nsMatches,stats){
     nsMatches.forEach(function(m){
         var h=m.home_team, a=m.away_team;
         var odds=getOddsForMatch(h,a);
-        if(!odds) return;
         var pred=predictScore(h,a);
+        if(!odds){
+            var totalP=pred.homeWin+pred.draw+pred.awayWin;
+            odds={
+                homeOdds:totalP>0?+(100/pred.homeWin).toFixed(2):3.00,
+                drawOdds:totalP>0?+(100/pred.draw).toFixed(2):3.00,
+                awayOdds:totalP>0?+(100/pred.awayWin).toFixed(2):3.00,
+                homeProb:pred.homeWin,drawProb:pred.draw,awayProb:pred.awayWin,
+                source:'model'
+            };
+        }
         var outcomes=[
             {type:'home',label:cn(h)+' 胜',prob:pred.homeWin,oddsNum:parseFloat(odds.homeOdds)},
             {type:'draw',label:'平局',prob:pred.draw,oddsNum:parseFloat(odds.drawOdds)},
@@ -3288,8 +3297,17 @@ function buildMixedParlay(nsMatches){
     nsMatches.forEach(function(m){
         var h=m.home_team, a=m.away_team;
         var odds=getOddsForMatch(h,a);
-        if(!odds) return;
         var pred=predictScore(h,a);
+        if(!odds){
+            var totalP=pred.homeWin+pred.draw+pred.awayWin;
+            odds={
+                homeOdds:totalP>0?+(100/pred.homeWin).toFixed(2):3.00,
+                drawOdds:totalP>0?+(100/pred.draw).toFixed(2):3.00,
+                awayOdds:totalP>0?+(100/pred.awayWin).toFixed(2):3.00,
+                homeProb:pred.homeWin,drawProb:pred.draw,awayProb:pred.awayWin,
+                source:'model'
+            };
+        }
         var x2=[{t:'胜平负',l:cn(h)+' 胜',p:pred.homeWin,o:parseFloat(odds.homeOdds)},{t:'胜平负',l:'平局',p:pred.draw,o:parseFloat(odds.drawOdds)},{t:'胜平负',l:cn(a)+' 胜',p:pred.awayWin,o:parseFloat(odds.awayOdds)}];
         x2.sort(function(a,b){return b.p-a.p;});
         var scores=calcScoreProbs(h,a,odds);
