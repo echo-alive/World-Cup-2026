@@ -326,12 +326,12 @@
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;gap:8px">
             <div class="nav-list" id="nav-list" style="flex:1"></div>
             <button id="lottoBtn" class="lottery-btn desktop-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openBettingModal()">🎯 购彩推荐</button>
-            <button class="lottery-btn desktop-btn" style="white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
+            <button id="ocrBtn" class="lottery-btn desktop-btn" style="white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
         </div>
     </div>
     <div class="bottom-actions">
         <button id="lottoBtnMobile" class="lottery-btn" style="display:none" onclick="openBettingModal()">🎯 购彩推荐</button>
-        <button class="lottery-btn" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
+        <button id="ocrBtnMobile" class="lottery-btn" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
     </div>
 
     <div id="main"><div class="load"><div class="spin"></div><p>加载中...</p></div></div>
@@ -3927,6 +3927,7 @@ function render(){
 
     var nsMatches=dateMatches.filter(function(m){return m.status!=='FT';});
     ['lottoBtn','lottoBtnMobile'].forEach(function(id){var el=document.getElementById(id);if(el) el.style.display=nsMatches.length>=2?'':'none';});
+    ['ocrBtn','ocrBtnMobile'].forEach(function(id){var el=document.getElementById(id);if(el) el.style.display=nsMatches.length>0?'':'none';});
     window._nsMatches=nsMatches;
     window._stats=stats;
 
