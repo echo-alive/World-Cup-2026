@@ -698,7 +698,7 @@ function ensureOCRWorker(){
     if(ocrWorker) return Promise.resolve(ocrWorker);
     if(!ocrWorkerPromise){
         var langPath='https://cdn.jsdelivr.net/npm/tesseract.js-data@4.0.0/4.0.0';
-        ocrWorkerPromise=Tesseract.createWorker('chi_sim+eng',1,{langPath:langPath}).then(function(w){ocrWorker=w;return w;});
+        ocrWorkerPromise=Tesseract.createWorker('chi_sim',1,{langPath:langPath}).then(function(w){ocrWorker=w;return w;});
     }
     return ocrWorkerPromise;
 }
