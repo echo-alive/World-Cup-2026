@@ -219,6 +219,16 @@
         .lr-badge.best{background:rgba(243,156,18,0.2);color:#f39c12}
         .lotto-tip{font-size:0.72rem;color:#666;margin-top:6px;text-align:center}
         @media(max-width:600px){.lotto-g{grid-template-columns:1fr}}
+        @media(max-width:500px){
+            .modal .lotto-row{font-size:0.72rem;gap:4px;flex-wrap:wrap}
+            .modal .lr-teams{font-size:0.72rem;flex:1 1 100%;margin-bottom:2px}
+            .modal .lr-pick{min-width:40px;font-size:0.7rem}
+            .modal .lr-odds{min-width:34px;font-size:0.7rem}
+            .modal .lr-bar-wrap{min-width:30px}
+            .modal .lr-prob{min-width:32px;font-size:0.68rem}
+            .modal .lr-badge{font-size:0.6rem}
+            .modal .lotto-card h5{font-size:0.72rem}
+        }
         .warn{background:rgba(231,76,60,0.15);padding:10px;border-radius:8px;margin-top:15px;font-size:0.78rem;text-align:center;color:#e74c3c}
         .foot{text-align:center;padding:15px 0;color:#555;font-size:0.75rem}
         .load{text-align:center;padding:50px}
@@ -262,7 +272,10 @@
     </header>
 
     <div id="match-nav" class="match-nav">
-        <div class="nav-list" id="nav-list"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;gap:8px">
+            <div class="nav-list" id="nav-list" style="flex:1"></div>
+            <button id="lottoBtn" class="lottery-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openLotteryModal()">🎯 购彩推荐</button>
+        </div>
     </div>
 
     <div id="main"><div class="load"><div class="spin"></div><p>加载中...</p></div></div>
@@ -3140,6 +3153,125 @@ function buildLotteryRef(nsMatches,stats){
     return html;
 }
 
+function buildMixedParlay(nsMatches){
+    if(!nsMatches||nsMatches.length<2) return '';
+    var picks=[];
+    nsMatches.forEach(function(m){
+        var h=m.home_team, a=m.away_team;
+        var odds=getOddsForMatch(h,a);
+        if(!odds) return;
+        var pred=predictScore(h,a);
+        var x2=[
+            {type:'胜平负',label:cn(h)+' 胜',prob:pred.homeWin,oddsNum:parseFloat(odds.homeOdds)},
+            {type:'胜平负',label:'平局',prob:pred.draw,oddsNum:parseFloat(odds.drawOdds)},
+            {type:'胜平负',label:cn(a)+' 胜',prob:pred.awayWin,oddsNum:parseFloat(odds.awayOdds)}
+        ];
+        x2.sort(function(a,b){return b.prob-a.prob;});
+        var scores=calcScoreProbs(h,a,odds);
+        var bs=scores[0];
+        var scoreBet={type:'比分',label:bs.home+'-'+bs.away,prob:bs.prob,oddsNum:oddsFromProb(bs.prob)};
+        var goals=calcTotalGoalsProbs(h,a,odds);
+        goals.sort(function(a,b){return b.prob-a.prob;});
+        var bg=goals[0];
+        var goalsBet={type:'总进球',label:bg.goals+'球',prob:bg.prob,oddsNum:oddsFromProb(bg.prob)};
+        var dc=[
+            {type:'双选',label:cn(h)+' 胜/平',prob:pred.homeWin+pred.draw,oddsNum:1/((pred.homeWin+pred.draw)/100)},
+            {type:'双选',label:cn(h)+' 胜/'+cn(a)+' 胜',prob:pred.homeWin+pred.awayWin,oddsNum:1/((pred.homeWin+pred.awayWin)/100)},
+            {type:'双选',label:'平/'+cn(a)+' 胜',prob:pred.draw+pred.awayWin,oddsNum:1/((pred.draw+pred.awayWin)/100)}
+        ];
+        dc.sort(function(a,b){return b.prob-a.prob;});
+        var goalRanges=[{type:'进球区间',label:'0-1球',prob:0,goalMin:0,goalMax:1},{type:'进球区间',label:'2-3球',prob:0,goalMin:2,goalMax:3},{type:'进球区间',label:'4+球',prob:0,goalMin:4,goalMax:99}];
+        goals.forEach(function(g){
+            goalRanges.forEach(function(r){
+                if(g.goals>=r.goalMin&&g.goals<=r.goalMax) r.prob+=g.prob;
+            });
+        });
+        goalRanges.sort(function(a,b){return b.prob-a.prob;});
+        var rangeBet={type:'进球区间',label:goalRanges[0].label,prob:Math.round(goalRanges[0].prob*10)/10,oddsNum:oddsFromProb(goalRanges[0].prob)};
+        var hcLabel;
+        var diff=pred.homeWin-pred.awayWin;
+        if(diff>12) hcLabel=cn(h)+' 让球胜';
+        else if(diff<-12) hcLabel=cn(a)+' 让球胜';
+        else hcLabel=cn(h)+' 让球平';
+        var hcProb=diff>12?pred.homeWin:diff<-12?pred.awayWin:pred.draw;
+        var hcBet={type:'让球',label:hcLabel,prob:Math.round(hcProb*10)/10,oddsNum:oddsFromProb(hcProb)};
+        picks.push({match:m,x2:x2[0],score:scoreBet,goals:goalsBet,dc:dc[0],range:rangeBet,hc:hcBet});
+    });
+    if(picks.length<2) return '';
+    var parlay=[];
+    var types=['x2','score','goals','dc','range','hc'];
+    var ti=0;
+    var used={};
+    picks.sort(function(a,b){return b.x2.prob-a.x2.prob;});
+    var idx=0;
+    while(parlay.length<4&&idx<picks.length&&parlay.length<picks.length){
+        var p=picks[idx]; idx++;
+        for(var t=0;t<types.length;t++){
+            var typeKey=types[(ti+t)%types.length];
+            var bet=p[typeKey];
+            var key=p.match.home_team+'-'+p.match.away_team+'-'+typeKey;
+            if(!used[key]&&bet&&bet.prob>=3){
+                parlay.push({match:p.match,pick:bet});
+                used[key]=true;
+                ti++;
+                break;
+            }
+        }
+    }
+    if(parlay.length<2) return '';
+    var combined=1;
+    parlay.forEach(function(p){combined*=p.pick.oddsNum;});
+    combined=Math.round(combined*100)/100;
+    var stake=10;
+    var payout=Math.round(stake*combined*100)/100;
+    var html='<div class="lottery-section"><h4>🎯 今日混合过关推荐 <span style="font-size:0.72rem;color:#888;font-weight:normal">胜平负·比分·总进球·双选·进球区间·让球</span></h4>';
+    html+='<table class="lottery-table"><tr><th>比赛</th><th>类型</th><th>推荐</th><th>赔率</th><th>预测概率</th></tr>';
+    parlay.forEach(function(p){
+        var m=p.match;
+        html+='<tr>';
+        html+='<td>'+cn(m.home_team)+' vs '+cn(m.away_team)+'</td>';
+        html+='<td><span class="lottery-tag '+(p.pick.type==='双选'||p.pick.type==='进球区间'?'green':p.pick.type==='比分'||p.pick.type==='让球'?'red':'')+'">'+p.pick.type+'</span></td>';
+        html+='<td>'+p.pick.label+'</td>';
+        html+='<td style="color:#f39c12;font-weight:bold">'+p.pick.oddsNum.toFixed(2)+'</td>';
+        html+='<td class="'+(p.pick.prob>=30?'hot':p.pick.prob>=15?'warm':'')+'">'+p.pick.prob.toFixed(1)+'%</td>';
+        html+='</tr>';
+    });
+    html+='</table>';
+    html+='<div style="display:flex;justify-content:space-around;align-items:center;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa">';
+    html+='<span>综合赔率 <b style="color:#f39c12">'+combined.toFixed(2)+'</b></span>';
+    html+='<span>投入 <b style="color:#fff">'+stake+'元</b></span>';
+    html+='<span>奖金 <b style="color:#e74c3c;font-size:1rem">'+payout.toFixed(2)+'元</b></span>';
+    html+='</div></div>';
+    return html;
+}
+
+function openLotteryModal(){
+    var nsMatches=window._nsMatches||[];
+    var stats=window._stats||{};
+    var html='';
+    var parlayHtml=buildMixedParlay(nsMatches);
+    if(parlayHtml) html+=parlayHtml;
+    var lottoHtml=buildLotteryRef(nsMatches,stats);
+    if(lottoHtml){
+        lottoHtml=lottoHtml.replace('<div class="lotto-h">','<div class="lotto-h" style="font-size:0.88rem;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">');
+        html+=lottoHtml;
+    }
+    if(!html){
+        document.getElementById('modalTitle').textContent='🎯 购彩推荐';
+        document.getElementById('modalBody').innerHTML='<div style="text-align:center;padding:20px;color:#888">该日期暂无未开场/进行中比赛</div>';
+    } else {
+        document.getElementById('modalTitle').textContent='🎯 购彩推荐';
+        document.getElementById('modalBody').innerHTML=html;
+    }
+    document.getElementById('lotteryModal').className='modal-overlay show';
+    document.body.style.overflow='hidden';
+}
+
+function closeLotteryModal(){
+    document.getElementById('lotteryModal').className='modal-overlay';
+    document.body.style.overflow='';
+}
+
 function render(){
     var main=document.getElementById('main');
     var navEl=document.getElementById('match-nav');
@@ -3197,8 +3329,10 @@ function render(){
     ordered.forEach(function(m,i){html+=buildMatchCard(m,stats,i);});
 
     var nsMatches=dateMatches.filter(function(m){return m.status!=='FT';});
-    var lottoHtml=buildLotteryRef(nsMatches,stats);
-    if(lottoHtml) html+=lottoHtml;
+    var lottoBtn=document.getElementById('lottoBtn');
+    if(lottoBtn) lottoBtn.style.display=nsMatches.length>=2?'':'none';
+    window._nsMatches=nsMatches;
+    window._stats=stats;
 
     main.innerHTML=html;
     buildMatchNav(ordered);
