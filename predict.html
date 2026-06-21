@@ -695,8 +695,7 @@ var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
 function runOCR(file,logger){
     if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file);}
-    var langPath='https://unpkg.com/tesseract.js-data@4.0.0/4.0.0';
-    return Tesseract.createWorker('chi_sim',1,{langPath:langPath,logger:logger}).then(function(w){ocrWorker=w;return w.recognize(file);});
+    return Tesseract.createWorker('chi_sim',1,{logger:logger}).then(function(w){ocrWorker=w;return w.recognize(file);});
 }
 
 function loadCalibCache(){
