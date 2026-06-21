@@ -51,6 +51,7 @@
         .api{margin-top:10px;padding:6px;border-radius:8px;font-size:0.8rem;text-align:center}
         .api.ok{color:#27ae60}.api.err{color:#e74c3c}.api.loading{color:#f39c12}
         .match-nav{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);margin:0 0 12px;box-shadow:0 4px 20px rgba(0,0,0,0.4);overflow:hidden}
+        .bottom-actions{display:none}
         .nav-list{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
         .nav-list::-webkit-scrollbar{display:none}
         .nav-item{scroll-snap-align:start;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 14px;font-size:0.76rem;color:#bbb;cursor:pointer;transition:all 0.25s;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -181,7 +182,7 @@
         .share-btn:hover{background:rgba(52,152,219,0.2);border-color:#3498db}
         .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:20px;font-size:0.82rem;z-index:2000;pointer-events:none;opacity:0;transition:opacity 0.3s}
         .toast.show{opacity:1}
-        .compare-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(243,156,18,0.3);padding:10px 15px;z-index:100;display:none;justify-content:space-between;align-items:center}
+        .compare-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(243,156,18,0.3);padding:10px 15px;z-index:2000;display:none;justify-content:space-between;align-items:center}
         .compare-bar.show{display:flex}
         .compare-items{display:flex;gap:6px;flex:1;overflow-x:auto;scrollbar-width:none;margin-right:8px}
         .compare-items::-webkit-scrollbar{display:none}
@@ -293,7 +294,7 @@
         .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
-        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-filter{min-width:130px}}
+        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.bottom-actions{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);gap:8px;padding:8px 12px;justify-content:flex-end}body{padding-bottom:54px}.desktop-btn{display:none !important}.nav-item{padding:5px 8px;font-size:0.7rem}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-filter{min-width:130px}}
         @media(min-width:768px){.match-nav{max-width:940px;margin:0 -5px 12px;border-radius:12px}}
     </style>
 </head>
@@ -324,9 +325,13 @@
     <div id="match-nav" class="match-nav">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;gap:8px">
             <div class="nav-list" id="nav-list" style="flex:1"></div>
-            <button id="lottoBtn" class="lottery-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openBettingModal()">🎯 购彩推荐</button>
-            <button class="lottery-btn" style="white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
+            <button id="lottoBtn" class="lottery-btn desktop-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openBettingModal()">🎯 购彩推荐</button>
+            <button class="lottery-btn desktop-btn" style="white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
         </div>
+    </div>
+    <div class="bottom-actions">
+        <button id="lottoBtnMobile" class="lottery-btn" style="display:none" onclick="openBettingModal()">🎯 购彩推荐</button>
+        <button class="lottery-btn" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
     </div>
 
     <div id="main"><div class="load"><div class="spin"></div><p>加载中...</p></div></div>
@@ -349,7 +354,7 @@
             </div>
             <div class="modal-body" id="ocrBody">
                 <div id="ocrPreview" style="text-align:center;margin-bottom:12px"></div>
-                <div id="ocrStatus" style="text-align:center;color:#888;padding:10px;font-size:0.85rem">选择图片自动识别</div>
+                <div id="ocrProgress" style="text-align:center;color:#f39c12;padding:8px;font-size:0.8rem;display:none"></div>
                 <div id="ocrResult" style="background:rgba(0,0,0,0.2);border-radius:8px;padding:12px;font-size:0.82rem;line-height:1.7;white-space:pre-wrap;word-break:break-all;display:none"></div>
                 <div id="ocrExtra" style="margin-top:8px;display:none">
                     <div style="font-size:0.78rem;color:#f39c12;margin-bottom:6px">⚡ 识别到比赛信息</div>
@@ -3479,42 +3484,33 @@ function handleOCRFile(input){
     var modal=document.getElementById('ocrModal');
     var body=document.getElementById('ocrBody');
     var preview=document.getElementById('ocrPreview');
-    var status=document.getElementById('ocrStatus');
+    var progress=document.getElementById('ocrProgress');
     var result=document.getElementById('ocrResult');
     var extra=document.getElementById('ocrExtra');
     result.style.display='none';
     extra.style.display='none';
-    status.innerHTML='📷 正在分析图片...';
-    status.style.color='#888';
+    progress.style.display='';
+    progress.innerHTML='⏳ 准备识别...';
     var reader=new FileReader();
     reader.onload=function(e){
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img">';
-        status.innerHTML='⏳ 加载识别引擎...<br><span style="font-size:0.7rem;color:#666">首次需下载核心文件（约3MB）</span>';
-        status.style.color='#f39c12';
-        var langPath='https://cdn.jsdelivr.net/npm/tesseract.js-data@4.0.0/4.0.0';
-        var timedOut=false;
-        var tmr=setTimeout(function(){timedOut=true;status.innerHTML='❌ 下载超时，请检查网络<br><span style="font-size:0.7rem;color:#888">可尝试使用代理或切换网络后重试</span>';status.style.color='#e74c3c';},60000);
-        Tesseract.recognize(file,'chi_sim+eng',{langPath:langPath,logger:function(m){
-            if(timedOut) return;
-            clearTimeout(tmr);tmr=setTimeout(function(){timedOut=true;status.innerHTML='❌ 下载超时，请检查网络<br><span style="font-size:0.7rem;color:#888">可尝试使用代理或切换网络后重试</span>';status.style.color='#e74c3c';},60000);
-            if(m.status==='loading tesseract core') status.innerHTML='⏳ 加载识别引擎...<br><span style="font-size:0.7rem;color:#666">下载核心文件（约3MB）</span>';
-            else if(m.status==='initializing tesseract') status.innerHTML='⏳ 初始化引擎...';
-            else if(m.status==='loading language traineddata') status.innerHTML='⏳ 下载语言包...<br><span style="font-size:0.7rem;color:#666">中文+英文（约15MB）</span>';
-            else if(m.status==='initializing api') status.innerHTML='⏳ 初始化API...';
-            else if(m.status==='recognizing text') status.innerHTML='⏳ 识别中 '+(m.progress*100).toFixed(0)+'%';
+        Tesseract.recognize(file,'chi_sim+eng',{logger:function(m){
+            if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
+            else if(m.status==='loading tesseract core') progress.innerHTML='⏳ 加载引擎...';
+            else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
+            else if(m.status==='loading language traineddata') progress.innerHTML='⏳ 加载语言包...';
+            else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
         }}).then(function(r){
-            clearTimeout(tmr);
             var text=r.data.text.trim();
-            if(!text){status.innerHTML='⚠️ 未识别到文字';status.style.color='#e74c3c';return;}
+            if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
+            progress.style.display='none';
             result.style.display='';
             result.style.display='none';
             preview.innerHTML='';
-            status.innerHTML='✅ 识别完成';
             analyzeTicket(text,extra);
         }).catch(function(err){
-            clearTimeout(tmr);
-            status.innerHTML='❌ 识别失败: '+err.message;
-            status.style.color='#e74c3c';
+            progress.innerHTML='❌ 识别失败';
+            console.error('OCR failed:',err);
         });
     };
     reader.readAsDataURL(file);
@@ -3569,7 +3565,7 @@ function analyzeTicket(text,extraEl){
         body=body.replace(/>/g,'');
         body=body.replace(/[同。，、]/g,'');
         body=body.replace(/\s*([()])\s*/g,'$1');
-        body=body.replace(/(让球胜平负|胜平负|比分)/g,' $1');
+        body=body.replace(/(让球胜平负|胜平负|比分|进球总数)/g,' $1');
         console.log('[新正文]',body);
 
         // 按 VS 位置顺序截取每场选购文字
@@ -3583,7 +3579,7 @@ function analyzeTicket(text,extraEl){
             console.log('   →比赛'+cur.num,'原始',raw);
 
             // 截取本场原文到下一场边界
-            var typeKW=['让球胜平负','胜平负','比分'];
+            var typeKW=['让球胜平负','胜平负','比分','进球总数'];
             var fi=-1,fk='';
             typeKW.forEach(function(k){
                 var idx=raw.indexOf(k);
@@ -3616,6 +3612,10 @@ function analyzeTicket(text,extraEl){
                     if(pm) cur.picks.push({h:pm[1],a:pm[2],o:'',origType:'比分'});
                 });
             }
+            // 进球总数
+            var tgRe=/进球总数(\d+)/g;
+            var tg;
+            while((tg=tgRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:tg[1]+'球',origType:'进球总数'});
             cur.type=cur.picks.length?cur.picks[0].origType:'';
             console.log('   →结果',cur.picks);
         });
@@ -3642,6 +3642,7 @@ function analyzeTicket(text,extraEl){
                 if(!cur) return;
                 if(part.indexOf('胜平负')>=0) cur.type='胜平负';
                 if(part.indexOf('比分')>=0) cur.type='比分';
+                if(part.indexOf('进球总数')>=0||part.indexOf('总进球')>=0) cur.type='进球总数';
                 var pr=part.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
                 if(pr){
                     pr.forEach(function(p){
@@ -3651,6 +3652,8 @@ function analyzeTicket(text,extraEl){
                 }
                 var dm=part.match(/平\s*@\s*(\d+\.\d{3})/);
                 if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
+                var tgm=part.match(/(?:进球总数|总进球)\s*(\d+)\s*@\s*(\d+\.\d{3})/);
+                if(tgm) cur.picks.push({h:tgm[1],a:'--',o:tgm[2],origType:'进球总数',label:tgm[1]+'球'});
             });
         });
     }
@@ -3680,12 +3683,26 @@ function analyzeTicket(text,extraEl){
         if(l.indexOf('单倍注数')>=0||l.indexOf('共')>=0) info=l;
     });
     // 4. 逐注合理性分析
-    function modelJudge(p){
-        if(p>=30) return {t:'较大概率',c:'#2ecc71'};
-        if(p>=20) return {t:'概率适中',c:'#3498db'};
-        if(p>=10) return {t:'概率偏低',c:'#f39c12'};
+    function modelJudge(p, type){
+        p=Math.round(p);
+        if(type==='比分'){
+            if(p>=20) return {t:'较大概率',c:'#2ecc71'};
+            if(p>=12) return {t:'概率适中',c:'#3498db'};
+            if(p>=7)  return {t:'概率偏低',c:'#f39c12'};
+            return {t:'小概率',c:'#e74c3c'};
+        }
+        if(type==='进球总数'){
+            if(p>=35) return {t:'较大概率',c:'#2ecc71'};
+            if(p>=22) return {t:'概率适中',c:'#3498db'};
+            if(p>=12) return {t:'概率偏低',c:'#f39c12'};
+            return {t:'小概率',c:'#e74c3c'};
+        }
+        if(p>=40) return {t:'较大概率',c:'#2ecc71'};
+        if(p>=25) return {t:'概率适中',c:'#3498db'};
+        if(p>=15) return {t:'概率偏低',c:'#f39c12'};
         return {t:'小概率',c:'#e74c3c'};
     }
+    var pickStats={good:0,medium:0,low:0,bad:0};
     h+='<div class="lotto-card full"><h5>📊 逐注分析</h5>';
     if(matches.length===0){
         h+='<div style="color:#888;font-size:0.75rem;margin-bottom:6px">未识别到标准票面格式，原始识别文字:</div>';
@@ -3733,6 +3750,25 @@ function analyzeTicket(text,extraEl){
                 if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
                 else if(p.label==='胜'&&curPred){modelP=curPred.homeWin;label='主胜';}
                 else if(p.label==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
+            }else if(p.origType==='进球总数'){
+                typeTag='总进球';
+                var totalGoal=parseInt(p.h);
+                if(curOdds){
+                    var tgp=calcTotalGoalsProbs(match.home_team,match.away_team,curOdds);
+                    if(tgp){
+                        var found=tgp.find(function(t){return t.goals===String(totalGoal)||(totalGoal>=7&&t.goals==='7+');});
+                        modelP=found?found.prob:0;
+                    }
+                }else if(curPred){
+                    var lambda=curPred.home+curPred.away;
+                    if(totalGoal>=7){
+                        var sum=0;
+                        for(var k=7;k<=10;k++) sum+=poissonProb(lambda,k);
+                        modelP=Math.round(sum*1000)/10;
+                    }else{
+                        modelP=Math.round(poissonProb(lambda,totalGoal)*1000)/10;
+                    }
+                }
             }else if(p.label==='平'&&curPred){
                 modelP=curPred.draw;label='平局';
             }else if(p.h!=='--'&&curPred&&curOdds){
@@ -3742,14 +3778,18 @@ function analyzeTicket(text,extraEl){
             }
             if(modelP>0&&impl>0){
                 var diff=modelP-impl;
-                if(diff>10)      {judge='价值偏低';color='#2ecc71';}
-                else if(diff>3)  {judge='略偏低';color='#f39c12';}
-                else if(diff>-3) {judge='合理';color='#3498db';}
-                else if(diff>-10){judge='略偏高';color='#f39c12';}
-                else             {judge='价值偏高';color='#e74c3c';}
+                if(diff>10)      {judge='价值偏低';color='#2ecc71';pickStats.good++;}
+                else if(diff>3)  {judge='略偏低';color='#f39c12';pickStats.medium++;}
+                else if(diff>-3) {judge='合理';color='#3498db';pickStats.medium++;}
+                else if(diff>-10){judge='略偏高';color='#f39c12';pickStats.low++;}
+                else             {judge='价值偏高';color='#e74c3c';pickStats.bad++;}
             }else if(modelP>0){
-                var mj=modelJudge(modelP);
+                var mj=modelJudge(modelP,p.origType);
                 judge=mj.t;color=mj.c;
+                if(judge==='较大概率') pickStats.good++;
+                else if(judge==='概率适中') pickStats.medium++;
+                else if(judge==='概率偏低') pickStats.low++;
+                else if(judge==='小概率') pickStats.bad++;
             }
 
             h+='<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;margin-bottom:6px">';
@@ -3780,17 +3820,39 @@ function analyzeTicket(text,extraEl){
         });
         h+='</div>';
     });
+    var totalPicks=pickStats.good+pickStats.medium+pickStats.low+pickStats.bad;
+    if(totalPicks>0){
+        var overall='';
+        var goodRatio=pickStats.good/totalPicks;
+        var okRatio=(pickStats.good+pickStats.medium)/totalPicks;
+        if(okRatio>=0.7) overall='✅ 整体表现良好，多数选购与模型预测吻合';
+        else if(okRatio>=0.4) overall='⚠️ 部分选购偏离模型预期，建议谨慎';
+        else overall='❌ 多数选购与模型预期不符，风险较高';
+        var overallColor=okRatio>=0.7?'#2ecc71':okRatio>=0.4?'#f39c12':'#e74c3c';
+        h+='<div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+        h+='<span style="font-size:0.85rem;font-weight:600;color:#eee">📋 整体分析</span>';
+        h+='<span style="font-size:0.7rem;color:#aaa">共'+totalPicks+'注</span></div>';
+        h+='<div style="display:flex;gap:6px;margin-bottom:8px">';
+        h+='<span style="flex:1;text-align:center;background:rgba(46,204,113,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#2ecc71"><b>'+pickStats.good+'</b><br>较大概率</span>';
+        h+='<span style="flex:1;text-align:center;background:rgba(52,152,219,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#3498db"><b>'+pickStats.medium+'</b><br>概率适中</span>';
+        h+='<span style="flex:1;text-align:center;background:rgba(243,156,18,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#f39c12"><b>'+pickStats.low+'</b><br>概率偏低</span>';
+        h+='<span style="flex:1;text-align:center;background:rgba(231,76,60,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#e74c3c"><b>'+pickStats.bad+'</b><br>小概率</span></div>';
+        h+='<div style="font-size:0.78rem;color:'+overallColor+';font-weight:500;text-align:center">'+overall+'</div></div>';
+    }
     if(total>0||maxPayout>0){
         h+='<div style="display:flex;justify-content:space-around;padding:8px 0;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.8rem;color:#aaa">';
         if(total>0) h+='<span>金额 <b style="color:#f39c12">'+total+'元</b></span>';
         if(maxPayout>0) h+='<span>最高奖金 <b style="color:#e74c3c">'+maxPayout.toFixed(2)+'元</b></span>';
-    h+='</div>';
+        h+='</div>';
+    }
     extraEl.innerHTML=h;
 }
 function closeOCRModal(){
     document.getElementById('ocrModal').className='modal-overlay';
     document.body.style.overflow='';
     document.getElementById('ocrInput').value='';
+    document.getElementById('ocrProgress').style.display='none';
 }
 
 function openBettingModal(){
@@ -3873,8 +3935,7 @@ function render(){
     ordered.forEach(function(m,i){html+=buildMatchCard(m,stats,i);});
 
     var nsMatches=dateMatches.filter(function(m){return m.status!=='FT';});
-    var lottoBtn=document.getElementById('lottoBtn');
-    if(lottoBtn) lottoBtn.style.display=nsMatches.length>=2?'':'none';
+    ['lottoBtn','lottoBtnMobile'].forEach(function(id){var el=document.getElementById(id);if(el) el.style.display=nsMatches.length>=2?'':'none';});
     window._nsMatches=nsMatches;
     window._stats=stats;
 
