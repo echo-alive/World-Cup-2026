@@ -3512,47 +3512,94 @@ function sim(a,b){
     return charScore*0.5+biScore*0.5;
 }
 function analyzeTicket(text,extraEl){
-    // Normalize OCR garbage
-    text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');    // 溃 特 阿拉 伯 → 溃特阿拉伯
-    text=text.replace(/([\u4e00-\u9fff])\s+(?=\d)/g,'$1');                 // 平 84 → 平84
-    text=text.replace(/(\d)\s+(?=[\u4e00-\u9fff])/g,'$1');                 // 84 ,050 → 84,050
-    text=text.replace(/\((\d+)\s*[；;]\s*(\d+)\)/g,'($1:$2)');            // (1;0) → (1:0)
-    text=text.replace(/(\d+)[，,](\d{3}(?!\d))/g,'$1.$2');                 // 9,000 → 9.000 (but not 3,936.60)
-    // Fix @→digit: after (score) or 平, remove leading garbage digit before odds
-    text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');
-    text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');               // some need 2 passes
-
-    var lines=text.split('\n').filter(function(l){return l.trim();});
-    var allText=text.replace(/\s+/g,'');
+    var ns=window._nsMatches||[];
     extraEl.style.display='';
     var h='';
-    // 1. 解析比赛场次（只取场次号/类型/选购项，队名从页面数据来）
     var matches=[];
-    var cur=null;
-    lines.forEach(function(l){
-        var parts=l.split(/(?=第\d+场)/);
-        parts.forEach(function(part){
-            var mm=part.match(/^第(\d+)场/);
-            if(mm){
-                cur={num:mm[1],home:'',away:'',picks:[],type:''};matches.push(cur);
-                part=part.replace(/^第\d+场/,'');
+    var lines=text.split('\n').filter(function(l){return l.trim();});
+    var allText=text.replace(/\s+/g,'');
+
+    // 检测格式：新格式含VS，旧格式含第N场
+    var isNew=text.indexOf('VS')>=0&&text.indexOf('第')<0;
+
+    if(isNew){
+        // --- 新格式：官方截图 ---
+        var cur=null;
+        lines.forEach(function(l){
+            l=l.trim();
+            // 跳过UI无关行
+            if(['竞彩足球','详情','票数注数金额','内容','查看明细>','附近门店','注:明细信息请以彩票票面实际显示为准。'].indexOf(l)>=0) return;
+            if(/^保存时间/.test(l)||/^\d+张\d+注\d+元$/.test(l)||/^过关:/.test(l)||/^附近/.test(l)) return;
+
+            // 含有VS → 比赛头部
+            if(l.indexOf('VS')>=0){
+                cur={num:String(matches.length+1),home:'',away:'',picks:[],type:''};matches.push(cur);
+                return;
             }
+
             if(!cur) return;
-            if(part.indexOf('胜平负')>=0) cur.type='胜平负';
-            if(part.indexOf('比分')>=0) cur.type='比分';
-            var pr=part.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
-            if(pr){
-                pr.forEach(function(p){
-                    var pm=p.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/);
-                    if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
+
+            // 类型行
+            if(l==='比分'||l.indexOf('比分')>=0){cur.type='比分';return;}
+            if(l==='胜平负'||l.indexOf('胜平负')>=0){cur.type='胜平负';return;}
+            if(l.indexOf('让球胜平负')>=0){cur.type='让球胜平负';return;}
+
+            // 选购比分（连写如 2:01:03:0）
+            var sc=l.match(/(\d+):(\d+)/g);
+            if(sc&&cur.type==='比分'){
+                sc.forEach(function(s){
+                    var pm=s.match(/(\d+):(\d+)/);
+                    if(pm) cur.picks.push({h:pm[1],a:pm[2],o:''});
                 });
+                return;
             }
-            var dm=part.match(/平\s*@\s*(\d+\.\d{3})/);
-            if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
+
+            // 让球平（让球胜平负(-1)平）
+            if(cur.type==='让球胜平负'&&l==='平'){
+                cur.picks.push({h:'--',a:'--',o:'',label:'平'});
+                return;
+            }
+            // 让球行自身含平：让球胜平负(-1)平
+            var hcp=l.match(/让球胜平负\(([^)]+)\)\s*(平|胜|负)/);
+            if(hcp){cur.picks.push({h:'--',a:'--',o:'',label:hcp[2]});return;}
         });
-    });
+    }else{
+        // --- 旧格式：OCR扫描票面 ---
+        text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');
+        text=text.replace(/([\u4e00-\u9fff])\s+(?=\d)/g,'$1');
+        text=text.replace(/(\d)\s+(?=[\u4e00-\u9fff])/g,'$1');
+        text=text.replace(/\((\d+)\s*[；;]\s*(\d+)\)/g,'($1:$2)');
+        text=text.replace(/(\d+)[，,](\d{3}(?!\d))/g,'$1.$2');
+        text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');
+        text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');
+
+        var lines=text.split('\n').filter(function(l){return l.trim();});
+        var cur=null;
+        lines.forEach(function(l){
+            var parts=l.split(/(?=第\d+场)/);
+            parts.forEach(function(part){
+                var mm=part.match(/^第(\d+)场/);
+                if(mm){
+                    cur={num:mm[1],home:'',away:'',picks:[],type:''};matches.push(cur);
+                    part=part.replace(/^第\d+场/,'');
+                }
+                if(!cur) return;
+                if(part.indexOf('胜平负')>=0) cur.type='胜平负';
+                if(part.indexOf('比分')>=0) cur.type='比分';
+                var pr=part.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
+                if(pr){
+                    pr.forEach(function(p){
+                        var pm=p.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/);
+                        if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
+                    });
+                }
+                var dm=part.match(/平\s*@\s*(\d+\.\d{3})/);
+                if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
+            });
+        });
+    }
+
     // 2. 用页面数据补充队名
-    var ns=window._nsMatches||[];
     matches.forEach(function(m){
         var idx=parseInt(m.num)-1;
         if(idx>=0&&idx<ns.length){
@@ -3565,6 +3612,9 @@ function analyzeTicket(text,extraEl){
     console.log('[OCR]解析结果:',JSON.stringify(matches.map(function(m){return {num:m.num,home:m.home,away:m.away,homeCN:m.homeCN,awayCN:m.awayCN,picks:m.picks};})));
     var total=0,bei=1,maxPayout=0,info='';
     lines.forEach(function(l){
+        // 新格式：2张36注72元
+        var tm2=l.match(/(\d+)元$/);
+        if(tm2&&!tm2[1].match(/\.|,/)) total=parseInt(tm2[1]);
         var tm=l.match(/合计\s*(\d+)/);
         if(tm) total=parseInt(tm[1]);
         var bm=l.match(/(\d+)倍/);
@@ -3587,7 +3637,7 @@ function analyzeTicket(text,extraEl){
             m.picks.forEach(function(p){
                 h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
                 h+='<div style="font-size:0.8rem">'+(m.homeCN||m.home)+' vs '+(m.awayCN||m.away)+'</div>';
-                h+='<div style="font-size:0.85rem;margin-top:4px">选购: <b style="color:#f39c12">'+(p.label||p.h+'-'+p.a)+'</b> @'+parseFloat(p.o).toFixed(2)+'</div>';
+                h+='<div style="font-size:0.85rem;margin-top:4px">选购: <b style="color:#f39c12">'+(p.label||p.h+'-'+p.a)+'</b>'+(p.o?' @'+parseFloat(p.o).toFixed(2):'')+'</div>';
                 h+='<div style="font-size:0.7rem;color:#888;margin-top:4px">未找到模型数据，无法对比</div></div>';
             });
             return;
@@ -3595,7 +3645,7 @@ function analyzeTicket(text,extraEl){
         var curOdds=getOddsForMatch(match.home_team,match.away_team);
         var curPred=predictScore(match.home_team,match.away_team);
         m.picks.forEach(function(p){
-            var impl=100/parseFloat(p.o);
+            var impl=p.o?100/parseFloat(p.o):0;
             var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='';
             if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
             else if(p.h!=='--'&&curPred&&curOdds){
@@ -3603,7 +3653,7 @@ function analyzeTicket(text,extraEl){
                 var found=scores?scores.find(function(s){return s.home===parseInt(p.h)&&s.away===parseInt(p.a);}):null;
                 modelP=found?found.prob:0;
             }
-            if(modelP>0){
+            if(modelP>0&&impl>0){
                 var diff=modelP-impl;
                 if(diff>10)      {judge='偏低';color='#2ecc71';}
                 else if(diff>3)  {judge='略低';color='#f39c12';}
@@ -3616,14 +3666,17 @@ function analyzeTicket(text,extraEl){
             h+='<span style="font-size:0.8rem">'+(m.homeCN||m.home)+' vs '+(m.awayCN||m.away)+'</span>';
             h+='<span style="font-size:0.7rem;color:#888">第'+m.num+'场</span></div>';
             h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-            h+='<span style="font-size:0.85rem">选购: <b style="color:#f39c12">'+label+'</b> @'+parseFloat(p.o).toFixed(2)+'</span>';
+            h+='<span style="font-size:0.85rem">选购: <b style="color:#f39c12">'+label+'</b>'+(p.o?' @'+parseFloat(p.o).toFixed(2):'')+'</span>';
             if(modelP>0) h+='<span style="font-size:0.72rem;color:'+color+';font-weight:bold">'+judge+'</span>';
             h+='</div>';
-            if(modelP>0){
+            if(modelP>0&&impl>0){
                 h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:0.7rem;color:#888">';
                 h+='<span>模型概率: <b style="color:#3498db">'+modelP.toFixed(0)+'%</b></span>';
                 h+='<span>隐含概率: <b style="color:#888">'+impl.toFixed(0)+'%</b></span>';
                 h+='<span>价值: <b style="color:'+(modelP-impl>0?'#2ecc71':'#e74c3c')+'">'+(modelP-impl>0?'+':'')+(modelP-impl).toFixed(0)+'%</b></span>';
+            } else if(modelP>0){
+                h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:0.7rem;color:#888">';
+                h+='<span>模型概率: <b style="color:#3498db">'+modelP.toFixed(0)+'%</b></span>';
             } else {
                 h+='<div style="font-size:0.7rem;color:#888;margin-top:4px">未找到模型数据，无法对比</div>';
             }
