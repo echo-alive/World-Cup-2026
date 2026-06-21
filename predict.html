@@ -3602,9 +3602,9 @@ function analyzeTicket(text,extraEl){
 
             // 提取所有类型+选购
             // 让球胜平负
-            var hcpRe=/让球胜平负\(([^)]+)\)\s*(平|胜|负)/g;
+            var hcpRe=/让球胜平负\s*[（(]\s*([^）)]+)\s*[）)]\s*(平|胜|负)/g;
             var hm;
-            while((hm=hcpRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:hm[2],origType:'让球胜平负',origHcp:hm[1]});
+            while((hm=hcpRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:hm[2],origType:'让球胜平负',origHcp:hm[1].replace(/\s/g,'')});
             // 胜平负（不会误配让球内的）
             var spRe=/胜平负\s*(平|胜|负)/g;
             var sm;
