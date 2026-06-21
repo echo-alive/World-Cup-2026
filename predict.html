@@ -3515,12 +3515,21 @@ function analyzeTicket(text,extraEl){
     var ns=window._nsMatches||[];
     extraEl.style.display='';
     var h='';
-    var matches=[];
+
+    // 统一归一化：去掉中文间/中文-数字/数字-中文之间的空格
+    text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');
+    text=text.replace(/([\u4e00-\u9fff])\s+(?=\d)/g,'$1');
+    text=text.replace(/(\d)\s+(?=[\u4e00-\u9fff])/g,'$1');
+    text=text.replace(/(\d+)[，,](\d{3}(?!\d))/g,'$1.$2');
+    // 归一化比分分隔符 `2:0 | 1:0` → `2:01:0`
+    text=text.replace(/\s*[|]\s*/g,'');
+
     var lines=text.split('\n').filter(function(l){return l.trim();});
     var allText=text.replace(/\s+/g,'');
 
     // 检测格式：新格式含VS，旧格式含第N场
     var isNew=text.indexOf('VS')>=0&&text.indexOf('第')<0;
+    var matches=[];
 
     if(isNew){
         // --- 新格式：官方截图 ---
@@ -3541,10 +3550,10 @@ function analyzeTicket(text,extraEl){
 
             if(!cur){console.log('   →cur null,跳过');return;}
 
-            // 类型行
-            if(l==='比分'||l.indexOf('比分')>=0){cur.type='比分';console.log('   →类型=比分');return;}
-            if(l==='胜平负'||l.indexOf('胜平负')>=0){cur.type='胜平负';console.log('   →类型=胜平负');return;}
-            if(l.indexOf('让球胜平负')>=0){cur.type='让球胜平负';console.log('   →类型=让球胜平负');return;}
+            // 类型行（不return，比分可能在同一行如"比分 2:0 1:0 3:0"）
+            if(l.indexOf('比分')>=0) cur.type='比分';
+            if(l.indexOf('胜平负')>=0) cur.type='胜平负';
+            if(l.indexOf('让球胜平负')>=0) cur.type='让球胜平负';
 
             // 选购比分（连写如 2:01:03:0，每位都是单数字）
             var sc=l.match(/(\d):(\d)/g);
