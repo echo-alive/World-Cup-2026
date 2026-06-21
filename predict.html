@@ -3425,26 +3425,6 @@ function buildMixedParlay(nsMatches){
         p5.sort(function(a,b){return b.pick.prob-a.pick.prob;});
         var p5b=p5.slice(0,4);
         if(p5b.length>=2) result.push({label:'稳胆比分（单）',html:buildParlayHtml(p5b)});
-        // 6. 稳胆比分（多）——每场选2个比分，一个表格展示
-        if(p5.length>=2){
-            var sortedPicks=[].concat(picks).sort(function(a,b){var ap=a.scores[0]?a.scores[0].prob:0,bp=b.scores[0]?b.scores[0].prob:0;return bp-ap;}).slice(0,4);
-            var h='<table class="lottery-table"><tr><th>比赛</th><th colspan="2">推荐比分（赔率/概率）</th></tr>';
-            sortedPicks.forEach(function(p){
-                h+='<tr><td style="vertical-align:middle;white-space:nowrap;font-size:0.72rem">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
-                for(var si=0;si<2;si++){
-                    var s=p.scores[si];
-                    if(s){
-                        var so=oddsFromProb(s.prob).toFixed(2);
-                        h+='<td style="text-align:center;font-size:0.7rem;cursor:pointer;border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 4px">'+s.home+'-'+s.away+'<br><span style="color:#f39c12;font-size:0.62rem">'+so+'</span> <span style="color:#888;font-size:0.58rem">'+s.prob.toFixed(0)+'%</span></td>';
-                    }else{
-                        h+='<td></td>';
-                    }
-                }
-                h+='</tr>';
-            });
-            h+='</table>';
-            result.push({label:'稳胆比分（多）',html:h});
-        }
         return result;
     }
     function tabPaneMixed(){
