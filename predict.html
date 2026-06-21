@@ -228,7 +228,50 @@
             .modal .lr-prob{min-width:32px;font-size:0.68rem}
             .modal .lr-badge{font-size:0.6rem}
             .modal .lotto-card h5{font-size:0.72rem}
+            .modal .bt-tab{font-size:0.7rem;padding:6px 2px}
+            .modal .bt-pane{padding:8px}
         }
+        .sp-match{background:linear-gradient(135deg,rgba(52,152,219,0.06),rgba(155,89,182,0.04));border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
+        .sp-match:hover{border-color:rgba(255,255,255,0.1)}
+        .sp-teams{color:#eee;font-size:0.82rem;font-weight:bold;margin-bottom:8px;padding-left:8px;border-left:3px solid #f39c12;line-height:1.4}
+        .sp-options{display:flex;flex-wrap:wrap;gap:6px}
+        .sp-opt{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;font-size:0.72rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;color:#ccc;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+        .sp-opt:hover{background:linear-gradient(135deg,rgba(52,152,219,0.2),rgba(41,128,185,0.1));border-color:#3498db;color:#fff;transform:translateY(-1px);box-shadow:0 3px 8px rgba(52,152,219,0.15)}
+        .sp-opt:active{transform:scale(0.96)}
+        .sp-opt.sp-sel{background:linear-gradient(135deg,rgba(243,156,18,0.25),rgba(231,76,60,0.1));border-color:#f39c12;color:#f39c12;font-weight:bold;box-shadow:0 0 12px rgba(243,156,18,0.15)}
+        .sp-opt.sp-sm{font-size:0.66rem;padding:4px 9px}
+        .sp-odds{color:#f39c12;font-size:0.65rem;font-weight:bold;background:rgba(243,156,18,0.1);padding:1px 5px;border-radius:3px}
+        .sp-opt:hover .sp-odds{background:rgba(243,156,18,0.2)}
+        .sp-opt.sp-sel .sp-odds{color:#fff;background:rgba(243,156,18,0.3)}
+        .sp-summary{margin-top:12px;background:linear-gradient(135deg,rgba(243,156,18,0.1),rgba(231,76,60,0.06));border-radius:12px;padding:12px;border:1px solid rgba(243,156,18,0.2);box-shadow:0 2px 10px rgba(243,156,18,0.05)}
+        .sp-sel-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;min-height:8px}
+        .sp-sel-item{background:rgba(243,156,18,0.12);border:1px solid rgba(243,156,18,0.2);border-radius:6px;padding:3px 8px;font-size:0.68rem;display:flex;align-items:center;gap:6px;color:#eee;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+        .sp-sel-item .sp-type{display:inline-block;padding:0 5px;border-radius:3px;font-size:0.6rem;font-weight:bold;margin-right:2px}
+        .sp-sel-item .sp-type.x2{background:rgba(52,152,219,0.25);color:#5dade2}
+        .sp-sel-item .sp-type.score{background:rgba(46,204,113,0.2);color:#2ecc71}
+        .sp-sel-item .sp-type.goals{background:rgba(243,156,18,0.2);color:#f39c12}
+        .sp-del{cursor:pointer;color:#e74c3c;font-size:0.65rem;opacity:0.5;padding:0 3px;font-weight:bold;transition:all 0.15s;border-radius:3px}
+        .sp-del:hover{opacity:1;background:rgba(231,76,60,0.2)}
+        .sp-total{display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:8px;font-size:0.82rem;color:#ccc;padding:6px 0 2px}
+        .sp-total b{text-shadow:0 0 6px rgba(243,156,18,0.2)}
+        .sp-stake{width:52px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:4px 8px;border-radius:6px;font-size:0.82rem;text-align:center;outline:none;transition:border-color 0.2s}
+        .sp-stake:focus{border-color:#f39c12;box-shadow:0 0 8px rgba(243,156,18,0.15)}
+        .sp-clear{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;padding:4px 12px;border-radius:6px;font-size:0.7rem;cursor:pointer;transition:all 0.15s}
+        .sp-clear:hover{background:rgba(231,76,60,0.25);border-color:#e74c3c;box-shadow:0 2px 6px rgba(231,76,60,0.2)}
+        .bet-tabs{border:1px solid rgba(243,156,18,0.15);border-radius:10px;overflow:hidden;background:rgba(0,0,0,0.1)}
+        .bt-bar{display:flex;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.06)}
+        .bt-tab{flex:1;text-align:center;padding:8px 4px;font-size:0.76rem;color:#888;cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent}
+        .bt-tab:hover{color:#ddd;background:rgba(255,255,255,0.03)}
+        .bt-tab.bt-act{color:#f39c12;border-bottom-color:#f39c12;font-weight:bold;background:rgba(243,156,18,0.06)}
+        .bt-pane{padding:10px 12px}
+        .mp-wrap{}
+        .mp-bar{display:flex;justify-content:center;align-items:center;gap:12px;padding:6px 0 10px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
+        .mp-nav{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.7rem;color:#aaa;transition:all 0.15s;user-select:none}
+        .mp-nav:hover{background:rgba(243,156,18,0.2);border-color:#f39c12;color:#f39c12}
+        .mp-nav:active{transform:scale(0.9)}
+        .mp-name{color:#f39c12;font-weight:bold;font-size:0.85rem;min-width:80px;text-align:center}
+        .mp-body{transition:opacity 0.2s}
+        .mp-hide{display:none}
         .warn{background:rgba(231,76,60,0.15);padding:10px;border-radius:8px;margin-top:15px;font-size:0.78rem;text-align:center;color:#e74c3c}
         .foot{text-align:center;padding:15px 0;color:#555;font-size:0.75rem}
         .load{text-align:center;padding:50px}
@@ -274,7 +317,7 @@
     <div id="match-nav" class="match-nav">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;gap:8px">
             <div class="nav-list" id="nav-list" style="flex:1"></div>
-            <button id="lottoBtn" class="lottery-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openLotteryModal()">🎯 购彩推荐</button>
+            <button id="lottoBtn" class="lottery-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openBettingModal()">🎯 购彩推荐</button>
         </div>
     </div>
 
@@ -3161,91 +3204,150 @@ function buildMixedParlay(nsMatches){
         var odds=getOddsForMatch(h,a);
         if(!odds) return;
         var pred=predictScore(h,a);
-        var x2=[
-            {type:'胜平负',label:cn(h)+' 胜',prob:pred.homeWin,oddsNum:parseFloat(odds.homeOdds)},
-            {type:'胜平负',label:'平局',prob:pred.draw,oddsNum:parseFloat(odds.drawOdds)},
-            {type:'胜平负',label:cn(a)+' 胜',prob:pred.awayWin,oddsNum:parseFloat(odds.awayOdds)}
-        ];
-        x2.sort(function(a,b){return b.prob-a.prob;});
+        var x2=[{t:'胜平负',l:cn(h)+' 胜',p:pred.homeWin,o:parseFloat(odds.homeOdds)},{t:'胜平负',l:'平局',p:pred.draw,o:parseFloat(odds.drawOdds)},{t:'胜平负',l:cn(a)+' 胜',p:pred.awayWin,o:parseFloat(odds.awayOdds)}];
+        x2.sort(function(a,b){return b.p-a.p;});
         var scores=calcScoreProbs(h,a,odds);
-        var bs=scores[0];
-        var scoreBet={type:'比分',label:bs.home+'-'+bs.away,prob:bs.prob,oddsNum:oddsFromProb(bs.prob)};
         var goals=calcTotalGoalsProbs(h,a,odds);
         goals.sort(function(a,b){return b.prob-a.prob;});
-        var bg=goals[0];
-        var goalsBet={type:'总进球',label:bg.goals+'球',prob:bg.prob,oddsNum:oddsFromProb(bg.prob)};
-        var dc=[
-            {type:'双选',label:cn(h)+' 胜/平',prob:pred.homeWin+pred.draw,oddsNum:1/((pred.homeWin+pred.draw)/100)},
-            {type:'双选',label:cn(h)+' 胜/'+cn(a)+' 胜',prob:pred.homeWin+pred.awayWin,oddsNum:1/((pred.homeWin+pred.awayWin)/100)},
-            {type:'双选',label:'平/'+cn(a)+' 胜',prob:pred.draw+pred.awayWin,oddsNum:1/((pred.draw+pred.awayWin)/100)}
-        ];
-        dc.sort(function(a,b){return b.prob-a.prob;});
-        var goalRanges=[{type:'进球区间',label:'0-1球',prob:0,goalMin:0,goalMax:1},{type:'进球区间',label:'2-3球',prob:0,goalMin:2,goalMax:3},{type:'进球区间',label:'4+球',prob:0,goalMin:4,goalMax:99}];
-        goals.forEach(function(g){
-            goalRanges.forEach(function(r){
-                if(g.goals>=r.goalMin&&g.goals<=r.goalMax) r.prob+=g.prob;
-            });
-        });
-        goalRanges.sort(function(a,b){return b.prob-a.prob;});
-        var rangeBet={type:'进球区间',label:goalRanges[0].label,prob:Math.round(goalRanges[0].prob*10)/10,oddsNum:oddsFromProb(goalRanges[0].prob)};
-        var hcLabel;
-        var diff=pred.homeWin-pred.awayWin;
-        if(diff>12) hcLabel=cn(h)+' 让球胜';
-        else if(diff<-12) hcLabel=cn(a)+' 让球胜';
-        else hcLabel=cn(h)+' 让球平';
-        var hcProb=diff>12?pred.homeWin:diff<-12?pred.awayWin:pred.draw;
-        var hcBet={type:'让球',label:hcLabel,prob:Math.round(hcProb*10)/10,oddsNum:oddsFromProb(hcProb)};
-        picks.push({match:m,x2:x2[0],score:scoreBet,goals:goalsBet,dc:dc[0],range:rangeBet,hc:hcBet});
+        picks.push({match:m,mk:h+'_'+a,x2:x2,x2b:x2[0],scores:scores.slice(0,4),goals:goals.slice(0,3)});
     });
     if(picks.length<2) return '';
-    var parlay=[];
-    var types=['x2','score','goals','dc','range','hc'];
-    var ti=0;
-    var used={};
-    picks.sort(function(a,b){return b.x2.prob-a.x2.prob;});
-    var idx=0;
-    while(parlay.length<4&&idx<picks.length&&parlay.length<picks.length){
-        var p=picks[idx]; idx++;
-        for(var t=0;t<types.length;t++){
-            var typeKey=types[(ti+t)%types.length];
-            var bet=p[typeKey];
-            var key=p.match.home_team+'-'+p.match.away_team+'-'+typeKey;
-            if(!used[key]&&bet&&bet.prob>=3){
-                parlay.push({match:p.match,pick:bet});
-                used[key]=true;
-                ti++;
-                break;
+
+    function tabPaneX2(){
+        var h='<table class="lottery-table"><tr><th>比赛</th><th>推荐</th><th>赔率</th><th>概率</th></tr>';
+        picks.forEach(function(p){
+            h+='<tr><td>'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td><td style="color:#2ecc71;font-weight:bold">'+p.x2b.l+'</td><td style="color:#f39c12;font-weight:bold">'+p.x2b.o.toFixed(2)+'</td><td class="'+(p.x2b.p>=60?'hot':p.x2b.p>=45?'warm':'')+'">'+p.x2b.p.toFixed(1)+'%</td></tr>';
+        });
+        h+='</table>';
+        var comb=1;picks.forEach(function(p){comb*=p.x2b.o;});
+        comb=Math.round(comb*100)/100;
+        var pay=Math.round(10*comb*100)/100;
+        h+='<div style="display:flex;justify-content:space-around;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa"><span>综合赔率 <b style="color:#f39c12">'+comb.toFixed(2)+'</b></span><span>投入 <b style="color:#fff">10元</b></span><span>奖金 <b style="color:#e74c3c;font-size:1rem">'+pay.toFixed(2)+'元</b></span></div>';
+        return h;
+    }
+    function tabPaneScore(){
+        var h='<table class="lottery-table"><tr><th>比赛</th><th colspan="3">可选比分（赔率/概率）</th></tr>';
+        picks.forEach(function(p){
+            h+='<tr><td style="vertical-align:middle">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
+            p.scores.forEach(function(s,i){
+                var so=oddsFromProb(s.prob).toFixed(2);
+                var cls=s.prob>=12?'hot':s.prob>=7?'warm':'';
+                h+='<td class="'+cls+'" style="text-align:center;border:1px solid rgba(255,255,255,0.05);border-radius:4px;padding:2px 4px;font-size:0.72rem">'+s.home+'-'+s.away+'<br><span style="color:#f39c12;font-size:0.65rem">'+so+'</span><span style="color:#888;font-size:0.6rem;margin-left:2px">'+s.prob.toFixed(0)+'%</span></td>';
+            });
+            for(var i=p.scores.length;i<3;i++) h+='<td></td>';
+            h+='</tr>';
+        });
+        h+='</table>';
+        return h;
+    }
+    function tabPaneGoals(){
+        var h='<table class="lottery-table"><tr><th>比赛</th><th colspan="3">可选总进球（赔率/概率）</th></tr>';
+        picks.forEach(function(p){
+            h+='<tr><td style="vertical-align:middle">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
+            p.goals.forEach(function(g,i){
+                var go=oddsFromProb(g.prob).toFixed(2);
+                var cls=g.prob>=30?'hot':g.prob>=18?'warm':'';
+                h+='<td class="'+cls+'" style="text-align:center;border:1px solid rgba(255,255,255,0.05);border-radius:4px;padding:2px 4px;font-size:0.72rem">'+g.goals+'球<br><span style="color:#f39c12;font-size:0.65rem">'+go+'</span><span style="color:#888;font-size:0.6rem;margin-left:2px">'+g.prob.toFixed(0)+'%</span></td>';
+            });
+            for(var i=p.goals.length;i<3;i++) h+='<td></td>';
+            h+='</tr>';
+        });
+        h+='</table>';
+        return h;
+    }
+    function buildParlayHtml(parlay){
+        if(parlay.length<2) return '';
+        var comb=1;parlay.forEach(function(p){comb*=p.pick.oddsNum;});
+        comb=Math.round(comb*100)/100;
+        var pay=Math.round(10*comb*100)/100;
+        var h='<table class="lottery-table"><tr><th>比赛</th><th>类型</th><th>推荐</th><th>赔率</th><th>概率</th></tr>';
+        parlay.forEach(function(p){
+            var m=p.match;
+            h+='<tr><td>'+cn(m.home_team)+' vs '+cn(m.away_team)+'</td><td><span class="lottery-tag '+(p.pick.type==='比分'||p.pick.type==='总进球'?'red':'green')+'">'+p.pick.type+'</span></td><td>'+p.pick.label+'</td><td style="color:#f39c12;font-weight:bold">'+p.pick.oddsNum.toFixed(2)+'</td><td class="'+(p.pick.prob>=30?'hot':p.pick.prob>=15?'warm':'')+'">'+p.pick.prob.toFixed(1)+'%</td></tr>';
+        });
+        h+='</table>';
+        h+='<div style="display:flex;justify-content:space-around;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa"><span>综合赔率 <b style="color:#f39c12">'+comb.toFixed(2)+'</b></span><span>投入 <b style="color:#fff">10元</b></span><span>奖金 <b style="color:#e74c3c;font-size:1rem">'+pay.toFixed(2)+'元</b></span></div>';
+        return h;
+    }
+    function genParlays(){
+        var result=[];
+        // 1. 混合轮换
+        var p1=[],used1={},ti1=0,types=['x2','score','goals'];
+        var s1=[].concat(picks).sort(function(a,b){return b.x2b.p-a.x2b.p;});
+        var idx1=0;
+        while(p1.length<4&&idx1<s1.length){
+            var p=s1[idx1];idx1++;
+            for(var t=0;t<3;t++){
+                var tk=types[(ti1+t)%3];
+                var bet;
+                if(tk==='x2') bet={type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o};
+                else {var src=tk==='score'?p.scores[0]:p.goals[0];if(!src) continue;bet={type:tk==='score'?'比分':'总进球',label:tk==='score'?src.home+'-'+src.away:src.goals+'球',prob:src.prob,oddsNum:oddsFromProb(src.prob)};}
+                if(!used1[p.mk+'_'+tk]&&bet.prob>=3){p1.push({match:p.match,pick:bet});used1[p.mk+'_'+tk]=true;ti1++;break;}
             }
         }
+        if(p1.length>=2) result.push({label:'混合轮换',html:buildParlayHtml(p1)});
+        // 2. 全胜平负
+        var p2=[];
+        picks.slice(0,4).forEach(function(p){p2.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+        if(p2.length>=2) result.push({label:'全胜平负',html:buildParlayHtml(p2)});
+        // 3. 高赔推荐 (odds最高的组合)
+        var h3=[].concat(picks).sort(function(a,b){return b.x2b.o-a.x2b.o;});
+        var p3=[];h3.slice(0,4).forEach(function(p){p3.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+        if(p3.length>=2) result.push({label:'高赔推荐',html:buildParlayHtml(p3)});
+        // 4. 稳胆推荐 (概率最高的组合)
+        var p4=[];
+        picks.slice(0,4).forEach(function(p){p4.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+        if(p4.length>=2) result.push({label:'稳胆推荐',html:buildParlayHtml(p4)});
+        return result;
     }
-    if(parlay.length<2) return '';
-    var combined=1;
-    parlay.forEach(function(p){combined*=p.pick.oddsNum;});
-    combined=Math.round(combined*100)/100;
-    var stake=10;
-    var payout=Math.round(stake*combined*100)/100;
-    var html='<div class="lottery-section"><h4>🎯 今日混合过关推荐 <span style="font-size:0.72rem;color:#888;font-weight:normal">胜平负·比分·总进球·双选·进球区间·让球</span></h4>';
-    html+='<table class="lottery-table"><tr><th>比赛</th><th>类型</th><th>推荐</th><th>赔率</th><th>预测概率</th></tr>';
-    parlay.forEach(function(p){
-        var m=p.match;
-        html+='<tr>';
-        html+='<td>'+cn(m.home_team)+' vs '+cn(m.away_team)+'</td>';
-        html+='<td><span class="lottery-tag '+(p.pick.type==='双选'||p.pick.type==='进球区间'?'green':p.pick.type==='比分'||p.pick.type==='让球'?'red':'')+'">'+p.pick.type+'</span></td>';
-        html+='<td>'+p.pick.label+'</td>';
-        html+='<td style="color:#f39c12;font-weight:bold">'+p.pick.oddsNum.toFixed(2)+'</td>';
-        html+='<td class="'+(p.pick.prob>=30?'hot':p.pick.prob>=15?'warm':'')+'">'+p.pick.prob.toFixed(1)+'%</td>';
-        html+='</tr>';
+    function tabPaneMixed(){
+        var opts=genParlays();
+        if(opts.length===0) return tabPaneX2();
+        var key='mp_'+(Math.random()*1e9|0).toString(36);
+        var h='<div class="mp-wrap" data-key="'+key+'">';
+        h+='<div class="mp-bar"><span class="mp-nav" onclick="cycleParlay(\''+key+'\',-1)">◀</span><span class="mp-name" id="mpn_'+key+'">'+opts[0].label+'</span><span class="mp-nav" onclick="cycleParlay(\''+key+'\',1)">▶</span></div>';
+        opts.forEach(function(o,i){
+            h+='<div class="mp-body'+(i>0?' mp-hide':'')+'" data-idx="'+i+'" data-label="'+o.label+'" data-key="'+key+'">'+o.html+'</div>';
+        });
+        h+='</div>';
+        if(!window._mpD) window._mpD={};
+        window._mpD[key]={count:opts.length,idx:0};
+        return h;
+    }
+
+    var html='<div class="bet-tabs">';
+    html+='<div class="bt-bar">';
+    var labels=['胜平负','比分','球数','混合推荐'];
+    labels.forEach(function(l,i){
+        html+='<div class="bt-tab'+(i===3?' bt-act':'')+'" onclick="switchBetTab(this,'+i+')">'+l+'</div>';
     });
-    html+='</table>';
-    html+='<div style="display:flex;justify-content:space-around;align-items:center;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa">';
-    html+='<span>综合赔率 <b style="color:#f39c12">'+combined.toFixed(2)+'</b></span>';
-    html+='<span>投入 <b style="color:#fff">'+stake+'元</b></span>';
-    html+='<span>奖金 <b style="color:#e74c3c;font-size:1rem">'+payout.toFixed(2)+'元</b></span>';
-    html+='</div></div>';
+    html+='</div>';
+    html+='<div class="bt-pane" id="btp-0" style="display:none">'+tabPaneX2()+'</div>';
+    html+='<div class="bt-pane" id="btp-1" style="display:none">'+tabPaneScore()+'</div>';
+    html+='<div class="bt-pane" id="btp-2" style="display:none">'+tabPaneGoals()+'</div>';
+    html+='<div class="bt-pane" id="btp-3">'+tabPaneMixed()+'</div>';
+    html+='</div>';
     return html;
 }
+function switchBetTab(el,idx){
+    document.querySelectorAll('.bt-tab').forEach(function(t){t.classList.remove('bt-act');});
+    el.classList.add('bt-act');
+    document.querySelectorAll('.bt-pane').forEach(function(p){p.style.display='none';});
+    document.getElementById('btp-'+idx).style.display='';
+}
+function cycleParlay(key,dir){
+    var d=window._mpD[key];
+    if(!d) return;
+    d.idx=(d.idx+dir+d.count)%d.count;
+    var wrap=document.querySelector('.mp-wrap[data-key="'+key+'"]');
+    if(!wrap) return;
+    wrap.querySelectorAll('.mp-body').forEach(function(b){
+        b.classList.toggle('mp-hide',parseInt(b.dataset.idx)!==d.idx);
+    });
+    wrap.querySelector('.mp-name').textContent=wrap.querySelector('.mp-body[data-idx="'+d.idx+'"]').dataset.label;
+}
 
-function openLotteryModal(){
+function openBettingModal(){
     var nsMatches=window._nsMatches||[];
     var stats=window._stats||{};
     var html='';
@@ -3265,11 +3367,6 @@ function openLotteryModal(){
     }
     document.getElementById('lotteryModal').className='modal-overlay show';
     document.body.style.overflow='hidden';
-}
-
-function closeLotteryModal(){
-    document.getElementById('lotteryModal').className='modal-overlay';
-    document.body.style.overflow='';
 }
 
 function render(){
