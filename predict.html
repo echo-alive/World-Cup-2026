@@ -21,17 +21,22 @@
         .team-filter:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
         .team-filter option{background:#1a1a2e;color:#fff}
         .search-select{position:relative;min-width:160px}
-        .team-filter{width:100%}
+        .team-filter{width:100%;height:100%}
         .search-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,0.2);border-radius:0 0 12px 12px;max-height:300px;overflow-y:auto;z-index:200;display:none;margin-top:2px;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
         .search-dropdown.show{display:block}
-        .search-option{padding:8px 16px;cursor:pointer;font-size:0.85rem;color:#ccc;transition:all 0.12s}
+        .search-option{padding:8px 16px;cursor:pointer;font-size:0.85rem;color:#ccc;transition:all 0.12s;display:flex;align-items:center;justify-content:space-between}
         .search-option:hover,.search-option.highlighted{background:rgba(52,152,219,0.2);color:#fff}
         .search-option.active{background:#3498db;color:#fff}
+        .so-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+        .so-info{text-align:right;font-size:0.72rem;color:#888;white-space:nowrap;margin-left:8px;flex-shrink:0}
+        .search-option:hover .so-info,.search-option.active .so-info{color:rgba(255,255,255,0.6)}
         .search-empty{padding:12px 16px;color:#888;font-size:0.82rem;text-align:center}
         .team-filter:focus{outline:none;border-color:rgba(52,152,219,0.6);box-shadow:0 0 8px rgba(52,152,219,0.3)}
-        .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:1rem;cursor:pointer;padding:0 4px;line-height:1;display:none;z-index:1;transition:color 0.2s}
+        .team-filter-mobile{display:none}
+        @media(max-width:768px){.search-select{display:none}.team-filter-mobile{display:inline-block;padding:8px 32px 8px 20px;line-height:normal;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23aaa' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:10px 6px}}
+        .search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.08);border:none;color:#888;font-size:0.85rem;cursor:pointer;width:24px;height:24px;border-radius:50%;line-height:1;display:none;z-index:5;transition:all 0.2s;align-items:center;justify-content:center}
         .search-clear:hover{color:#e74c3c}
-        .search-clear.show{display:block}
+        .search-clear.show{display:flex}
         .search-select .team-filter{padding-right:30px}
         .search-dropdown::-webkit-scrollbar{width:4px}
         .search-dropdown::-webkit-scrollbar-track{background:transparent}
@@ -246,9 +251,10 @@
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
             <div class="search-select" id="team-filter-wrap">
                 <input type="text" class="team-filter" id="team-filter-input" placeholder="🔍 筛选球队" autocomplete="off" oninput="onTeamSearchInput(this.value)" onfocus="onTeamFilterFocus()" onblur="onTeamFilterBlur()" onkeydown="onTeamFilterKeydown(event)">
-                <button class="search-clear" id="search-clear" onclick="clearTeamFilter()">✕</button>
+                <button class="search-clear" id="search-clear" onmousedown="clearTeamFilter()">✕</button>
                 <div class="search-dropdown" id="team-filter-dropdown"></div>
             </div>
+            <select id="team-filter-mobile" class="team-filter team-filter-mobile" onchange="onTeamFilterChange(this.value)"></select>
         </div>
         <div class="date-bar" id="date-bar"></div>
         <div class="api loading" id="api-status">连接API中...</div>
@@ -2472,8 +2478,49 @@ function populateTeamFilter(){
         teams[m.home_team]=1;
         teams[m.away_team]=1;
     });
-    allTeamNames=Object.keys(teams).sort();
+    var ptsMap={};
+    allMatches.forEach(function(m){
+        if(m.status!=='FT') return;
+        if(!ptsMap[m.home_team]) ptsMap[m.home_team]=0;
+        if(!ptsMap[m.away_team]) ptsMap[m.away_team]=0;
+        if(m.home_score>m.away_score) ptsMap[m.home_team]+=3;
+        else if(m.home_score===m.away_score){ptsMap[m.home_team]+=1;ptsMap[m.away_team]+=1;}
+        else ptsMap[m.away_team]+=3;
+    });
+    allTeamNames=Object.keys(teams).sort(function(a,b){
+        var pa=ptsMap[a]||0, pb=ptsMap[b]||0;
+        if(pa!==pb) return pb-pa;
+        var ra=TEAM_RANK[a]||99, rb=TEAM_RANK[b]||99;
+        return ra-rb;
+    });
     renderTeamDropdown(allTeamNames);
+    var mob=document.getElementById('team-filter-mobile');
+    if(mob){
+        var h='<option value="">🔍 筛选球队</option>';
+        allTeamNames.forEach(function(t){
+            var sfx=teamSuffix(t);
+            h+='<option value="'+t+'">'+cn(t)+(sfx?' ('+sfx+')':'')+'</option>';
+        });
+        mob.innerHTML=h;
+    }
+}
+
+function teamSuffix(t){
+    var r=TEAM_RANK[t]?'#'+TEAM_RANK[t]:'';
+    var pts='';
+    if(allMatches.length>0){
+        var stats={};
+        allMatches.forEach(function(m){
+            if(m.status!=='FT') return;
+            if(!stats[m.home_team]) stats[m.home_team]={pts:0};
+            if(!stats[m.away_team]) stats[m.away_team]={pts:0};
+            if(m.home_score>m.away_score) stats[m.home_team].pts+=3;
+            else if(m.home_score===m.away_score){stats[m.home_team].pts+=1;stats[m.away_team].pts+=1;}
+            else stats[m.away_team].pts+=3;
+        });
+        if(stats[t]&&stats[t].pts>0) pts=stats[t].pts+'分';
+    }
+    return (r||'')+(r&&pts?' ':'')+(pts||'');
 }
 
 function renderTeamDropdown(list){
@@ -2485,7 +2532,8 @@ function renderTeamDropdown(list){
     }else{
         list.forEach(function(t){
             var act=t===selectedTeam?' active':'';
-            html+='<div class="search-option'+act+'" data-team="'+t+'">'+cn(t)+'</div>';
+            var sfx=teamSuffix(t);
+            html+='<div class="search-option'+act+'" data-team="'+t+'"><span class="so-name">'+cn(t)+'</span>'+(sfx?'<span class="so-info">'+sfx+'</span>':'')+'</div>';
         });
     }
     dd.innerHTML=html;
@@ -2495,7 +2543,8 @@ function onTeamSearchInput(val){
     var trimmed=val.trim();
     if(!trimmed){
         renderTeamDropdown(allTeamNames);
-        toggleClearBtn(false);
+        if(selectedTeam) clearTeamFilter();
+        else toggleClearBtn(false);
         return;
     }
     toggleClearBtn(true);
@@ -2543,6 +2592,8 @@ function selectTeamOption(val){
     selectedTeam=val;
     var input=document.getElementById('team-filter-input');
     if(input) input.value=cn(val);
+    var mob=document.getElementById('team-filter-mobile');
+    if(mob) mob.value=val;
     document.getElementById('team-filter-dropdown').classList.remove('show');
     toggleClearBtn(!!val);
     onTeamFilterChange(val);
@@ -2552,6 +2603,8 @@ function clearTeamFilter(){
     selectedTeam='';
     var input=document.getElementById('team-filter-input');
     if(input) input.value='';
+    var mob=document.getElementById('team-filter-mobile');
+    if(mob) mob.value='';
     toggleClearBtn(false);
     document.getElementById('team-filter-dropdown').classList.remove('show');
     onTeamFilterChange('');
@@ -2580,6 +2633,8 @@ function resetToInitialState(){
     }
     var sel=document.getElementById('team-filter-input');
     if(sel) sel.value='';
+    var mob=document.getElementById('team-filter-mobile');
+    if(mob) mob.value='';
     toggleClearBtn(false);
     buildDateBar();
     render();
