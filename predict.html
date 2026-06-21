@@ -3414,7 +3414,7 @@ function buildMixedParlay(nsMatches){
         var p4=[];
         picks.slice(0,4).forEach(function(p){p4.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
         if(p4.length>=2) result.push({label:'稳胆推荐',html:buildParlayHtml(p4)});
-        // 5. 稳胆比分（单）
+        // 5. 稳胆比分——单式+复式混合推荐
         var p5=[];
         picks.forEach(function(p){
             if(p.scores[0]&&p.scores[0].prob>=3){
@@ -3424,43 +3424,33 @@ function buildMixedParlay(nsMatches){
         });
         p5.sort(function(a,b){return b.pick.prob-a.pick.prob;});
         var p5b=p5.slice(0,4);
-        if(p5b.length>=2) result.push({label:'稳胆比分（单）',html:buildParlayHtml(p5b)});
-        // 6. 稳胆比分（多）——每场选2个比分，生成复式串关
-        var p6multi=[];
-        if(p5.length>=2){
-            var top4PSorted=[].concat(picks).sort(function(a,b){var ap=a.scores[0]?a.scores[0].prob:0,bp=b.scores[0]?b.scores[0].prob:0;return bp-ap;}).slice(0,4);
-            var multiOpts=[];
-            top4PSorted.forEach(function(p){
-                var matchPicks=[];
-                if(p.scores[0]) matchPicks.push({match:p.match,pick:{type:'比分',label:p.scores[0].home+'-'+p.scores[0].away,prob:p.scores[0].prob,oddsNum:oddsFromProb(p.scores[0].prob)}});
-                if(p.scores[1]) matchPicks.push({match:p.match,pick:{type:'比分',label:p.scores[1].home+'-'+p.scores[1].away,prob:p.scores[1].prob,oddsNum:oddsFromProb(p.scores[1].prob)}});
-                if(matchPicks.length) multiOpts.push(matchPicks);
+        var merged='';
+        if(p5b.length>=2) merged+=buildParlayHtml(p5b)+'<div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0"></div>';
+        var multiOpts=[];
+        [].concat(picks).sort(function(a,b){var ap=a.scores[0]?a.scores[0].prob:0,bp=b.scores[0]?b.scores[0].prob:0;return bp-ap;}).slice(0,4).forEach(function(p){
+            var mp=[];
+            if(p.scores[0]) mp.push({match:p.match,pick:{type:'比分',label:p.scores[0].home+'-'+p.scores[0].away,prob:p.scores[0].prob,oddsNum:oddsFromProb(p.scores[0].prob)}});
+            if(p.scores[1]) mp.push({match:p.match,pick:{type:'比分',label:p.scores[1].home+'-'+p.scores[1].away,prob:p.scores[1].prob,oddsNum:oddsFromProb(p.scores[1].prob)}});
+            if(mp.length) multiOpts.push(mp);
+        });
+        var cartesian=function(arrs){return arrs.length===0?[[]]:arrs[0].reduce(function(acc,x){return acc.concat(cartesian(arrs.slice(1)).map(function(r){return [x].concat(r);}));},[]);};
+        if(multiOpts.length>=2){
+            var combos=cartesian(multiOpts);
+            combos.sort(function(a,b){
+                var cp=1,bp=1;
+                a.forEach(function(p){cp*=p.pick.prob/100;});
+                b.forEach(function(p){bp*=p.pick.prob/100;});
+                return bp-cp;
             });
-            if(multiOpts.length>=2){
-                function cartesian(arrs){
-                    if(arrs.length===0) return [[]];
-                    var rest=cartesian(arrs.slice(1));
-                    var result=[];
-                    arrs[0].forEach(function(x){rest.forEach(function(r){result.push([x].concat(r));});});
-                    return result;
-                }
-                var combos=cartesian(multiOpts);
-                combos.sort(function(a,b){
-                    var cp=1,bp=1;
-                    a.forEach(function(p){cp*=p.pick.prob/100;});
-                    b.forEach(function(p){bp*=p.pick.prob/100;});
-                    return bp-cp;
-                });
-                var shown={};
-                combos.slice(0,8).forEach(function(combo,ci){
-                    var key=combo.map(function(p){return p.pick.label;}).join('|');
-                    if(shown[key]) return;
-                    shown[key]=true;
-                    p6multi.push({label:'组合'+(ci+1),html:buildParlayHtml(combo)});
-                });
-            }
+            var shown={},ci=0;
+            combos.slice(0,8).forEach(function(combo){
+                var key=combo.map(function(p){return p.pick.label;}).join('|');
+                if(shown[key]) return;
+                shown[key]=true;ci++;
+                merged+='<div style="margin-bottom:6px;font-size:0.72rem;color:#888">● 复式组合'+ci+'</div>'+buildParlayHtml(combo);
+            });
         }
-        if(p6multi.length>0) result.push({label:'稳胆比分（多）',html:p6multi.map(function(o){return '<div style="margin-bottom:6px;font-size:0.72rem;color:#888">● '+o.label+'</div>'+o.html;}).join('')});
+        if(merged) result.push({label:'稳胆比分',html:merged});
         return result;
     }
     function tabPaneMixed(){
