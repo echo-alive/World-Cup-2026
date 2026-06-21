@@ -2397,7 +2397,7 @@ function buildMatchCard(match, stats, idx){
         var realOdds=getOddsForMatch(h,a);
 
         html+='<div class="pred"><h4>🎯 智能比分预测</h4>';
-        html+='<div style="text-align:center;color:#888;font-size:0.72rem;margin-bottom:10px;padding:4px 8px;background:rgba(255,255,255,0.05);border-radius:4px">⚠️ 赔率为国际博彩公司数据，非中国体彩竞彩赔率</div>';
+        html+='<div style="text-align:center;color:#888;font-size:0.72rem;margin-bottom:10px;padding:4px 8px;background:rgba(255,255,255,0.05);border-radius:4px">⚠️ '+(realOdds?'赔率为国际博彩公司数据，非中国体彩竞彩赔率':'基于球队实力数据的模型预测，仅供参考')+'</div>';
 
         if(realOdds){
             // 1X2 odds
@@ -2428,7 +2428,28 @@ function buildMatchCard(match, stats, idx){
             var analysis=cn(h)+'场均进'+(s1?s1.avgGoals:'?')+'球失'+(s1?s1.avgConceded:'?')+'球，'+cn(a)+'场均进'+(s2?s2.avgGoals:'?')+'球失'+(s2?s2.avgConceded:'?')+'球。博彩公司开出 '+cn(h)+'胜 <b>'+realOdds.homeOdds+'</b>、平 <b>'+realOdds.drawOdds+'</b>、'+cn(a)+'胜 <b>'+realOdds.awayOdds+'</b>。';
             html+='<div class="tip"><div class="tip-t">💡 分析依据</div><div class="tip-c">'+analysis+'</div></div>';
         } else {
-            html+='<div style="text-align:center;color:#bbb;padding:20px">赔率数据暂未获取，请稍后刷新</div>';
+            var pred=predictScore(h,a);
+            var scores=calcScoreProbs(h,a,null);
+            var sw=scores.slice(0,6);
+            sw.forEach(function(s){
+                s.p=Math.round(s.prob);
+                s.o=+(100/s.p).toFixed(1);
+                if(s.o<1.2)s.o=1.2;
+                s.s=s.home+'-'+s.away;
+            });
+            sw[0].rec=true;
+            html+='<div style="display:flex;justify-content:center;gap:20px;margin-bottom:14px;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px">';
+            html+='<div style="text-align:center"><div style="color:#2ecc71;font-size:0.75rem;margin-bottom:2px">'+cn(h)+' 胜</div><div style="font-size:1.4rem;font-weight:bold;color:#2ecc71">'+pred.homeWin+'%</div><div style="color:#bbb;font-size:0.7rem">模型概率</div></div>';
+            html+='<div style="text-align:center"><div style="color:#f1c40f;font-size:0.75rem;margin-bottom:2px">平局</div><div style="font-size:1.4rem;font-weight:bold;color:#f1c40f">'+pred.draw+'%</div><div style="color:#bbb;font-size:0.7rem">模型概率</div></div>';
+            html+='<div style="text-align:center"><div style="color:#e74c3c;font-size:0.75rem;margin-bottom:2px">'+cn(a)+' 胜</div><div style="font-size:1.4rem;font-weight:bold;color:#e74c3c">'+pred.awayWin+'%</div><div style="color:#bbb;font-size:0.7rem">模型概率</div></div>';
+            html+='</div>';
+            html+='<div class="scores">';
+            sw.forEach(function(s){
+                html+='<div class="so'+(s.rec?' rec':'')+'"><div class="sv">'+s.s+'</div><div class="prob">概率 '+s.p+'%</div><div class="desc">'+(s.rec?'推荐':'可选')+'</div>'+(s.rec?'<div class="rec-badge">推荐</div>':'')+'</div>';
+            });
+            html+='</div>';
+            var analysis=cn(h)+'场均进'+(s1?s1.avgGoals:'?')+'球失'+(s1?s1.avgConceded:'?')+'球，'+cn(a)+'场均进'+(s2?s2.avgGoals:'?')+'球失'+(s2?s2.avgConceded:'?')+'球。模型预测 '+cn(h)+'胜 <b>'+pred.homeWin+'%</b>、平 <b>'+pred.draw+'%</b>、'+cn(a)+'胜 <b>'+pred.awayWin+'%</b>。';
+            html+='<div class="tip"><div class="tip-t">💡 分析依据</div><div class="tip-c">'+analysis+'</div></div>';
         }
         html+='</div>';
     }
