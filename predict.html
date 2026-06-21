@@ -695,7 +695,7 @@ var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
 function runOCR(file,logger){
     if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file);}
-    var langPath='https://cdn.jsdelivr.net/npm/tesseract.js-data@4.0.0/4.0.0';
+    var langPath='https://unpkg.com/tesseract.js-data@4.0.0/4.0.0';
     return Tesseract.createWorker('chi_sim',1,{langPath:langPath,logger:logger}).then(function(w){ocrWorker=w;return w.recognize(file);});
 }
 
@@ -3497,16 +3497,17 @@ function handleOCRFile(input){
     extra.style.display='none';
     progress.style.display='';
     progress.innerHTML='⏳ 准备识别...';
+    progress.innerHTML='⏳ 准备识别...';
+    var tmr=setTimeout(function(){progress.innerHTML='⏳ 下载语言包中...<br><span style="font-size:0.7rem;color:#888">首次需下载约7MB，请稍候</span>';},5000);
     var reader=new FileReader();
     reader.onload=function(e){
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img">';
         runOCR(file,function(m){
             if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
-            else if(m.status==='loading tesseract core') progress.innerHTML='⏳ 加载引擎...';
+            else if(m.status==='loading tesseract core'||m.status==='loading language traineddata'){clearTimeout(tmr);progress.innerHTML='⏳ 下载语言包中...<br><span style="font-size:0.7rem;color:#888">首次需下载约7MB，请稍候</span>';}
             else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
-            else if(m.status==='loading language traineddata') progress.innerHTML='⏳ 加载语言包...';
             else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
-        }).then(function(r){
+        }).then(function(r){clearTimeout(tmr);
             var text=r.data.text.trim();
             if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
             progress.style.display='none';
