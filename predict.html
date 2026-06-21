@@ -169,7 +169,7 @@
         .lottery-table tr:hover{background:rgba(255,255,255,0.03)}
         .lottery-table .hot{color:#e74c3c;font-weight:bold}
         .lottery-table .warm{color:#f39c12}
-        .lottery-btn{background:linear-gradient(135deg,#f39c12,#e74c3c);color:#fff;border:none;padding:8px 16px;margin:8px 0;border-radius:8px;cursor:pointer;font-size:0.82rem;font-weight:bold;transition:all 0.2s;box-shadow:0 2px 8px rgba(243,156,18,0.3)}
+        .lottery-btn{background:linear-gradient(135deg,#f39c12,#e74c3c);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.82rem;font-weight:bold;transition:all 0.2s;box-shadow:0 2px 8px rgba(243,156,18,0.3)}
         .lottery-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(243,156,18,0.4)}
         .lottery-btn:active{transform:scale(0.97)}
         .lottery-tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:0.7rem;font-weight:bold}
@@ -182,7 +182,7 @@
         .share-btn:hover{background:rgba(52,152,219,0.2);border-color:#3498db}
         .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:20px;font-size:0.82rem;z-index:2000;pointer-events:none;opacity:0;transition:opacity 0.3s}
         .toast.show{opacity:1}
-        .compare-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(243,156,18,0.3);padding:3px 15px;z-index:2000;display:none;justify-content:space-between;align-items:center}
+        .compare-bar{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(243,156,18,0.3);padding:10px 15px;z-index:2000;display:none;justify-content:space-between;align-items:center}
         .compare-bar.show{display:flex}
         .compare-items{display:flex;gap:6px;flex:1;overflow-x:auto;scrollbar-width:none;margin-right:8px}
         .compare-items::-webkit-scrollbar{display:none}
@@ -294,75 +294,7 @@
         .date-pill.active{background:#3498db;border-color:#3498db;color:#fff;font-weight:bold;box-shadow:0 0 10px rgba(52,152,219,0.4)}
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
-        @media(max-width:600px){
-            header{padding:10px 0}
-            header h1{font-size:1.3rem}
-            .sub{font-size:0.7rem;margin-top:3px}
-            .badges{gap:6px;margin-top:8px}
-            .badge{padding:3px 10px;font-size:0.68rem}
-            .ctrls{margin-top:8px;gap:6px}
-            .ctrls .btn{font-size:0.72rem;padding:5px 12px}
-            .team-filter{font-size:0.72rem;min-width:100px;padding:5px 12px}
-            .date-bar{padding:4px 0;margin:6px 0;gap:4px}
-            .date-pill{padding:4px 10px;font-size:0.7rem}
-            .vs,.score{padding:3px 0}
-            .grid{grid-template-columns:1fr}
-            .box.full{grid-column:span 1}
-            .box{padding:10px}
-            .box h4{font-size:0.8rem}
-            .scores{grid-template-columns:repeat(2,1fr)}
-            .standings{grid-template-columns:1fr}
-            .match{margin:8px 0;padding:12px}
-            .match-nav{margin:0 -15px 8px;border-radius:0;box-sizing:border-box;padding:0 10px;width:calc(100% + 30px)}
-            .match-nav>div{padding:4px 4px !important}
-            .bottom-actions{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);gap:10px;padding:8px 12px;justify-content:flex-end}
-            .bottom-actions .lottery-btn{margin:0;padding:10px 16px;font-size:0.8rem;flex:1;max-width:160px;text-align:center}
-            body{padding-bottom:50px}
-            .desktop-btn{display:none !important}
-            .nav-item{padding:4px 8px;font-size:0.68rem}
-            .nav-list{padding:6px 0;gap:5px}
-            .logo{width:36px;height:36px}
-            .t-name{font-size:0.85rem}
-            .t-rank{font-size:0.6rem}
-            .t-pts{font-size:0.6rem}
-            .vs{font-size:0.9rem;padding:0 4px}
-            .score{font-size:1.3rem}
-            .teams{margin:8px 0}
-            .team-filter{min-width:100px}
-            .m-head{padding-bottom:8px;gap:4px}
-            .m-time{font-size:0.85rem}
-            .m-tag{font-size:0.68rem;padding:2px 8px}
-            .m-status{font-size:0.68rem;padding:2px 8px}
-            .pred{padding:12px;margin-top:12px}
-            .pred h4{font-size:0.85rem}
-            .stat-row{font-size:0.72rem;padding:3px 0}
-            .tip{padding:10px}
-            .tip-t{font-size:0.8rem}
-            .tip-c{font-size:0.75rem}
-            .players{gap:3px}
-            .pl{font-size:0.65rem;padding:2px 6px}
-            .lotto-ref{padding:10px;margin:10px 0}
-            .lotto-card{padding:8px}
-            .lotto-row{font-size:0.72rem;padding:4px 0;gap:4px}
-            .lotto-g{gap:6px}
-            .lr-teams{font-size:0.7rem}
-            .lr-pick{font-size:0.68rem;min-width:40px}
-            .lr-odds{font-size:0.7rem;min-width:34px}
-            .lr-bar-wrap{min-width:30px}
-            .lr-prob{font-size:0.68rem;min-width:30px}
-            .bet-tabs{border-radius:8px}
-            .bt-tab{font-size:0.68rem;padding:6px 2px}
-            .bt-pane{padding:6px 8px}
-            .modal{padding:0}
-            .modal-body{padding:10px 12px}
-            .modal-head{padding:10px 12px}
-            .modal-head h3{font-size:0.85rem}
-            .lottery-btn{font-size:0.75rem;padding:6px 12px}
-            .lottery-table{font-size:0.7rem}
-            .lottery-table th,.lottery-table td{padding:3px 4px}
-            .container{padding:8px}
-            .section-title{font-size:0.9rem;margin:12px 0 8px;padding:6px 10px}
-        }
+        @media(max-width:600px){.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.bottom-actions{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);gap:8px;padding:8px 12px;justify-content:flex-end}body{padding-bottom:54px}.desktop-btn{display:none !important}.nav-item{padding:5px 8px;font-size:0.7rem}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-filter{min-width:130px}}
         @media(min-width:768px){.match-nav{max-width:940px;margin:0 -5px 12px;border-radius:12px}}
     </style>
 </head>
