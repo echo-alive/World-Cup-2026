@@ -3524,29 +3524,11 @@ function handleOCRFile(input){
     modal.className='modal-overlay show';
     document.body.style.overflow='hidden';
 }
-function sim(a,b){
-    if(a===b) return 1;
-    // 子串匹配
-    if(a.indexOf(b)>=0||b.indexOf(a)>=0) return 0.95;
-    // 字符重叠
-    var hits=0; a.split('').forEach(function(c){if(b.indexOf(c)>=0) hits++;});
-    var len=Math.max(a.length,b.length);
-    var charScore=hits/len;
-    // 二元组重叠
-    var bi=0,biTotal=Math.min(a.length,b.length)-1;
-    for(var i=0;i<biTotal;i++){
-        var big=a.substring(i,i+2);
-        if(b.indexOf(big)>=0) bi++;
-    }
-    var biScore=biTotal>0?bi/biTotal:0;
-    return charScore*0.5+biScore*0.5;
-}
 function analyzeTicket(text,extraEl){
     var ns=window._nsMatches||[];
     extraEl.style.display='';
     var h='';
 
-    // 统一归一化：去掉中文间/中文-数字/数字-中文之间的空格
     text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');
     text=text.replace(/([\u4e00-\u9fff])\s+(?=\d)/g,'$1');
     text=text.replace(/(\d)\s+(?=[\u4e00-\u9fff])/g,'$1');
@@ -3554,32 +3536,23 @@ function analyzeTicket(text,extraEl){
     text=text.replace(/\s*VS\s*/g,'VS');
     text=text.replace(/\s*[|]\s*/g,'');
 
-    var lines=text.split('\n').filter(function(l){return l.trim();});
-    var allText=text.replace(/\s+/g,'');
+    var body=text.split('\n').filter(function(l){
+        return ['竞彩足球','详情','票数注数金额','内容','查看明细>','附近门店','注:明细信息请以彩票票面实际显示为准。'].indexOf(l)<0
+            &&!/^保存时间/.test(l)&&!/^\d+张\d+注\d+元$/.test(l)&&!/^过关:/.test(l);
+    }).join('');
+    body=body.replace(/\s*[|]\s*/g,'');
+    body=body.replace(/附近门店/g,'');
+    body=body.replace(/>/g,'');
+    body=body.replace(/[同。，、]/g,'');
+    body=body.replace(/\s*([()])\s*/g,'$1');
+    body=body.replace(/(让球胜平负|胜平负|比分|进球总数)/g,' $1');
+    console.log('[正文]',body);
 
-    // 检测格式：新格式含VS，旧格式含第N场
-    var isNew=text.indexOf('VS')>=0&&text.indexOf('第')<0;
     var matches=[];
+    var vsPos=[],p;
+    while((p=body.indexOf('VS',p+1))>=0) vsPos.push(p);
 
-    if(isNew){
-        // --- 新格式：官方截图 ---
-        var body=lines.filter(function(l){
-            return ['竞彩足球','详情','票数注数金额','内容','查看明细>','附近门店','注:明细信息请以彩票票面实际显示为准。'].indexOf(l)<0
-                &&!/^保存时间/.test(l)&&!/^\d+张\d+注\d+元$/.test(l)&&!/^过关:/.test(l);
-        }).join('');
-        body=body.replace(/\s*[|]\s*/g,'');
-        body=body.replace(/附近门店/g,'');
-        body=body.replace(/>/g,'');
-        body=body.replace(/[同。，、]/g,'');
-        body=body.replace(/\s*([()])\s*/g,'$1');
-        body=body.replace(/(让球胜平负|胜平负|比分|进球总数)/g,' $1');
-        console.log('[新正文]',body);
-
-        // 按 VS 位置顺序截取每场选购文字
-        var vsPos=[],p;
-        while((p=body.indexOf('VS',p+1))>=0) vsPos.push(p);
-
-        vsPos.forEach(function(vsPos,i){
+    vsPos.forEach(function(vsPos,i){
             var cur={num:String(i+1),home:'',away:'',picks:[],type:''};matches.push(cur);
             var next=i+1<vsPos.length?vsPos[i+1]:body.length;
             var raw=body.substring(vsPos+2,next);
@@ -3626,8 +3599,7 @@ function analyzeTicket(text,extraEl){
             cur.type=cur.picks.length?cur.picks[0].origType:'';
             console.log('   →结果',cur.picks);
         });
-    }
-
+    
     // 2. 用页面数据补充队名
     matches.forEach(function(m){
         var idx=parseInt(m.num)-1;
@@ -3639,6 +3611,7 @@ function analyzeTicket(text,extraEl){
     });
     // 3. 总金额/倍数/最高奖金
     console.log('[OCR]解析结果:',JSON.stringify(matches.map(function(m){return {num:m.num,home:m.home,away:m.away,homeCN:m.homeCN,awayCN:m.awayCN,picks:m.picks};})));
+    var lines=text.split('\n').filter(function(l){return l.trim();});
     var total=0,bei=1,maxPayout=0,info='';
     lines.forEach(function(l){
         // 新格式：2张36注72元
