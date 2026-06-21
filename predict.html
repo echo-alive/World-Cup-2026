@@ -475,7 +475,7 @@ var TEAM_ELO={
     'South Korea':1685,'Iran':1630,'Czechia':1695,'Congo DR':1520,'Panama':1510,
     'Bosnia & Herzegovina':1535,'Canada':1650,'Ghana':1525,'Iraq':1480,'Qatar':1505,
     'Haiti':1380,'South Africa':1455,'New Zealand':1360,'Jordan':1440,
-    'Cape Verde Islands':1400,'Uzbekistan':1465,'Türkiye':1755,'Curaçao':1350
+    'Cape Verde Islands':1620,'Uzbekistan':1465,'Türkiye':1755,'Curaçao':1350
 };
 
 var TEAM_XG={
@@ -541,15 +541,17 @@ function predictScore(home,away){
     var homeAdv=60;
     var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
     var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
-    var ph=eloWinProb(eloH+homeAdv,eloA);
-    var pa=eloWinProb(eloA,eloH+homeAdv);
-    var eloDiff=Math.abs(eloH+homeAdv-eloA);
-    var drawBase=0.25-eloDiff*0.0003;
-    var pd=Math.max(0.12,Math.min(0.30,drawBase));
-    var total=ph+pa+pd;
-    ph=ph/total; pd=pd/total; pa=pa/total;
     var avgH=(xgH+concA)/2;
     var avgA=(xgA+concH)/2;
+    var lambdaH=avgH, lambdaA=avgA;
+    var pd=0;
+    for(var k=0;k<=10;k++) pd+=poissonProb(lambdaH,k)*poissonProb(lambdaA,k);
+    var ph_raw=eloWinProb(eloH+homeAdv,eloA);
+    var pa_raw=eloWinProb(eloA,eloH+homeAdv);
+    var total=ph_raw+pa_raw;
+    ph_raw=ph_raw/total; pa_raw=pa_raw/total;
+    var ph=ph_raw*(1-pd);
+    var pa=pa_raw*(1-pd);
     var h=Math.round(avgH*10)/10;
     var a=Math.round(avgA*10)/10;
     return {home:Math.round(h*10)/10,away:Math.round(a*10)/10,homeWin:Math.round(ph*100),draw:Math.round(pd*100),awayWin:Math.round(pa*100)};
