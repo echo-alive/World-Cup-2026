@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
@@ -155,6 +156,10 @@
         .modal-close{background:rgba(255,255,255,0.1);border:none;color:#888;font-size:1.2rem;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
         .modal-close:hover{background:rgba(231,76,60,0.3);color:#e74c3c}
         .modal-body{padding:14px 18px}
+        .ocr-preview-img{max-width:100%;max-height:200px;border-radius:8px;border:1px solid rgba(255,255,255,0.1)}
+        .ocr-match-row{background:rgba(243,156,18,0.08);border:1px solid rgba(243,156,18,0.12);border-radius:6px;padding:6px 10px;font-size:0.75rem;color:#ddd;display:flex;justify-content:space-between;align-items:center}
+        .ocr-match-row span{color:#f39c12;font-weight:bold}
+        @media(max-width:600px){.ocr-match-row{flex-direction:column;align-items:flex-start;gap:4px}}
         .lottery-section{margin-bottom:16px}
         .lottery-section h4{color:#f39c12;font-size:0.88rem;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)}
         .lottery-table{width:100%;font-size:0.78rem;border-collapse:collapse}
@@ -198,7 +203,7 @@
         .tip-c{color:#ddd;font-size:0.82rem;line-height:1.6}
         .tip-c b{color:#f1c40f}
 
-        .lotto-ref{border:1px solid rgba(243,156,18,0.25);border-radius:14px;padding:16px;margin-bottom:16px;background:linear-gradient(135deg,rgba(243,156,18,0.06),rgba(231,76,60,0.04))}
+        .lotto-ref{border:1px solid rgba(243,156,18,0.25);border-radius:14px;padding:16px;margin:16px 0;background:linear-gradient(135deg,rgba(243,156,18,0.06),rgba(231,76,60,0.04))}
         .lotto-h{font-size:1rem;font-weight:bold;color:#f39c12;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08)}
         .lotto-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         .lotto-g .full{grid-column:span 2}
@@ -320,6 +325,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;gap:8px">
             <div class="nav-list" id="nav-list" style="flex:1"></div>
             <button id="lottoBtn" class="lottery-btn" style="display:none;white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="openBettingModal()">🎯 购彩推荐</button>
+            <button class="lottery-btn" style="white-space:nowrap;padding:7px 14px;font-size:0.78rem;flex-shrink:0" onclick="document.getElementById('ocrInput').click()">📷 扫票识别</button>
         </div>
     </div>
 
@@ -335,6 +341,24 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="ocrModal" onclick="if(event.target===this)closeOCRModal()">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>📷 扫票识别</h3>
+                <button class="modal-close" onclick="closeOCRModal()">✕</button>
+            </div>
+            <div class="modal-body" id="ocrBody">
+                <div id="ocrPreview" style="text-align:center;margin-bottom:12px"></div>
+                <div id="ocrStatus" style="text-align:center;color:#888;padding:10px;font-size:0.85rem">选择图片自动识别</div>
+                <div id="ocrResult" style="background:rgba(0,0,0,0.2);border-radius:8px;padding:12px;font-size:0.82rem;line-height:1.7;white-space:pre-wrap;word-break:break-all;display:none"></div>
+                <div id="ocrExtra" style="margin-top:8px;display:none">
+                    <div style="font-size:0.78rem;color:#f39c12;margin-bottom:6px">⚡ 识别到比赛信息</div>
+                    <div id="ocrMatchInfo" style="display:flex;flex-direction:column;gap:4px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
     <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'});this.blur()">↑</button>
     <div class="compare-bar" id="compareBar">
@@ -343,6 +367,7 @@
         <button style="background:rgba(255,255,255,0.1);border:none;color:#888;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:0.78rem;margin-left:6px" onclick="clearCompare()">清空</button>
     </div>
 
+    <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOCRFile(this)">
     <div class="warn">免责声明：预测基于历史数据统计分析，仅供娱乐参考，不构成投注建议。请理性看待，切勿沉迷。</div>
     <div class="foot">数据来源：26worldcup.cn API | 赔率来源：The Odds API（国际博彩，非中国体彩） | 自动更新</div>
 </div>
@@ -3419,6 +3444,77 @@ function renderMultiSummary(){
     if(x2El) x2El.innerHTML=h;
     if(scEl) scEl.innerHTML=h;
     if(glEl) glEl.innerHTML=h;
+}
+
+function handleOCRFile(input){
+    var file=input.files[0];
+    if(!file) return;
+    var modal=document.getElementById('ocrModal');
+    var body=document.getElementById('ocrBody');
+    var preview=document.getElementById('ocrPreview');
+    var status=document.getElementById('ocrStatus');
+    var result=document.getElementById('ocrResult');
+    var extra=document.getElementById('ocrExtra');
+    result.style.display='none';
+    extra.style.display='none';
+    status.innerHTML='📷 正在分析图片...';
+    status.style.color='#888';
+    var reader=new FileReader();
+    reader.onload=function(e){
+        preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img">';
+        status.innerHTML='⏳ 正在识别文字...<br><span style="font-size:0.7rem;color:#666">首次加载需下载语言包（约20MB），请稍候</span>';
+        status.style.color='#f39c12';
+        Tesseract.recognize(file,'chi_sim+eng',{logger:function(m){
+            if(m.status==='recognizing text') status.innerHTML='⏳ 识别中 '+(m.progress*100).toFixed(0)+'%';
+        }}).then(function(r){
+            var text=r.data.text.trim();
+            if(!text){status.innerHTML='⚠️ 未识别到文字';status.style.color='#e74c3c';return;}
+            result.style.display='';
+            result.textContent=text;
+            preview.innerHTML='';
+            status.innerHTML='✅ 识别完成';
+            status.style.color='#2ecc71';
+            tryParseMatch(text,extra);
+        }).catch(function(err){
+            status.innerHTML='❌ 识别失败: '+err.message;
+            status.style.color='#e74c3c';
+        });
+    };
+    reader.readAsDataURL(file);
+    modal.className='modal-overlay show';
+    document.body.style.overflow='hidden';
+}
+function tryParseMatch(text,extraEl){
+    var lines=text.split('\n').filter(function(l){return l.trim();});
+    var matches=[];
+    var vsRegex=/([\u4e00-\u9fff]+)\s*v[vs]\s*([\u4e00-\u9fff]+)/i;
+    lines.forEach(function(l){
+        var m=l.match(vsRegex);
+        if(m){
+            var home=m[1].trim(),away=m[2].trim();
+            var odds=lines.filter(function(x){return x.indexOf(home)>=0||x.indexOf(away)>=0||x.indexOf('赔')>=0||x.indexOf('@')>=0||x.match(/\d+\.\d+/);});
+            matches.push({home:home,away:away});
+        }
+    });
+    if(matches.length===0){
+        var nums=text.match(/\d+\.\d{2}/g);
+        if(nums&&nums.length>=3){
+            matches.push({home:'主队',away:'客队'});
+        }
+    }
+    if(matches.length>0){
+        extraEl.style.display='';
+        var h='';
+        matches.forEach(function(m){
+            h+='<div class="ocr-match-row">'+m.home+' vs '+m.away+' <span>✅ 识别成功</span></div>';
+        });
+        extraEl.innerHTML=h;
+    }
+}
+function closeOCRModal(){
+    document.getElementById('ocrModal').className='modal-overlay';
+    document.body.style.overflow='';
+    document.getElementById('ocrInput').value='';
 }
 
 function openBettingModal(){
