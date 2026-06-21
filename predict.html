@@ -3462,11 +3462,21 @@ function handleOCRFile(input){
     var reader=new FileReader();
     reader.onload=function(e){
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img">';
-        status.innerHTML='⏳ 正在识别文字...<br><span style="font-size:0.7rem;color:#666">首次加载需下载语言包（约20MB），请稍候</span>';
+        status.innerHTML='⏳ 加载识别引擎...<br><span style="font-size:0.7rem;color:#666">首次需下载核心文件（约3MB）</span>';
         status.style.color='#f39c12';
-        Tesseract.recognize(file,'chi_sim+eng',{logger:function(m){
-            if(m.status==='recognizing text') status.innerHTML='⏳ 识别中 '+(m.progress*100).toFixed(0)+'%';
+        var langPath='https://cdn.jsdelivr.net/npm/tesseract.js-data@4.0.0/4.0.0';
+        var timedOut=false;
+        var tmr=setTimeout(function(){timedOut=true;status.innerHTML='❌ 下载超时，请检查网络<br><span style="font-size:0.7rem;color:#888">可尝试使用代理或切换网络后重试</span>';status.style.color='#e74c3c';},60000);
+        Tesseract.recognize(file,'chi_sim+eng',{langPath:langPath,logger:function(m){
+            if(timedOut) return;
+            clearTimeout(tmr);tmr=setTimeout(function(){timedOut=true;status.innerHTML='❌ 下载超时，请检查网络<br><span style="font-size:0.7rem;color:#888">可尝试使用代理或切换网络后重试</span>';status.style.color='#e74c3c';},60000);
+            if(m.status==='loading tesseract core') status.innerHTML='⏳ 加载识别引擎...<br><span style="font-size:0.7rem;color:#666">下载核心文件（约3MB）</span>';
+            else if(m.status==='initializing tesseract') status.innerHTML='⏳ 初始化引擎...';
+            else if(m.status==='loading language traineddata') status.innerHTML='⏳ 下载语言包...<br><span style="font-size:0.7rem;color:#666">中文+英文（约15MB）</span>';
+            else if(m.status==='initializing api') status.innerHTML='⏳ 初始化API...';
+            else if(m.status==='recognizing text') status.innerHTML='⏳ 识别中 '+(m.progress*100).toFixed(0)+'%';
         }}).then(function(r){
+            clearTimeout(tmr);
             var text=r.data.text.trim();
             if(!text){status.innerHTML='⚠️ 未识别到文字';status.style.color='#e74c3c';return;}
             result.style.display='';
@@ -3476,6 +3486,7 @@ function handleOCRFile(input){
             status.style.color='#2ecc71';
             tryParseMatch(text,extra);
         }).catch(function(err){
+            clearTimeout(tmr);
             status.innerHTML='❌ 识别失败: '+err.message;
             status.style.color='#e74c3c';
         });
