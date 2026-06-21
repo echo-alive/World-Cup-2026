@@ -3526,82 +3526,39 @@ function analyzeTicket(text,extraEl){
     var allText=text.replace(/\s+/g,'');
     extraEl.style.display='';
     var h='';
-    // 1. 解析比赛场次
-    var allCNs=Object.keys(TEAM_CN).map(function(k){return {cn:TEAM_CN[k],rk:TEAM_RANK[k]||99};});
-    allCNs.sort(function(a,b){
-        if(a.cn.length!==b.cn.length) return b.cn.length-a.cn.length;
-        return a.rk-b.rk; // 同长度按FIFA排名优先（乌拉圭9 < 巴拉圭27）
-    });
-    allCNs=allCNs.map(function(x){return x.cn;});
+    // 1. 解析比赛场次（只取场次号/类型/选购项，队名从页面数据来）
     var matches=[];
     var cur=null;
-    function matchTeams(text,cur){
-        var segs=text.match(/[\u4e00-\u9fff]+/g)||[];
-        var found=[];
-        segs.forEach(function(seg){
-            if(seg.length<2) return;
-            // 排除明显非队名的常见OCR词
-            if(['周日','周一','周二','周三','周四','周五','周六','比分','主队','客队','胜平负','平负','过关','方式','合计','倍数','金额'].indexOf(seg)>=0) return;
-            var best=null,bestScore=0;
-            allCNs.forEach(function(cn){
-                var s=sim(seg,cn);
-                if(s<=bestScore) return;
-                var thr=seg.length<=2||cn.length<=2?0.2:0.3;
-                if(s>=thr){bestScore=s;best=cn;}
-            });
-            if(best&&!found.some(function(f){return f.name===best;})) found.push({name:best,score:bestScore});
-        });
-        // 不按得分排序，保持文本出现顺序（第一个在text中的队=主队）
-        if(!cur.home&&found.length>=1) cur.home=found[0].name;
-        if(!cur.away&&found.length>=2) cur.away=found[1].name;
-        if(found.length) console.log('[OCR行段]',text,'→匹配',found);
-    }
     lines.forEach(function(l){
-        var m=l.match(/第(\d+)场/);
-        if(m){
-            // 标记前的文字→归属前一场（解决同场跨场污染）
-            var before=l.substring(0,m.index);
-            if(cur&&before.trim()) matchTeams(before,cur);
-            // 新场次，只处理标记后的文字
-            cur={num:m[1],home:'',away:'',picks:[],type:''};matches.push(cur);
-            var after=l.substring(m.index+m[0].length);
-            if(after.trim()) matchTeams(after,cur);
-        }else if(cur){
-            matchTeams(l,cur);
-        }
-        if(!cur) return;
-        if(l.indexOf('胜平负')>=0) cur.type='胜平负';
-        if(l.indexOf('比分')>=0) cur.type='比分';
-        var pr=l.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
-        if(pr){
-            pr.forEach(function(p){
-                var pm=p.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/);
-                if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
-            });
-        }
-        var dm=l.match(/平\s*@\s*(\d+\.\d{3})/);
-        if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
+        var parts=l.split(/(?=第\d+场)/);
+        parts.forEach(function(part){
+            var mm=part.match(/^第(\d+)场/);
+            if(mm){
+                cur={num:mm[1],home:'',away:'',picks:[],type:''};matches.push(cur);
+                part=part.replace(/^第\d+场/,'');
+            }
+            if(!cur) return;
+            if(part.indexOf('胜平负')>=0) cur.type='胜平负';
+            if(part.indexOf('比分')>=0) cur.type='比分';
+            var pr=part.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
+            if(pr){
+                pr.forEach(function(p){
+                    var pm=p.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/);
+                    if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
+                });
+            }
+            var dm=part.match(/平\s*@\s*(\d+\.\d{3})/);
+            if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
+        });
     });
-    // 2. 补充teamCN
-    var allCN=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
+    // 2. 用页面数据补充队名
+    var ns=window._nsMatches||[];
     matches.forEach(function(m){
-        if(m.home&&!m.homeCN){
-            var best=null,bestScore=0;
-            allCN.forEach(function(cn){
-                var s=sim(m.home,cn);
-                var thr=m.home.length<=2||cn.length<=2?0.2:0.35;
-                if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
-            });
-            m.homeCN=bestScore>=0.4?best:m.home;
-        }
-        if(m.away&&!m.awayCN){
-            var best=null,bestScore=0;
-            allCN.forEach(function(cn){
-                var s=sim(m.away,cn);
-                var thr=m.away.length<=2||cn.length<=2?0.2:0.35;
-                if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
-            });
-            m.awayCN=bestScore>=0.4?best:m.away;
+        var idx=parseInt(m.num)-1;
+        if(idx>=0&&idx<ns.length){
+            var nsm=ns[idx];
+            m.homeCN=TEAM_CN[nsm.home_team]||nsm.home_team;
+            m.awayCN=TEAM_CN[nsm.away_team]||nsm.away_team;
         }
     });
     // 3. 总金额/倍数/最高奖金
@@ -3617,7 +3574,6 @@ function analyzeTicket(text,extraEl){
         if(l.indexOf('单倍注数')>=0||l.indexOf('共')>=0) info=l;
     });
     // 4. 逐注合理性分析
-    var ns=window._nsMatches||[];
     h+='<div class="lotto-card full"><h5>📊 逐注分析</h5>';
     if(matches.length===0){
         h+='<div style="color:#888;font-size:0.75rem;margin-bottom:6px">未识别到标准票面格式，原始识别文字:</div>';
@@ -3625,9 +3581,8 @@ function analyzeTicket(text,extraEl){
     }
     matches.forEach(function(m){
         if(!m.homeCN||!m.awayCN) return;
-        var hk,ak;
-        Object.keys(TEAM_CN).forEach(function(k){if(TEAM_CN[k]===m.homeCN) hk=k;if(TEAM_CN[k]===m.awayCN) ak=k;});
-        var match=hk&&ak?ns.find(function(mm){return mm.home_team===hk&&mm.away_team===ak;}):null;
+        var idx=parseInt(m.num)-1;
+        var match=idx>=0&&idx<ns.length?ns[idx]:null;
         if(!match){
             m.picks.forEach(function(p){
                 h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
