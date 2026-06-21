@@ -20,6 +20,24 @@
         .team-filter{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s;min-width:160px}
         .team-filter:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
         .team-filter option{background:#1a1a2e;color:#fff}
+        .search-select{position:relative;min-width:160px}
+        .team-filter{width:100%}
+        .search-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,0.2);border-radius:0 0 12px 12px;max-height:300px;overflow-y:auto;z-index:200;display:none;margin-top:2px;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+        .search-dropdown.show{display:block}
+        .search-option{padding:8px 16px;cursor:pointer;font-size:0.85rem;color:#ccc;transition:all 0.12s}
+        .search-option:hover,.search-option.highlighted{background:rgba(52,152,219,0.2);color:#fff}
+        .search-option.active{background:#3498db;color:#fff}
+        .search-empty{padding:12px 16px;color:#888;font-size:0.82rem;text-align:center}
+        .team-filter:focus{outline:none;border-color:rgba(52,152,219,0.6);box-shadow:0 0 8px rgba(52,152,219,0.3)}
+        .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:1rem;cursor:pointer;padding:0 4px;line-height:1;display:none;z-index:1;transition:color 0.2s}
+        .search-clear:hover{color:#e74c3c}
+        .search-clear.show{display:block}
+        .search-select .team-filter{padding-right:30px}
+        .search-dropdown::-webkit-scrollbar{width:4px}
+        .search-dropdown::-webkit-scrollbar-track{background:transparent}
+        .search-dropdown::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
+        .search-dropdown::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.25)}
+        .search-dropdown{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent}
         .btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;transition:all 0.3s}
         .btn:hover{background:rgba(255,255,255,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
         .btn:active{transform:scale(0.95);box-shadow:0 0 12px rgba(52,152,219,0.6)}
@@ -70,8 +88,8 @@
         .t-rank{color:#888;font-size:0.75rem}
         .t-pts{color:#f39c12;font-size:0.72rem;font-weight:bold}
         .vs{font-size:1.3rem;font-weight:bold;color:#e74c3c;padding:0 10px}
-        .score{font-size:2rem;font-weight:bold;color:#f39c12}
-        .score-sub{font-size:0.75rem;color:#888}
+        .score{font-size:2rem;font-weight:bold;color:#f39c12;text-align:center}
+        .score-sub{font-size:0.75rem;color:#888;text-align:center}
 
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
         .box{background:linear-gradient(135deg,rgba(0,0,0,0.35),rgba(15,12,41,0.35));border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;transition:all 0.2s}
@@ -173,6 +191,28 @@
         .tip-c{color:#ddd;font-size:0.82rem;line-height:1.6}
         .tip-c b{color:#f1c40f}
 
+        .lotto-ref{border:1px solid rgba(243,156,18,0.25);border-radius:14px;padding:16px;margin-bottom:16px;background:linear-gradient(135deg,rgba(243,156,18,0.06),rgba(231,76,60,0.04))}
+        .lotto-h{font-size:1rem;font-weight:bold;color:#f39c12;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08)}
+        .lotto-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .lotto-g .full{grid-column:span 2}
+        .lotto-card{background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.05)}
+        .lotto-card h5{color:#bbb;font-size:0.78rem;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+        .lotto-row{display:flex;align-items:center;padding:6px 0;font-size:0.8rem;border-bottom:1px solid rgba(255,255,255,0.04);gap:6px}
+        .lotto-row:last-child{border-bottom:none}
+        .lr-teams{flex:1;color:#ccc;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .lr-pick{color:#2ecc71;font-weight:bold;font-size:0.75rem;text-align:center;min-width:55px}
+        .lr-odds{color:#f39c12;font-weight:bold;font-size:0.78rem;text-align:right;min-width:42px}
+        .lr-prob{text-align:right;min-width:38px;font-size:0.76rem}
+        .lr-prob.high{color:#2ecc71}.lr-prob.mid{color:#f39c12}.lr-prob.low{color:#e74c3c}
+        .lr-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;min-width:40px}
+        .lr-bar{height:100%;border-radius:2px;transition:width 0.4s}
+        .lr-bar.green{background:#2ecc71}.lr-bar.yellow{background:#f39c12}.lr-bar.red{background:#e74c3c}
+        .lr-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:0.65rem;font-weight:bold}
+        .lr-badge.upset{background:rgba(231,76,60,0.2);color:#e74c3c}
+        .lr-badge.value{background:rgba(46,204,113,0.2);color:#2ecc71}
+        .lr-badge.best{background:rgba(243,156,18,0.2);color:#f39c12}
+        .lotto-tip{font-size:0.72rem;color:#666;margin-top:6px;text-align:center}
+        @media(max-width:600px){.lotto-g{grid-template-columns:1fr}}
         .warn{background:rgba(231,76,60,0.15);padding:10px;border-radius:8px;margin-top:15px;font-size:0.78rem;text-align:center;color:#e74c3c}
         .foot{text-align:center;padding:15px 0;color:#555;font-size:0.75rem}
         .load{text-align:center;padding:50px}
@@ -204,9 +244,11 @@
             <button class="btn" onclick="loadData()">刷新数据</button>
             <button class="btn" id="btn-standings" onclick="toggleView('standings')">积分榜</button>
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
-            <select id="team-filter" class="team-filter" onchange="onTeamFilterChange(this.value)">
-                <option value="">🔍 筛选球队</option>
-            </select>
+            <div class="search-select" id="team-filter-wrap">
+                <input type="text" class="team-filter" id="team-filter-input" placeholder="🔍 筛选球队" autocomplete="off" oninput="onTeamSearchInput(this.value)" onfocus="onTeamFilterFocus()" onblur="onTeamFilterBlur()" onkeydown="onTeamFilterKeydown(event)">
+                <button class="search-clear" id="search-clear" onclick="clearTeamFilter()">✕</button>
+                <div class="search-dropdown" id="team-filter-dropdown"></div>
+            </div>
         </div>
         <div class="date-bar" id="date-bar"></div>
         <div class="api loading" id="api-status">连接API中...</div>
@@ -247,6 +289,7 @@ var currentView = 'predict';
 var selectedDate = '';
 var selectedTeam = '';
 var allDates = [];
+var allTeamNames = [];
 var oddsData = {};
 var ODDS_API_KEY = 'ca4e91ccbc0799447f1d550a7700a2b0';
 var ODDS_CACHE_KEY = 'wc2026_odds_cache';
@@ -2088,7 +2131,7 @@ function buildMatchCard(match, stats, idx){
     var isNS=match.status==='NS';
 
     var scoreHtml='';
-    if(isFT) scoreHtml='<div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">全场比分</div>';
+    if(isFT) scoreHtml='<div><div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">全场比分</div></div>';
     else if(isNS) scoreHtml='<div class="vs">VS</div>';
     else scoreHtml='<div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">'+statusText(match.status)+'</div>';
 
@@ -2422,40 +2465,122 @@ function buildDateBar(){
 }
 
 function populateTeamFilter(){
-    var sel=document.getElementById('team-filter');
-    if(!sel) return;
+    var dd=document.getElementById('team-filter-dropdown');
+    if(!dd) return;
     var teams={};
     allMatches.forEach(function(m){
         teams[m.home_team]=1;
         teams[m.away_team]=1;
     });
-    var names=Object.keys(teams).sort();
-    var html='<option value="">🔍 筛选球队</option>';
-    names.forEach(function(t){
-        html+='<option value="'+t+'">'+cn(t)+'</option>';
+    allTeamNames=Object.keys(teams).sort();
+    renderTeamDropdown(allTeamNames);
+}
+
+function renderTeamDropdown(list){
+    var dd=document.getElementById('team-filter-dropdown');
+    if(!dd) return;
+    var html='';
+    if(list.length===0){
+        html='<div class="search-empty">无匹配球队</div>';
+    }else{
+        list.forEach(function(t){
+            var act=t===selectedTeam?' active':'';
+            html+='<div class="search-option'+act+'" data-team="'+t+'">'+cn(t)+'</div>';
+        });
+    }
+    dd.innerHTML=html;
+}
+
+function onTeamSearchInput(val){
+    var trimmed=val.trim();
+    if(!trimmed){
+        renderTeamDropdown(allTeamNames);
+        toggleClearBtn(false);
+        return;
+    }
+    toggleClearBtn(true);
+    var lower=trimmed.toLowerCase();
+    var filtered=allTeamNames.filter(function(t){
+        var nameCn=cn(t).toLowerCase();
+        var nameEn=t.toLowerCase();
+        return nameCn.indexOf(lower)>=0||nameEn.indexOf(lower)>=0;
     });
-    sel.innerHTML=html;
+    renderTeamDropdown(filtered);
+    var dd=document.getElementById('team-filter-dropdown');
+    if(dd) dd.classList.add('show');
+}
+
+function onTeamFilterFocus(){
+    document.getElementById('team-filter-dropdown').classList.add('show');
+}
+
+function onTeamFilterKeydown(e){
+    if(e.key==='Escape'){
+        document.getElementById('team-filter-dropdown').classList.remove('show');
+        e.target.blur();
+        return;
+    }
+    if(e.key==='Enter'){
+        var dd=document.getElementById('team-filter-dropdown');
+        var first=dd.querySelector('.search-option:not(.active)');
+        if(!first) first=dd.querySelector('.search-option');
+        if(first && first.dataset.team){
+            selectTeamOption(first.dataset.team);
+        }
+        e.preventDefault();
+    }
+}
+
+function onTeamFilterBlur(){
+    var input=document.getElementById('team-filter-input');
+    if(input) input.value=selectedTeam?cn(selectedTeam):'';
+    setTimeout(function(){
+        document.getElementById('team-filter-dropdown').classList.remove('show');
+    },200);
+}
+
+function selectTeamOption(val){
+    selectedTeam=val;
+    var input=document.getElementById('team-filter-input');
+    if(input) input.value=cn(val);
+    document.getElementById('team-filter-dropdown').classList.remove('show');
+    toggleClearBtn(!!val);
+    onTeamFilterChange(val);
+}
+
+function clearTeamFilter(){
+    selectedTeam='';
+    var input=document.getElementById('team-filter-input');
+    if(input) input.value='';
+    toggleClearBtn(false);
+    document.getElementById('team-filter-dropdown').classList.remove('show');
+    onTeamFilterChange('');
+}
+
+function toggleClearBtn(show){
+    var btn=document.getElementById('search-clear');
+    if(btn) btn.classList.toggle('show', show);
 }
 
 function resetToInitialState(){
     selectedTeam='';
-    var tomorrow=new Date();
-    tomorrow.setDate(tomorrow.getDate()+1);
-    var tomorrowStr=tomorrow.getFullYear()+'-'+String(tomorrow.getMonth()+1).padStart(2,'0')+'-'+String(tomorrow.getDate()).padStart(2,'0');
-    var hasTomorrow=allMatches.some(function(m){return m.kickoff_time.indexOf(tomorrowStr)===0;});
-    if(hasTomorrow){
-        selectedDate=tomorrowStr;
+    var nearest=findNearestMatchDay(allMatches);
+    if(nearest){
+        selectedDate=nearest.date;
     }else{
         var dates={};
         allMatches.forEach(function(m){
-            var d=m.kickoff_time.split(' ')[0];
-            dates[d]=1;
+            if(m.status==='NS'){
+                var d=m.kickoff_time.split(' ')[0];
+                dates[d]=1;
+            }
         });
         var sortedDates=Object.keys(dates).sort();
-        selectedDate=sortedDates[0];
+        selectedDate=sortedDates.length>0?sortedDates[0]:'';
     }
-    var sel=document.getElementById('team-filter');
+    var sel=document.getElementById('team-filter-input');
     if(sel) sel.value='';
+    toggleClearBtn(false);
     buildDateBar();
     render();
     window.scrollTo({top:0,behavior:'smooth'});
@@ -2481,21 +2606,6 @@ function onTeamFilterChange(val){
     }
     buildDateBar();
     render();
-    if(val){
-        setTimeout(function(){
-            var matchCards=document.querySelectorAll('.match');
-            for(var i=0;i<matchCards.length;i++){
-                var homeTeam=matchCards[i].getAttribute('data-home');
-                var awayTeam=matchCards[i].getAttribute('data-away');
-                if(homeTeam===val||awayTeam===val){
-                    var rect=matchCards[i].getBoundingClientRect();
-                    var offset=window.pageYOffset+rect.top-100;
-                    window.scrollTo({top:offset,behavior:'smooth'});
-                    break;
-                }
-            }
-        },100);
-    }
 }
 
 function selectDate(d){
@@ -2819,13 +2929,162 @@ function buildTournamentAnalysis(matches){
     return html;
 }
 
+function buildLotteryRef(nsMatches,stats){
+    if(!nsMatches||nsMatches.length===0) return '';
+
+    var rows=[];
+    nsMatches.forEach(function(m){
+        var h=m.home_team, a=m.away_team;
+        var odds=getOddsForMatch(h,a);
+        if(!odds) return;
+        var pred=predictScore(h,a);
+        var outcomes=[
+            {type:'home',label:cn(h)+' 胜',prob:pred.homeWin,oddsNum:parseFloat(odds.homeOdds)},
+            {type:'draw',label:'平局',prob:pred.draw,oddsNum:parseFloat(odds.drawOdds)},
+            {type:'away',label:cn(a)+' 胜',prob:pred.awayWin,oddsNum:parseFloat(odds.awayOdds)}
+        ];
+        outcomes.sort(function(a,b){return b.prob-a.prob;});
+        var best=outcomes[0];
+        var implied=100/best.oddsNum;
+        var value=best.prob-implied;
+        var oddsFav=odds.homeOdds<=odds.drawOdds&&odds.homeOdds<=odds.awayOdds?'home':
+                    odds.awayOdds<=odds.homeOdds&&odds.awayOdds<=odds.drawOdds?'away':'draw';
+        var favTeam=oddsFav==='home'?cn(h):oddsFav==='away'?cn(a):'平局';
+        var isUpset=best.type!==oddsFav;
+
+        var dc=[
+            {label:cn(h)+'/平',prob:pred.homeWin+pred.draw},
+            {label:'平/'+cn(a),prob:pred.draw+pred.awayWin},
+            {label:cn(h)+'/'+cn(a),prob:pred.homeWin+pred.awayWin}
+        ];
+        dc.sort(function(a,b){return b.prob-a.prob;});
+
+        var hcap=null;
+        if(best.type!=='draw'){
+            var scores=calcScoreProbs(h,a,odds);
+            var hWin=0,hDraw=0,hLoss=0;
+            scores.forEach(function(s){
+                var diff=s.home-s.away;
+                var adj=best.type==='home'?diff-1:diff+1;
+                if(adj>0) hWin+=s.prob;
+                else if(adj===0) hDraw+=s.prob;
+                else hLoss+=s.prob;
+            });
+            var total=hWin+hDraw+hLoss;
+            hcap={homeWin:Math.round(hWin/total*100),draw:Math.round(hDraw/total*100),awayWin:Math.round(hLoss/total*100)};
+        }
+
+        rows.push({match:m,best:best,value:value,isUpset:isUpset,oddsFav:oddsFav,favTeam:favTeam,dc:dc,hcap:hcap,h:h,a:a});
+    });
+
+    if(rows.length===0) return '';
+
+    var html='<div class="lotto-ref">';
+    html+='<div class="lotto-h">🎰 竞彩参考</div><div class="lotto-g">';
+
+    // 单关精选
+    var sorted=[].concat(rows).sort(function(a,b){return b.best.prob-a.best.prob;});
+    html+='<div class="lotto-card full"><h5>⭐ 单关精选</h5>';
+    sorted.slice(0,4).forEach(function(r){
+        var cls=r.best.prob>=65?'high':r.best.prob>=55?'mid':'low';
+        html+='<div class="lotto-row">';
+        html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+'</span>';
+        html+='<span class="lr-pick">'+r.best.label+'</span>';
+        html+='<span class="lr-odds">'+r.best.oddsNum.toFixed(2)+'</span>';
+        html+='<div class="lr-bar-wrap"><div class="lr-bar '+(cls==='high'?'green':cls==='mid'?'yellow':'red')+'" style="width:'+r.best.prob+'%"></div></div>';
+        html+='<span class="lr-prob '+cls+'">'+r.best.prob+'%</span>';
+        html+='</div>';
+    });
+    html+='</div>';
+
+    // 冷门预警
+    var upsets=rows.filter(function(r){return r.isUpset;});
+    if(upsets.length>0){
+        html+='<div class="lotto-card full"><h5>⚠️ 冷门预警 <span style="color:#e74c3c;font-size:0.7rem;font-weight:normal">赔率倾向 vs 模型预测不一致</span></h5>';
+        upsets.forEach(function(r){
+            html+='<div class="lotto-row">';
+            html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+'</span>';
+            html+='<span style="color:#888;font-size:0.72rem">赔率看: '+r.favTeam+' | 模型推: </span>';
+            html+='<span class="lr-pick" style="color:#e74c3c">'+r.best.label+'</span>';
+            html+='<span class="lr-odds">'+r.best.oddsNum.toFixed(2)+'</span>';
+            html+='<span class="lr-badge upset">冷门</span>';
+            html+='</div>';
+        });
+        html+='</div>';
+    }
+
+    // 让球分析
+    var hcapRows=rows.filter(function(r){return r.hcap;}).slice(0,4);
+    if(hcapRows.length>0){
+        html+='<div class="lotto-card full"><h5>📊 让球分析 <span style="color:#888;font-size:0.7rem;font-weight:normal">预测比分推演让球胜平负</span></h5>';
+        hcapRows.forEach(function(r){
+            var pred=predictScore(r.h,r.a);
+            var scoreStr=pred.home+' : '+pred.away;
+            var hcapLabel=r.best.type==='home'?cn(r.h)+' 让1球':cn(r.a)+' 让1球';
+            var hc=r.hcap;
+            var bestHc=hc.homeWin>=hc.draw&&hc.homeWin>=hc.awayWin?'主胜':hc.draw>=hc.homeWin&&hc.draw>=hc.awayWin?'平局':'客胜';
+            html+='<div class="lotto-row">';
+            html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+' <span style="color:#888;font-size:0.7rem">预测'+scoreStr+'</span></span>';
+            html+='<span style="color:#999;font-size:0.7rem">'+hcapLabel+'</span>';
+            html+='<div style="display:flex;gap:4px;align-items:center">';
+            html+='<span style="font-size:0.7rem;color:#aaa">主'+hc.homeWin+'%</span>';
+            html+='<span style="font-size:0.7rem;color:#aaa">平'+hc.draw+'%</span>';
+            html+='<span style="font-size:0.7rem;color:#aaa">客'+hc.awayWin+'%</span>';
+            html+='<span class="lr-badge best">推'+bestHc+'</span>';
+            html+='</div></div>';
+        });
+        html+='</div>';
+    }
+
+    // 保底推荐
+    html+='<div class="lotto-card full"><h5>🛡️ 保底推荐 <span style="color:#888;font-size:0.7rem;font-weight:normal">选两项保底，大幅提高命中率</span></h5>';
+    rows.slice(0,4).forEach(function(r){
+        var sortedDc=[].concat(r.dc).sort(function(a,b){return b.prob-a.prob;});
+        var top2=sortedDc.slice(0,2);
+        var labels={homeDraw:'主不败('+cn(r.h)+'胜或平)',drawAway:'客不败('+cn(r.a)+'胜或平)',homeAway:'无平局(双方分胜负)'};
+        html+='<div class="lotto-row">';
+        html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+'</span>';
+        html+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+        top2.forEach(function(d){
+            var isHigh=d.prob>=80;
+            var key=Object.keys(labels).find(function(k){return d.label===({homeDraw:cn(r.h)+'/平',drawAway:'平/'+cn(r.a),homeAway:cn(r.h)+'/'+cn(r.a)})[k];});
+            html+='<span style="background:'+(isHigh?'rgba(46,204,113,0.15)':'rgba(255,255,255,0.06)')+';padding:2px 10px;border-radius:4px;font-size:0.72rem;white-space:nowrap">'+(labels[key]||d.label)+' <b style="color:'+(isHigh?'#2ecc71':'#f39c12')+'">'+d.prob+'%</b></span>';
+        });
+        html+='</div></div>';
+    });
+    html+='<div style="font-size:0.7rem;color:#666;text-align:center;margin-top:4px">选两个结果组合投注，覆盖率高即中奖概率大</div>';
+    html+='</div>';
+
+    // 投注价值
+    var valueRows=rows.filter(function(r){return r.value>5;}).slice(0,3);
+    if(valueRows.length>0){
+        html+='<div class="lotto-card full"><h5>💰 价值投注 <span style="color:#888;font-size:0.7rem;font-weight:normal">预测概率 > 赔率隐含概率</span></h5>';
+        valueRows.forEach(function(r){
+            var implied=Math.round(100/r.best.oddsNum);
+            html+='<div class="lotto-row">';
+            html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+'</span>';
+            html+='<span class="lr-pick">'+r.best.label+'</span>';
+            html+='<span class="lr-odds">'+r.best.oddsNum.toFixed(2)+'</span>';
+            html+='<span style="color:#888;font-size:0.7rem">隐含'+implied+'% → 预测'+r.best.prob+'%</span>';
+            html+='<span class="lr-badge value">价值+'+(r.best.prob-implied)+'%</span>';
+            html+='</div>';
+        });
+        html+='</div>';
+    }
+
+    html+='</div><div class="lotto-tip">数据基于智能模型分析，仅供参考</div></div>';
+    return html;
+}
+
 function render(){
     var main=document.getElementById('main');
     var navEl=document.getElementById('match-nav');
     if(allMatches.length===0) return;
 
+    var dateBar=document.getElementById('date-bar');
     if(currentView==='standings'){
         navEl.style.display='none';
+        if(dateBar) dateBar.style.display='none';
         var html=buildStandings(allMatches);
         html+=buildTournamentAnalysis(allMatches);
         main.innerHTML=html;
@@ -2833,6 +3092,7 @@ function render(){
     }
 
     navEl.style.display='';
+    if(dateBar) dateBar.style.display='';
     var stats=buildTeamStats(allMatches);
 
     var targetDate=selectedDate;
@@ -2865,11 +3125,14 @@ function render(){
     nsBadge.className='badge b-ns';
 
     var html='';
-    // Show finished first
     var ft=dateMatches.filter(function(m){return m.status==='FT';});
     var ns=dateMatches.filter(function(m){return m.status!=='FT';});
     var ordered=ft.concat(ns);
     ordered.forEach(function(m,i){html+=buildMatchCard(m,stats,i);});
+
+    var nsMatches=dateMatches.filter(function(m){return m.status==='NS';});
+    var lottoHtml=buildLotteryRef(nsMatches,stats);
+    if(lottoHtml) html+=lottoHtml;
 
     main.innerHTML=html;
     buildMatchNav(ordered);
@@ -2931,6 +3194,12 @@ document.addEventListener('DOMContentLoaded', function(){
     loadData();
     initOdds();
     setInterval(loadData, 60000);
+    document.getElementById('team-filter-dropdown').addEventListener('mousedown', function(e){
+        var opt=e.target.closest('.search-option');
+        if(opt && opt.dataset.team){
+            selectTeamOption(opt.dataset.team);
+        }
+    });
 });
 </script>
 </body>
