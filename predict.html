@@ -3605,7 +3605,7 @@ function analyzeTicket(text,extraEl){
         if(l.indexOf('单倍注数')>=0||l.indexOf('共')>=0) info=l;
     });
     // 4. 逐注合理性分析
-    var ns=allMatches||[];
+    var ns=window._nsMatches||[];
     h+='<div class="lotto-card full"><h5>📊 逐注分析</h5>';
     if(matches.length===0){
         h+='<div style="color:#888;font-size:0.75rem;margin-bottom:6px">未识别到标准票面格式，原始识别文字:</div>';
