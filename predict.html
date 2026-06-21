@@ -3531,13 +3531,8 @@ function analyzeTicket(text,extraEl){
     allCNs.sort(function(a,b){return b.length-a.length;});
     var matches=[];
     var cur=null;
-    lines.forEach(function(l){
-        var m=l.match(/第(\d+)场/);
-        if(m){cur={num:m[1],home:'',away:'',picks:[],type:''};matches.push(cur);}
-        if(!cur) return;
-        if(l.indexOf('胜平负')>=0) cur.type='胜平负';
-        if(l.indexOf('比分')>=0) cur.type='比分';
-        var segs=l.match(/[\u4e00-\u9fff]+/g)||[];
+    function matchTeams(text,cur){
+        var segs=text.match(/[\u4e00-\u9fff]+/g)||[];
         var found=[];
         segs.forEach(function(seg){
             if(seg.length<2) return;
@@ -3553,7 +3548,24 @@ function analyzeTicket(text,extraEl){
         found.sort(function(a,b){return b.score-a.score;});
         if(!cur.home&&found.length>=1) cur.home=found[0].name;
         if(!cur.away&&found.length>=2) cur.away=found[1].name;
-        if(found.length) console.log('[OCR行]',l,'←seg→',segs.filter(function(s){return s.length>=2;}),'→匹配',found);
+        if(found.length) console.log('[OCR行段]',text,'→匹配',found);
+    }
+    lines.forEach(function(l){
+        var m=l.match(/第(\d+)场/);
+        if(m){
+            // 标记前的文字→归属前一场（解决同场跨场污染）
+            var before=l.substring(0,m.index);
+            if(cur&&before.trim()) matchTeams(before,cur);
+            // 新场次，只处理标记后的文字
+            cur={num:m[1],home:'',away:'',picks:[],type:''};matches.push(cur);
+            var after=l.substring(m.index+m[0].length);
+            if(after.trim()) matchTeams(after,cur);
+        }else if(cur){
+            matchTeams(l,cur);
+        }
+        if(!cur) return;
+        if(l.indexOf('胜平负')>=0) cur.type='胜平负';
+        if(l.indexOf('比分')>=0) cur.type='比分';
         var pr=l.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
         if(pr){
             pr.forEach(function(p){
