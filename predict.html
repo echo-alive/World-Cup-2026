@@ -3527,41 +3527,47 @@ function analyzeTicket(text,extraEl){
         var cur=null;
         lines.forEach(function(l){
             l=l.trim();
+            console.log('[新格式行]',l);
             // 跳过UI无关行
-            if(['竞彩足球','详情','票数注数金额','内容','查看明细>','附近门店','注:明细信息请以彩票票面实际显示为准。'].indexOf(l)>=0) return;
-            if(/^保存时间/.test(l)||/^\d+张\d+注\d+元$/.test(l)||/^过关:/.test(l)||/^附近/.test(l)) return;
+            if(['竞彩足球','详情','票数注数金额','内容','查看明细>','附近门店','注:明细信息请以彩票票面实际显示为准。'].indexOf(l)>=0){console.log('   →跳过(精确)');return;}
+            if(/^保存时间/.test(l)||/^\d+张\d+注\d+元$/.test(l)||/^过关:/.test(l)||/^附近/.test(l)){console.log('   →跳过(正则)');return;}
 
             // 含有VS → 比赛头部
             if(l.indexOf('VS')>=0){
                 cur={num:String(matches.length+1),home:'',away:'',picks:[],type:''};matches.push(cur);
+                console.log('   →新比赛',cur.num);
                 return;
             }
 
-            if(!cur) return;
+            if(!cur){console.log('   →cur null,跳过');return;}
 
             // 类型行
-            if(l==='比分'||l.indexOf('比分')>=0){cur.type='比分';return;}
-            if(l==='胜平负'||l.indexOf('胜平负')>=0){cur.type='胜平负';return;}
-            if(l.indexOf('让球胜平负')>=0){cur.type='让球胜平负';return;}
+            if(l==='比分'||l.indexOf('比分')>=0){cur.type='比分';console.log('   →类型=比分');return;}
+            if(l==='胜平负'||l.indexOf('胜平负')>=0){cur.type='胜平负';console.log('   →类型=胜平负');return;}
+            if(l.indexOf('让球胜平负')>=0){cur.type='让球胜平负';console.log('   →类型=让球胜平负');return;}
 
-            // 选购比分（连写如 2:01:03:0）
-            var sc=l.match(/(\d+):(\d+)/g);
+            // 选购比分（连写如 2:01:03:0，每位都是单数字）
+            var sc=l.match(/(\d):(\d)/g);
             if(sc&&cur.type==='比分'){
                 sc.forEach(function(s){
-                    var pm=s.match(/(\d+):(\d+)/);
+                    var pm=s.match(/(\d):(\d)/);
                     if(pm) cur.picks.push({h:pm[1],a:pm[2],o:''});
                 });
+                console.log('   →比分选购',sc);
                 return;
             }
 
-            // 让球平（让球胜平负(-1)平）
+            // 让球平
             if(cur.type==='让球胜平负'&&l==='平'){
                 cur.picks.push({h:'--',a:'--',o:'',label:'平'});
+                console.log('   →让球平');
                 return;
             }
             // 让球行自身含平：让球胜平负(-1)平
             var hcp=l.match(/让球胜平负\(([^)]+)\)\s*(平|胜|负)/);
-            if(hcp){cur.picks.push({h:'--',a:'--',o:'',label:hcp[2]});return;}
+            if(hcp){cur.picks.push({h:'--',a:'--',o:'',label:hcp[2]});console.log('   →让球'+hcp[2]);return;}
+
+            console.log('   →未识别');
         });
     }else{
         // --- 旧格式：OCR扫描票面 ---
