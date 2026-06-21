@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
@@ -692,11 +692,10 @@ function poissonProb(lambda,k){
 
 var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
-var ocrJob=null;
+var ocrWorker=null;
 function runOCR(file,logger){
-    if(ocrJob) ocrJob.cancel();
-    ocrJob=Tesseract.recognize(file,'chi_sim',{logger:logger});
-    return ocrJob;
+    if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file);}
+    return Tesseract.createWorker('chi_sim',1,{logger:logger}).then(function(w){ocrWorker=w;return w.recognize(file);});
 }
 function loadCalibCache(){
     try{var c=localStorage.getItem(CALIBRATION_CACHE_KEY);if(c) CALIBRATION_CACHE=JSON.parse(c);}catch(e){}
@@ -3507,7 +3506,7 @@ function handleOCRFile(input){
             else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
             else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
         }).then(function(r){clearTimeout(tmr);
-            var text=r.data.text.trim();
+            var text=(r.data||r).text.trim();
             if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
             progress.style.display='none';
             result.style.display='';
