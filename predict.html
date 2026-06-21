@@ -4007,6 +4007,7 @@ async function initOdds(){
     }catch(e){console.error('initOdds error:',e);}
 }
 
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
 window.addEventListener('unhandledrejection',function(e){console.error('Unhandled promise rejection:',e.reason);});
 document.addEventListener('DOMContentLoaded', function(){
     loadData();
