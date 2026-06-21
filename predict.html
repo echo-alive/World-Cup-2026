@@ -3200,7 +3200,7 @@ function buildLotteryRef(nsMatches,stats){
     // 单关精选
     var sorted=[].concat(rows).sort(function(a,b){return b.best.prob-a.best.prob;});
     html+='<div class="lotto-card full"><h5>⭐ 单关精选</h5>';
-    sorted.slice(0,4).forEach(function(r){
+    sorted.forEach(function(r){
         var cls=r.best.prob>=65?'high':r.best.prob>=55?'mid':'low';
         html+='<div class="lotto-row">';
         html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+'</span>';
@@ -3229,7 +3229,7 @@ function buildLotteryRef(nsMatches,stats){
     }
 
     // 让球分析
-    var hcapRows=rows.filter(function(r){return r.hcap;}).slice(0,4);
+    var hcapRows=rows.filter(function(r){return r.hcap;});
     if(hcapRows.length>0){
         html+='<div class="lotto-card full"><h5>📊 让球分析 <span style="color:#888;font-size:0.7rem;font-weight:normal">预测比分推演让球胜平负</span></h5>';
         hcapRows.forEach(function(r){
@@ -3253,7 +3253,7 @@ function buildLotteryRef(nsMatches,stats){
 
     // 保底推荐
     html+='<div class="lotto-card full"><h5>🛡️ 保底推荐 <span style="color:#888;font-size:0.7rem;font-weight:normal">选两项保底，大幅提高命中率</span></h5>';
-    rows.slice(0,4).forEach(function(r){
+    rows.forEach(function(r){
         var sortedDc=[].concat(r.dc).sort(function(a,b){return b.prob-a.prob;});
         var top2=sortedDc.slice(0,2);
         var labels={homeDraw:'主不败('+cn(r.h)+'胜或平)',drawAway:'客不败('+cn(r.a)+'胜或平)',homeAway:'无平局(双方分胜负)'};
@@ -3271,7 +3271,7 @@ function buildLotteryRef(nsMatches,stats){
     html+='</div>';
 
     // 投注价值
-    var valueRows=rows.filter(function(r){return r.value>5;}).slice(0,3);
+    var valueRows=rows.filter(function(r){return r.value>5;});
     if(valueRows.length>0){
         html+='<div class="lotto-card full"><h5>💰 价值投注 <span style="color:#888;font-size:0.7rem;font-weight:normal">预测概率 > 赔率隐含概率</span></h5>';
         valueRows.forEach(function(r){
