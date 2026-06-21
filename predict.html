@@ -3424,7 +3424,7 @@ function buildMixedParlay(nsMatches){
         });
         p5.sort(function(a,b){return b.pick.prob-a.pick.prob;});
         var p5b=p5.slice(0,4);
-        if(p5b.length>=2) result.push({label:'稳胆比分（单）',html:buildParlayHtml(p5b)});
+        if(p5b.length>=2) result.push({label:'稳胆比分',html:buildParlayHtml(p5b)});
         return result;
     }
     function tabPaneMixed(){
