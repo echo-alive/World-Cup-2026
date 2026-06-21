@@ -8,7 +8,8 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
-        .container{max-width:960px;margin:0 auto;padding:15px}
+        .container{max-width:1400px;margin:0 auto;padding:15px}
+        @media(max-width:768px){.container{max-width:100%}}
         header{text-align:center;padding:20px 0}
         h1{font-size:1.8rem;background:linear-gradient(90deg,#f39c12,#e74c3c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
         .sub{color:#888;margin-top:5px;font-size:0.85rem}
@@ -308,7 +309,7 @@
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
         @media(max-width:600px){.group-card table{font-size:0.65rem}.group-card td,.group-card th{padding:4px 3px}.group-card h3{font-size:0.78rem}.group-card{overflow-x:auto}.status-badge{font-size:0.55rem;padding:1px 4px}.gu-match{font-size:0.65rem}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.bottom-actions{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);gap:8px;padding:8px 12px;justify-content:flex-end}body{padding-bottom:54px}.desktop-btn{display:none !important}.nav-item{padding:5px 8px;font-size:0.7rem}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-filter{min-width:130px}}
-        @media(min-width:768px){.match-nav{max-width:940px;margin:0 -5px 12px;border-radius:12px}}
+        @media(min-width:768px){.match-nav{max-width:1200px;margin:0 auto 12px;border-radius:12px}}
     </style>
 </head>
 <body>
@@ -3949,6 +3950,9 @@ function render(){
     if(currentView==='standings'){
         navEl.style.display='none';
         if(dateBar) dateBar.style.display='none';
+        document.getElementById('compareBar').style.display='none';
+        document.getElementById('lottoBtn').style.display='none';
+        document.getElementById('lottoBtnMobile').style.display='none';
         var html=buildStandings(allMatches);
         html+=buildTournamentAnalysis(allMatches);
         main.innerHTML=html;
@@ -3957,6 +3961,9 @@ function render(){
 
     navEl.style.display='';
     if(dateBar) dateBar.style.display='';
+    document.getElementById('compareBar').style.display='';
+    document.getElementById('lottoBtn').style.display='';
+    document.getElementById('lottoBtnMobile').style.display='';
     var stats=buildTeamStats(allMatches);
 
     var targetDate=selectedDate;
