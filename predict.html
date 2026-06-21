@@ -693,14 +693,10 @@ function poissonProb(lambda,k){
 var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
-var ocrWorkerPromise=null;
-function ensureOCRWorker(){
-    if(ocrWorker) return Promise.resolve(ocrWorker);
-    if(!ocrWorkerPromise){
-        var langPath='https://cdn.jsdelivr.net/npm/tesseract.js-data@4.0.0/4.0.0';
-        ocrWorkerPromise=Tesseract.createWorker('chi_sim',1,{langPath:langPath}).then(function(w){ocrWorker=w;return w;});
-    }
-    return ocrWorkerPromise;
+function runOCR(file,logger){
+    if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file);}
+    var langPath='https://cdn.jsdelivr.net/npm/tesseract.js-data@4.0.0/4.0.0';
+    return Tesseract.createWorker('chi_sim',1,{langPath:langPath,logger:logger}).then(function(w){ocrWorker=w;return w.recognize(file);});
 }
 
 function loadCalibCache(){
@@ -3504,15 +3500,12 @@ function handleOCRFile(input){
     var reader=new FileReader();
     reader.onload=function(e){
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img">';
-        ensureOCRWorker().then(function(worker){
-            worker.logger=function(m){
-                if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
-                else if(m.status==='loading tesseract core') progress.innerHTML='⏳ 加载引擎...';
-                else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
-                else if(m.status==='loading language traineddata') progress.innerHTML='⏳ 加载语言包...';
-                else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
-            };
-            return worker.recognize(file);
+        runOCR(file,function(m){
+            if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
+            else if(m.status==='loading tesseract core') progress.innerHTML='⏳ 加载引擎...';
+            else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
+            else if(m.status==='loading language traineddata') progress.innerHTML='⏳ 加载语言包...';
+            else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
         }).then(function(r){
             var text=r.data.text.trim();
             if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
@@ -4013,7 +4006,6 @@ document.addEventListener('DOMContentLoaded', function(){
     loadData();
     initOdds();
     setInterval(loadData, 60000);
-    setTimeout(function(){ensureOCRWorker().catch(function(){});},3000);
     document.getElementById('team-filter-dropdown').addEventListener('mousedown', function(e){
         var opt=e.target.closest('.search-option');
         if(opt && opt.dataset.team){
