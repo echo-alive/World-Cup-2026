@@ -190,7 +190,8 @@
         img[data-src].loaded{opacity:1}
         .back-top{display:none;position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f39c12,#e74c3c);color:#fff;border:none;font-size:1.2rem;cursor:pointer;z-index:99;box-shadow:0 4px 12px rgba(243,156,18,0.4);transition:all 0.3s}
         .back-top:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(243,156,18,0.5)}
-        @media(min-width:768px){.back-top{display:block}}
+        .back-top:focus{outline:none}
+        @media(min-width:768px){.back-top{display:flex;align-items:center;justify-content:center}}
         .tip{background:linear-gradient(135deg,rgba(52,152,219,0.2),rgba(41,128,185,0.15));border-radius:10px;padding:14px;margin-top:12px;border:1px solid rgba(52,152,219,0.25)}
         .tip-t{color:#5dade2;font-weight:bold;margin-bottom:6px;font-size:0.88rem}
         .tip-c{color:#ddd;font-size:0.82rem;line-height:1.6}
@@ -277,7 +278,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
-    <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+    <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'});this.blur()">↑</button>
     <div class="compare-bar" id="compareBar">
         <div class="compare-items" id="compareItems"></div>
         <button class="lottery-btn" onclick="openCompareModal()" style="padding:6px 12px;font-size:0.78rem">对比分析</button>
@@ -1873,8 +1874,15 @@ function getOddsForMatch(h,a){
 
 function findNearestMatchDay(allMs){
     var now=new Date();
+    var todayStr=getTodayStr();
+    var todayMatches=allMs.filter(function(m){
+        return m.kickoff_time.indexOf(todayStr)===0 && m.status!=='FT';
+    });
+    if(todayMatches.length>0){
+        return {date:todayStr, matches:todayMatches};
+    }
     var upcoming=allMs.filter(function(m){
-        return m.status==='NS' && new Date(m.kickoff_time)>now;
+        return m.status!=='FT' && new Date(m.kickoff_time)>now;
     });
     if(upcoming.length===0) return null;
     var dateMap={};
@@ -2139,7 +2147,7 @@ function buildMatchCard(match, stats, idx){
     var scoreHtml='';
     if(isFT) scoreHtml='<div><div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">全场比分</div></div>';
     else if(isNS) scoreHtml='<div class="vs">VS</div>';
-    else scoreHtml='<div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">'+statusText(match.status)+'</div>';
+    else scoreHtml='<div><div class="score">'+(hs||0)+' - '+(as||0)+'</div><div class="score-sub">'+statusText(match.status)+'</div></div>';
 
     var html='';
     var matchId=match.id||idx;
@@ -2623,7 +2631,7 @@ function resetToInitialState(){
     }else{
         var dates={};
         allMatches.forEach(function(m){
-            if(m.status==='NS'){
+            if(m.status!=='FT'){
                 var d=m.kickoff_time.split(' ')[0];
                 dates[d]=1;
             }
@@ -2645,8 +2653,9 @@ function onTeamFilterChange(val){
     selectedTeam=val;
     if(val){
         var now=new Date();
+        var todayStr=getTodayStr();
         var teamMatches=allMatches.filter(function(m){
-            return (m.home_team===val||m.away_team===val)&&new Date(m.kickoff_time)>now;
+            return (m.home_team===val||m.away_team===val) && (m.status!=='FT') && (m.kickoff_time.indexOf(todayStr)===0 || new Date(m.kickoff_time)>now);
         });
         if(teamMatches.length>0){
             teamMatches.sort(function(a,b){
@@ -3173,9 +3182,11 @@ function render(){
     dateBadge.textContent='📅 '+fmtDate(targetDate);
 
     var nsCount=dateMatches.filter(function(m){return m.status==='NS';}).length;
+    var liveCount=dateMatches.filter(function(m){return m.status!=='NS'&&m.status!=='FT';}).length;
     var ftCount=dateMatches.filter(function(m){return m.status==='FT';}).length;
     var nsBadge=document.getElementById('ns-badge');
-    if(nsCount>0) nsBadge.textContent='⚽ '+nsCount+'场待预测';
+    if(liveCount>0) nsBadge.textContent='🔴 '+liveCount+'场比赛中';
+    else if(nsCount>0) nsBadge.textContent='⚽ '+nsCount+'场待预测';
     else nsBadge.textContent='✅ '+ftCount+'场已结束';
     nsBadge.className='badge b-ns';
 
@@ -3185,7 +3196,7 @@ function render(){
     var ordered=ft.concat(ns);
     ordered.forEach(function(m,i){html+=buildMatchCard(m,stats,i);});
 
-    var nsMatches=dateMatches.filter(function(m){return m.status==='NS';});
+    var nsMatches=dateMatches.filter(function(m){return m.status!=='FT';});
     var lottoHtml=buildLotteryRef(nsMatches,stats);
     if(lottoHtml) html+=lottoHtml;
 
