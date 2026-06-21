@@ -764,6 +764,20 @@ function calcHandicapProb(homeTeam,awayTeam,realOdds,handicap,pick){
     return Math.round(total*10)/10;
 }
 
+function calcHandicapProbSimple(homeExp,awayExp,handicap,pick){
+    var total=0;
+    for(var h=0;h<=8;h++){
+        for(var a=0;a<=8;a++){
+            var prob=poissonProb(homeExp,h)*poissonProb(awayExp,a);
+            var eff=h-a+parseInt(handicap);
+            if(pick==='胜'&&eff>0) total+=prob;
+            else if(pick==='平'&&eff===0) total+=prob;
+            else if(pick==='负'&&eff<0) total+=prob;
+        }
+    }
+    return Math.round(total*10000)/100;
+}
+
 function calcTotalGoalsProbs(home,away,realOdds){
     var scores=calcScoreProbs(home,away,realOdds);
     var totals={};
@@ -3688,12 +3702,19 @@ function analyzeTicket(text,extraEl){
         var curPred=predictScore(match.home_team,match.away_team);
         m.picks.forEach(function(p){
             var impl=p.o?100/parseFloat(p.o):0;
-            var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='';
-            if(p.origType==='让球胜平负'&&curPred&&curOdds){
-                modelP=calcHandicapProb(match.home_team,match.away_team,curOdds,p.origHcp,p.label);
+            var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='',typeTag='';
+            if(p.origType==='让球胜平负'){
+                typeTag='让球';
                 var hcpNum=parseInt(p.origHcp);
-                label=(hcpNum>0?'+':'')+hcpNum+'球'+(p.label==='胜'?'主胜':p.label==='平'?'平局':'主负');
+                var hcpLabel=(hcpNum>0?'+':'')+hcpNum+'球'+(p.label==='胜'?'主胜':p.label==='平'?'平局':'主负');
+                if(curOdds){
+                    modelP=calcHandicapProb(match.home_team,match.away_team,curOdds,p.origHcp,p.label);
+                }else if(curPred){
+                    modelP=calcHandicapProbSimple(curPred.home,curPred.away,p.origHcp,p.label);
+                }
+                label=hcpLabel;
             }else if(p.origType==='胜平负'){
+                typeTag='SPF';
                 if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
                 else if(p.label==='胜'&&curPred){modelP=curPred.homeWin;label='主胜';}
                 else if(p.label==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
@@ -3717,7 +3738,7 @@ function analyzeTicket(text,extraEl){
             h+='<span style="font-size:0.8rem">'+(m.homeCN||m.home)+' vs '+(m.awayCN||m.away)+'</span>';
             h+='<span style="font-size:0.7rem;color:#888">第'+m.num+'场</span></div>';
             h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-            h+='<span style="font-size:0.85rem">选购: <b style="color:#f39c12">'+label+'</b>'+(p.o?' @'+parseFloat(p.o).toFixed(2):'')+'</span>';
+            h+='<span style="font-size:0.85rem">选购:'+(typeTag?'<span style="font-size:0.65rem;color:#888;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;margin:0 4px">'+typeTag+'</span>':'')+'<b style="color:#f39c12">'+label+'</b>'+(p.o?' @'+parseFloat(p.o).toFixed(2):'')+'</span>';
             if(modelP>0) h+='<span style="font-size:0.72rem;color:'+color+';font-weight:bold">'+judge+'</span>';
             h+='</div>';
             if(modelP>0&&impl>0){
