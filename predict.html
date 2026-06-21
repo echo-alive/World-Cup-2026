@@ -3514,6 +3514,8 @@ function sim(a,b){
 function analyzeTicket(text,extraEl){
     // Normalize OCR garbage
     text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');    // 溃 特 阿拉 伯 → 溃特阿拉伯
+    text=text.replace(/([\u4e00-\u9fff])\s+(?=\d)/g,'$1');                 // 平 84 → 平84
+    text=text.replace(/(\d)\s+(?=[\u4e00-\u9fff])/g,'$1');                 // 84 ,050 → 84,050
     text=text.replace(/\((\d+)\s*[；;]\s*(\d+)\)/g,'($1:$2)');            // (1;0) → (1:0)
     text=text.replace(/(\d+)[，,](\d{3}(?!\d))/g,'$1.$2');                 // 9,000 → 9.000 (but not 3,936.60)
     // Fix @→digit: after (score) or 平, remove leading garbage digit before odds
@@ -3569,24 +3571,26 @@ function analyzeTicket(text,extraEl){
         var dm=l.match(/平\s*@\s*(\d+\.\d{3})/);
         if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
     });
-    // 2. 球队名称精确匹配
+    // 2. 球队名称模糊匹配
     var allCN=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
     matches.forEach(function(m){
         if(m.home){
             var best=null,bestScore=0;
             allCN.forEach(function(cn){
                 var s=sim(m.home,cn);
-                if(s>bestScore){bestScore=s;best=cn;}
+                var thr=m.home.length<=2&&cn.length<=2?0.2:0.4;
+                if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
             });
-            if(bestScore>=0.5) m.homeCN=best; else m.homeCN=m.home;
+            if(bestScore>=0.4) m.homeCN=best; else m.homeCN=m.home;
         }
         if(m.away){
             var best=null,bestScore=0;
             allCN.forEach(function(cn){
                 var s=sim(m.away,cn);
-                if(s>bestScore){bestScore=s;best=cn;}
+                var thr=m.away.length<=2&&cn.length<=2?0.2:0.4;
+                if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
             });
-            if(bestScore>=0.5) m.awayCN=best; else m.awayCN=m.away;
+            if(bestScore>=0.4) m.awayCN=best; else m.awayCN=m.away;
         }
     });
     // 3. 总金额/倍数/最高奖金
