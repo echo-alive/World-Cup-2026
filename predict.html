@@ -3596,29 +3596,42 @@ function analyzeTicket(text,extraEl){
     // 4. 逐注合理性分析
     var ns=window._nsMatches||[];
     h+='<div class="lotto-card full"><h5>📊 逐注分析</h5>';
+    if(matches.length===0){
+        h+='<div style="color:#888;font-size:0.75rem;margin-bottom:6px">未识别到标准票面格式，原始识别文字:</div>';
+        h+='<div style="background:rgba(0,0,0,0.2);border-radius:4px;padding:6px;font-size:0.7rem;color:#aaa;white-space:pre-wrap;word-break:break-all">'+text+'</div>';
+    }
     matches.forEach(function(m){
         if(!m.homeCN||!m.awayCN) return;
         var hk,ak;
         Object.keys(TEAM_CN).forEach(function(k){if(TEAM_CN[k]===m.homeCN) hk=k;if(TEAM_CN[k]===m.awayCN) ak=k;});
         var match=hk&&ak?ns.find(function(mm){return mm.home_team===hk&&mm.away_team===ak;}):null;
-        var odds=match?getOddsForMatch(match.home_team,match.away_team):null;
-        var pred=match?predictScore(match.home_team,match.away_team):null;
+        if(!match){
+            m.picks.forEach(function(p){
+                h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
+                h+='<div style="font-size:0.8rem">'+(m.homeCN||m.home)+' vs '+(m.awayCN||m.away)+'</div>';
+                h+='<div style="font-size:0.85rem;margin-top:4px">选购: <b style="color:#f39c12">'+(p.label||p.h+'-'+p.a)+'</b> @'+parseFloat(p.o).toFixed(2)+'</div>';
+                h+='<div style="font-size:0.7rem;color:#888;margin-top:4px">未找到模型数据，无法对比</div></div>';
+            });
+            return;
+        }
+        var curOdds=getOddsForMatch(match.home_team,match.away_team);
+        var curPred=predictScore(match.home_team,match.away_team);
         m.picks.forEach(function(p){
             var impl=100/parseFloat(p.o);
             var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='';
-            if(p.label==='平'&&pred){modelP=pred.draw;label='平局';}
-            else if(p.h!=='--'&&pred&&odds){
-                var scores=match?calcScoreProbs(match.home_team,match.away_team,odds):[];
-                var found=scores.find(function(s){return s.home===parseInt(p.h)&&s.away===parseInt(p.a);});
+            if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
+            else if(p.h!=='--'&&curPred&&curOdds){
+                var scores=calcScoreProbs(match.home_team,match.away_team,curOdds);
+                var found=scores?scores.find(function(s){return s.home===parseInt(p.h)&&s.away===parseInt(p.a);}):null;
                 modelP=found?found.prob:0;
             }
             if(modelP>0){
                 var diff=modelP-impl;
-                if(diff>10){judge='偏低';color='#2ecc71';}
-                else if(diff>3){judge='略低';color='#f39c12';}
-                else if(diff>-3){judge='合理';color='#3498db';}
+                if(diff>10)      {judge='偏低';color='#2ecc71';}
+                else if(diff>3)  {judge='略低';color='#f39c12';}
+                else if(diff>-3) {judge='合理';color='#3498db';}
                 else if(diff>-10){judge='偏高';color='#f39c12';}
-                else{judge='过高';color='#e74c3c';}
+                else             {judge='过高';color='#e74c3c';}
             }
             h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
             h+='<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
@@ -3626,14 +3639,12 @@ function analyzeTicket(text,extraEl){
             h+='<span style="font-size:0.7rem;color:#888">第'+m.num+'场</span></div>';
             h+='<div style="display:flex;justify-content:space-between;align-items:center">';
             h+='<span style="font-size:0.85rem">选购: <b style="color:#f39c12">'+label+'</b> @'+parseFloat(p.o).toFixed(2)+'</span>';
-            if(modelP>0){
-                h+='<span style="font-size:0.72rem;color:'+color+';font-weight:bold">'+judge+'</span>';
-            }
+            if(modelP>0) h+='<span style="font-size:0.72rem;color:'+color+';font-weight:bold">'+judge+'</span>';
             h+='</div>';
             if(modelP>0){
                 h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:0.7rem;color:#888">';
                 h+='<span>模型概率: <b style="color:#3498db">'+modelP.toFixed(0)+'%</b></span>';
-                h+='<span>赔率隐含概率: <b style="color:#888">'+impl.toFixed(0)+'%</b></span>';
+                h+='<span>隐含概率: <b style="color:#888">'+impl.toFixed(0)+'%</b></span>';
                 h+='<span>价值: <b style="color:'+(modelP-impl>0?'#2ecc71':'#e74c3c')+'">'+(modelP-impl>0?'+':'')+(modelP-impl).toFixed(0)+'%</b></span>';
             } else {
                 h+='<div style="font-size:0.7rem;color:#888;margin-top:4px">未找到模型数据，无法对比</div>';
