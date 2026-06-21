@@ -3428,11 +3428,9 @@ function buildMixedParlay(nsMatches){
         // 6. 稳胆比分（多）
         var p6multi=[];
         if(p5.length>=2){
-            var sets=[
-                p5.slice(0,4),
-                p5.slice(1,5),
-                [p5[0],p5[2],p5[3],p5[4]]
-            ];
+            var sets=[p5.slice(0,4)];
+            if(p5.length>=5) sets.push(p5.slice(1,5));
+            if(p5.length>=5) sets.push([p5[0],p5[2],p5[3],p5[4]].filter(function(x){return x;}));
             sets.forEach(function(s,si){
                 if(s.length>=2) p6multi.push({label:si===0?'主力串关':si===1?'次选串关':'第三串关',html:buildParlayHtml(s)});
             });
