@@ -3697,6 +3697,8 @@ function analyzeTicket(text,extraEl){
                 if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
                 else if(p.label==='胜'&&curPred){modelP=curPred.homeWin;label='主胜';}
                 else if(p.label==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
+            }else if(p.label==='平'&&curPred){
+                modelP=curPred.draw;label='平局';
             }else if(p.h!=='--'&&curPred&&curOdds){
                 var scores=calcScoreProbs(match.home_team,match.away_team,curOdds);
                 var found=scores?scores.find(function(s){return s.home===parseInt(p.h)&&s.away===parseInt(p.a);}):null;
