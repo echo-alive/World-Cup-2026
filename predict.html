@@ -3540,6 +3540,8 @@ function analyzeTicket(text,extraEl){
         var found=[];
         segs.forEach(function(seg){
             if(seg.length<2) return;
+            // 排除明显非队名的常见OCR词
+            if(['周日','周一','周二','周三','周四','周五','周六','比分','主队','客队','胜平负','平负','过关','方式','合计','倍数','金额'].indexOf(seg)>=0) return;
             var best=null,bestScore=0;
             allCNs.forEach(function(cn){
                 var s=sim(seg,cn);
