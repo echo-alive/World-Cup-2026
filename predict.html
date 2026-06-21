@@ -264,6 +264,7 @@
         .bt-tab:hover{color:#ddd;background:rgba(255,255,255,0.03)}
         .bt-tab.bt-act{color:#f39c12;border-bottom-color:#f39c12;font-weight:bold;background:rgba(243,156,18,0.06)}
         .bt-pane{padding:10px 12px}
+        .mp-summary{min-height:4px}
         .mp-wrap{}
         .mp-bar{display:flex;justify-content:center;align-items:center;gap:12px;padding:6px 0 10px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
         .mp-nav{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.7rem;color:#aaa;transition:all 0.15s;user-select:none}
@@ -3214,45 +3215,52 @@ function buildMixedParlay(nsMatches){
     if(picks.length<2) return '';
 
     function tabPaneX2(){
-        var h='<table class="lottery-table"><tr><th>比赛</th><th>推荐</th><th>赔率</th><th>概率</th></tr>';
+        var h='<table class="lottery-table" id="x2tbl"><tr><th>比赛</th><th colspan="3">点击多选（赔率/概率）</th></tr>';
         picks.forEach(function(p){
-            h+='<tr><td>'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td><td style="color:#2ecc71;font-weight:bold">'+p.x2b.l+'</td><td style="color:#f39c12;font-weight:bold">'+p.x2b.o.toFixed(2)+'</td><td class="'+(p.x2b.p>=60?'hot':p.x2b.p>=45?'warm':'')+'">'+p.x2b.p.toFixed(1)+'%</td></tr>';
+            h+='<tr><td style="vertical-align:middle;white-space:nowrap;font-size:0.72rem">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
+            p.x2.forEach(function(o){
+                var key=p.mk+'_'+o.l;
+                var sel=multiPicks.some(function(x){return x.key===key;});
+                h+='<td class="mp-cell" onclick="toggleMulti(this)" data-key="'+key+'" data-mk="'+p.mk+'" data-type="胜平负" data-label="'+o.l+'" data-odds="'+o.o.toFixed(2)+'" data-prob="'+o.p.toFixed(1)+'" style="text-align:center;font-size:0.7rem;cursor:pointer;border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:4px 2px;outline:'+(sel?'2px solid #f39c12':'')+';outline-offset:-1px;background:'+(sel?'rgba(243,156,18,0.15)':'')+';color:'+(sel?'#f39c12':'')+';font-weight:'+(sel?'bold':'')+'">'+o.l+'<br><span style="color:#f39c12;font-size:0.6rem">'+o.o.toFixed(2)+'</span></td>';
+            });
+            h+='</tr>';
         });
         h+='</table>';
-        var comb=1;picks.forEach(function(p){comb*=p.x2b.o;});
-        comb=Math.round(comb*100)/100;
-        var pay=Math.round(10*comb*100)/100;
-        h+='<div style="display:flex;justify-content:space-around;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa"><span>综合赔率 <b style="color:#f39c12">'+comb.toFixed(2)+'</b></span><span>投入 <b style="color:#fff">10元</b></span><span>奖金 <b style="color:#e74c3c;font-size:1rem">'+pay.toFixed(2)+'元</b></span></div>';
+        h+='<div id="x2sum" class="mp-summary"></div>';
         return h;
     }
     function tabPaneScore(){
-        var h='<table class="lottery-table"><tr><th>比赛</th><th colspan="3">可选比分（赔率/概率）</th></tr>';
+        var h='<table class="lottery-table" id="sctbl" data-idx="0"><tr><th>比赛</th><th colspan="3">点击多选比分（赔率/概率）</th></tr>';
         picks.forEach(function(p){
-            h+='<tr><td style="vertical-align:middle">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
+            h+='<tr><td style="vertical-align:middle;white-space:nowrap">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
             p.scores.forEach(function(s,i){
                 var so=oddsFromProb(s.prob).toFixed(2);
-                var cls=s.prob>=12?'hot':s.prob>=7?'warm':'';
-                h+='<td class="'+cls+'" style="text-align:center;border:1px solid rgba(255,255,255,0.05);border-radius:4px;padding:2px 4px;font-size:0.72rem">'+s.home+'-'+s.away+'<br><span style="color:#f39c12;font-size:0.65rem">'+so+'</span><span style="color:#888;font-size:0.6rem;margin-left:2px">'+s.prob.toFixed(0)+'%</span></td>';
+                var key=p.mk+'_s'+s.home+'_'+s.away;
+                var sel=multiPicks.some(function(x){return x.key===key;});
+                h+='<td class="mp-cell'+(sel?' mp-sel':'')+'" onclick="toggleMulti(this)" data-key="'+key+'" data-mk="'+p.mk+'" data-type="比分" data-label="'+s.home+'-'+s.away+'" data-odds="'+so+'" data-prob="'+s.prob.toFixed(1)+'" style="text-align:center;font-size:0.7rem;cursor:pointer;border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 4px;outline:'+(sel?'2px solid #f39c12':'')+';outline-offset:-1px;background:'+(sel?'rgba(243,156,18,0.15)':'')+';color:'+(sel?'#f39c12':'')+';font-weight:'+(sel?'bold':'')+'">'+s.home+'-'+s.away+'<br><span style="color:#f39c12;font-size:0.62rem">'+so+'</span> <span style="color:#888;font-size:0.58rem">'+s.prob.toFixed(0)+'%</span></td>';
             });
             for(var i=p.scores.length;i<3;i++) h+='<td></td>';
             h+='</tr>';
         });
         h+='</table>';
+        h+='<div id="scsum" class="mp-summary"></div>';
         return h;
     }
     function tabPaneGoals(){
-        var h='<table class="lottery-table"><tr><th>比赛</th><th colspan="3">可选总进球（赔率/概率）</th></tr>';
+        var h='<table class="lottery-table" id="gltbl" data-idx="1"><tr><th>比赛</th><th colspan="3">点击多选总进球（赔率/概率）</th></tr>';
         picks.forEach(function(p){
-            h+='<tr><td style="vertical-align:middle">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
+            h+='<tr><td style="vertical-align:middle;white-space:nowrap">'+cn(p.match.home_team)+' vs '+cn(p.match.away_team)+'</td>';
             p.goals.forEach(function(g,i){
                 var go=oddsFromProb(g.prob).toFixed(2);
-                var cls=g.prob>=30?'hot':g.prob>=18?'warm':'';
-                h+='<td class="'+cls+'" style="text-align:center;border:1px solid rgba(255,255,255,0.05);border-radius:4px;padding:2px 4px;font-size:0.72rem">'+g.goals+'球<br><span style="color:#f39c12;font-size:0.65rem">'+go+'</span><span style="color:#888;font-size:0.6rem;margin-left:2px">'+g.prob.toFixed(0)+'%</span></td>';
+                var key=p.mk+'_g'+g.goals;
+                var sel=multiPicks.some(function(x){return x.key===key;});
+                h+='<td class="mp-cell'+(sel?' mp-sel':'')+'" onclick="toggleMulti(this)" data-key="'+key+'" data-mk="'+p.mk+'" data-type="总进球" data-label="'+g.goals+'球" data-odds="'+go+'" data-prob="'+g.prob.toFixed(1)+'" style="text-align:center;font-size:0.7rem;cursor:pointer;border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 4px;outline:'+(sel?'2px solid #f39c12':'')+';outline-offset:-1px;background:'+(sel?'rgba(243,156,18,0.15)':'')+';color:'+(sel?'#f39c12':'')+';font-weight:'+(sel?'bold':'')+'">'+g.goals+'球<br><span style="color:#f39c12;font-size:0.62rem">'+go+'</span> <span style="color:#888;font-size:0.58rem">'+g.prob.toFixed(0)+'%</span></td>';
             });
             for(var i=p.goals.length;i<3;i++) h+='<td></td>';
             h+='</tr>';
         });
         h+='</table>';
+        h+='<div id="glsum" class="mp-summary"></div>';
         return h;
     }
     function buildParlayHtml(parlay){
@@ -3290,9 +3298,14 @@ function buildMixedParlay(nsMatches){
         var p2=[];
         picks.slice(0,4).forEach(function(p){p2.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
         if(p2.length>=2) result.push({label:'全胜平负',html:buildParlayHtml(p2)});
-        // 3. 高赔推荐 (odds最高的组合)
-        var h3=[].concat(picks).sort(function(a,b){return b.x2b.o-a.x2b.o;});
-        var p3=[];h3.slice(0,4).forEach(function(p){p3.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+        // 3. 高赔推荐 (每场选赔率最高的选项，即冷门)
+        var h3=[];
+        picks.forEach(function(p){
+            var hi=p.x2.reduce(function(a,b){return a.o>b.o?a:b;});
+            h3.push({match:p.match,pick:{type:'胜平负',label:hi.l,prob:hi.p,oddsNum:hi.o}});
+        });
+        h3.sort(function(a,b){return b.pick.oddsNum-a.pick.oddsNum;});
+        var p3=h3.slice(0,4);
         if(p3.length>=2) result.push({label:'高赔推荐',html:buildParlayHtml(p3)});
         // 4. 稳胆推荐 (概率最高的组合)
         var p4=[];
@@ -3334,6 +3347,7 @@ function switchBetTab(el,idx){
     el.classList.add('bt-act');
     document.querySelectorAll('.bt-pane').forEach(function(p){p.style.display='none';});
     document.getElementById('btp-'+idx).style.display='';
+    renderMultiSummary();
 }
 function cycleParlay(key,dir){
     var d=window._mpD[key];
@@ -3347,7 +3361,67 @@ function cycleParlay(key,dir){
     wrap.querySelector('.mp-name').textContent=wrap.querySelector('.mp-body[data-idx="'+d.idx+'"]').dataset.label;
 }
 
+var multiPicks=[];
+function toggleMulti(el){
+    var key=el.dataset.key,mk=el.dataset.mk,type=el.dataset.type,label=el.dataset.label,odds=el.dataset.odds,prob=el.dataset.prob;
+    var idx=multiPicks.findIndex(function(x){return x.key===key;});
+    if(idx>=0) multiPicks.splice(idx,1);
+    else multiPicks.push({matchKey:mk,key:key,type:type,label:label,oddsNum:parseFloat(odds),prob:parseFloat(prob)});
+    renderMultiSummary();
+    var tbl=el.closest('table');
+    tbl.querySelectorAll('.mp-cell').forEach(function(c){
+        var k=c.dataset.key;
+        var s=multiPicks.some(function(x){return x.key===k;});
+        c.style.outline=s?'2px solid #f39c12':'';
+        c.style.outlineOffset=s?'-1px':'';
+        c.style.background=s?'rgba(243,156,18,0.15)':'';
+        c.style.color=s?'#f39c12':'';
+        c.style.fontWeight=s?'bold':'';
+    });
+}
+function renderMultiSummary(){
+    var picks=multiPicks;
+    var x2El=document.getElementById('x2sum');
+    var scEl=document.getElementById('scsum');
+    var glEl=document.getElementById('glsum');
+    if(!x2El&&!scEl&&!glEl) return;
+    var byMatch={};
+    picks.forEach(function(p){
+        if(!byMatch[p.matchKey]) byMatch[p.matchKey]=[];
+        byMatch[p.matchKey].push(p);
+    });
+    var combos=Object.keys(byMatch).reduce(function(a,k){return a*byMatch[k].length;},1);
+    var totalCost=2*combos;
+    var maxOdds=1;
+    Object.keys(byMatch).forEach(function(k){
+        maxOdds*=byMatch[k].reduce(function(a,b){return Math.max(a,parseFloat(b.oddsNum));},0);
+    });
+    var maxPayout=Math.round(2*maxOdds*100)/100;
+    var h='';
+    if(picks.length>0){
+        h='<div style="padding:8px;margin-top:6px;background:rgba(243,156,18,0.08);border-radius:8px;border:1px solid rgba(243,156,18,0.15)">';
+        Object.keys(byMatch).forEach(function(mk){
+            var items=byMatch[mk];
+            var parts=mk.split('_');
+            var teamLabel=cn(parts[0])+' vs '+cn(parts[1]);
+            h+='<div style="font-size:0.7rem;margin-bottom:4px;color:#ccc">'+teamLabel+' <span style="color:#888">×'+items.length+'注</span></div>';
+            items.forEach(function(p){
+                h+='<span style="display:inline-block;background:rgba(243,156,18,0.12);border:1px solid rgba(243,156,18,0.15);border-radius:4px;padding:1px 6px;font-size:0.65rem;margin:2px;color:#ddd">'+p.label+' @'+p.oddsNum.toFixed(2)+'</span>';
+            });
+        });
+        h+='<div style="display:flex;justify-content:space-around;padding:6px 0 2px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.78rem;color:#aaa">';
+        h+='<span>组合 <b style="color:#3498db">'+combos+'</b></span>';
+        h+='<span>金额 <b style="color:#f39c12">'+totalCost.toFixed(0)+'元</b></span>';
+        h+='<span>最高奖金 <b style="color:#e74c3c">'+maxPayout.toFixed(2)+'元</b></span>';
+        h+='</div></div>';
+    }
+    if(x2El) x2El.innerHTML=h;
+    if(scEl) scEl.innerHTML=h;
+    if(glEl) glEl.innerHTML=h;
+}
+
 function openBettingModal(){
+    multiPicks=[];
     var nsMatches=window._nsMatches||[];
     var stats=window._stats||{};
     var html='';
