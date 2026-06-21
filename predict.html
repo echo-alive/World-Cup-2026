@@ -3511,135 +3511,156 @@ function sim(a,b){
     var biScore=biTotal>0?bi/biTotal:0;
     return charScore*0.5+biScore*0.5;
 }
-function matchTeam(text,candidates){
-    var best=null,bestScore=0;
-    candidates.forEach(function(cn){
-        var s=sim(text,cn);
-        if(s>bestScore){bestScore=s;best=cn;}
-    });
-    return {name:best,score:bestScore};
-}
-function extractTeams(allText){
-    var allCN=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
-    allCN.sort(function(a,b){return b.length-a.length;});
-    var found=[],used=[];
-    // 1) 精确子串匹配
-    allCN.forEach(function(cn){
-        var idx=allText.indexOf(cn);
-        if(idx>=0){
-            used.push({name:cn,idx:idx});
-            allText=allText.replace(cn,new Array(cn.length+1).join('_'));
-        }
-    });
-    // 2) 模糊匹配剩余文本
-    var segs=allText.replace(/[_\d\.\s\/:：\(\)\[\]]+/g,' ').trim().split(/\s+/).filter(function(s){return s.length>=2;});
-    segs.forEach(function(seg){
-        var r=matchTeam(seg,allCN);
-        if(r.score>=0.6&&!used.some(function(u){return u.name===r.name;})){
-            var idx=allText.indexOf(seg);
-            used.push({name:r.name,idx:idx>=0?idx:999,score:r.score});
-        }
-    });
-    used.sort(function(a,b){return a.idx-b.idx;});
-    // 按位置配对
-    var pairs=[];
-    for(var i=0;i+1<used.length;i+=2){
-        pairs.push({home:used[i].name,away:used[i+1].name,hScore:used[i].score||1,aScore:used[i+1].score||1});
-    }
-    return pairs;
-}
 function analyzeTicket(text,extraEl){
     var lines=text.split('\n').filter(function(l){return l.trim();});
     var allText=text.replace(/\s+/g,'');
     extraEl.style.display='';
     var h='';
-    // 提取赔率
-    var oddsNums=[];
-    allText.replace(/(\d+\.\d{2})/g,function(m){oddsNums.push(parseFloat(m));});
-    var orders=oddsNums.slice(0,3);
-    // 球队匹配
-    var pairs=extractTeams(allText);
-    // 比分
-    var scores=[];
+    // 1. 解析比赛场次
+    var allCNs=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
+    allCNs.sort(function(a,b){return b.length-a.length;});
+    var matches=[];
+    var cur=null;
     lines.forEach(function(l){
-        var m=l.match(/(\d+)[:：](\d+)/);
-        if(m) scores.push(m[1]+':'+m[2]);
+        var m=l.match(/第(\d+)场/);
+        if(m){cur={num:m[1],home:'',away:'',picks:[],type:''};matches.push(cur);}
+        if(!cur) return;
+        // 主客队: 先用精确队名子串匹配,再退到纯中文捕获
+        var t=l.match(/主队\s*[:：]\s*([\u4e00-\u9fff()&]+)/);
+        if(t){
+            var raw=t[1].trim();
+            var best=null;
+            allCNs.forEach(function(cn){if(raw.indexOf(cn)>=0) best=cn;});
+            if(!best){
+                var bestScore=0;
+                allCNs.forEach(function(cn){var s=sim(raw,cn);if(s>bestScore){bestScore=s;best=cn;}});
+                if(bestScore<0.4) best=null;
+            }
+            cur.home=best||raw;
+        }
+        var a=l.match(/客队\s*[:：]\s*([\u4e00-\u9fff()&]+)/);
+        if(a){
+            var raw=a[1].trim();
+            var best=null;
+            allCNs.forEach(function(cn){if(raw.indexOf(cn)>=0) best=cn;});
+            if(!best){
+                var bestScore=0;
+                allCNs.forEach(function(cn){var s=sim(raw,cn);if(s>bestScore){bestScore=s;best=cn;}});
+                if(bestScore<0.4) best=null;
+            }
+            cur.away=best||raw;
+        }
+        if(l.indexOf('胜平负')>=0) cur.type='胜平负';
+        if(l.indexOf('比分')>=0) cur.type='比分';
+        var pr=l.match(/\((\d+)[:：](\d+)\)\s*[@]?\s*(\d+\.\d{3})/g);
+        if(pr){
+            pr.forEach(function(p){
+                var pm=p.match(/\((\d+)[:：](\d+)\)\s*[@]?\s*(\d+\.\d{3})/);
+                if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
+            });
+        }
+        var dm=l.match(/平\s*[@]?\s*(\d+\.\d{3})/);
+        if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
     });
-    // 票面信息
-    h+='<div class="lotto-card full" style="margin-bottom:10px"><h5>📋 票面信息</h5>';
-    if(pairs.length>0){
-        pairs.forEach(function(p){
-            var unsure=(p.hScore<0.85||p.aScore<0.85);
-            h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.04)">';
-            h+='<span>'+p.home+' <span style="color:#888">vs</span> '+p.away;
-            if(unsure) h+=' <span style="font-size:0.6rem;color:#f39c12">⚡模糊匹配</span>';
-            h+='</span>';
-            h+='<span style="color:'+(unsure?'#f39c12':'#2ecc71')+'">'+(unsure?'⚠️':'✅')+'</span></div>';
-        });
-    } else {
-        // 展示猜测列表
-        var allCN=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
-        var guesses=allCN.map(function(cn){
-            return {name:cn,score:sim(allText,cn)};
-        }).sort(function(a,b){return b.score-a.score;}).slice(0,4);
-        h+='<div style="color:#888;font-size:0.75rem;margin-bottom:4px">未能自动确认对阵，猜测的球队:</div>';
-        h+='<div style="display:flex;flex-wrap:wrap;gap:4px">';
-        guesses.forEach(function(g){
-            h+='<span style="background:rgba(243,156,18,0.12);padding:2px 8px;border-radius:4px;font-size:0.72rem;color:#ddd">'+g.name+' <span style="color:#666">'+(g.score*100).toFixed(0)+'%</span></span>';
-        });
+        // 平局选项 平@4.050
+        var dm=l.match(/平\s*[@]?\s*(\d+\.\d{3})/);
+        if(dm&&cur) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
+    });
+    // 2. 球队名称精确匹配
+    var allCN=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
+    matches.forEach(function(m){
+        if(m.home){
+            var best=null,bestScore=0;
+            allCN.forEach(function(cn){
+                var s=sim(m.home,cn);
+                if(s>bestScore){bestScore=s;best=cn;}
+            });
+            if(bestScore>=0.5) m.homeCN=best; else m.homeCN=m.home;
+        }
+        if(m.away){
+            var best=null,bestScore=0;
+            allCN.forEach(function(cn){
+                var s=sim(m.away,cn);
+                if(s>bestScore){bestScore=s;best=cn;}
+            });
+            if(bestScore>=0.5) m.awayCN=best; else m.awayCN=m.away;
+        }
+    });
+    // 3. 总金额/倍数/最高奖金
+    var total=0,bei=1,maxPayout=0,info='';
+    lines.forEach(function(l){
+        var tm=l.match(/合计\s*(\d+)/);
+        if(tm) total=parseInt(tm[1]);
+        var bm=l.match(/(\d+)倍/);
+        if(bm) bei=parseInt(bm[1]);
+        var pm=l.match(/最高[^]*?奖金[^]*?(\d+[\.,]\d+)/);
+        if(pm) maxPayout=parseFloat(pm[1].replace(',',''));
+        if(l.indexOf('单倍注数')>=0||l.indexOf('共')>=0) info=l;
+    });
+    // 4. 渲染
+    h+='<div class="lotto-card full" style="margin-bottom:10px"><h5>📋 票面结构</h5>';
+    h+='<div style="font-size:0.72rem;color:#888;margin-bottom:8px">'+info+'</div>';
+    matches.forEach(function(m){
+        var unsure=(m.homeCN&&m.homeCN!==m.home)||(m.awayCN&&m.awayCN!==m.away);
+        h+='<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06)">';
+        h+='<div style="display:flex;justify-content:space-between;font-size:0.75rem">';
+        h+='<span style="color:#888">第'+m.num+'场</span>';
+        h+='<span style="color:#f39c12;font-size:0.7rem">'+m.type+'</span></div>';
+        var hn=m.homeCN||m.home,an=m.awayCN||m.away;
+        h+='<div style="font-size:0.82rem;padding:4px 0">'+hn+' <span style="color:#888">vs</span> '+an;
+        if(unsure) h+=' <span style="font-size:0.6rem;color:#f39c12">⚡修正</span>';
         h+='</div>';
-    }
-    if(orders.length>=3){
-        h+='<div style="margin-top:8px;font-size:0.75rem;color:#aaa">赔率: 主<span style="color:#f39c12;font-weight:bold">'+orders[0].toFixed(2)+'</span> 平<span style="color:#f39c12;font-weight:bold">'+orders[1].toFixed(2)+'</span> 客<span style="color:#f39c12;font-weight:bold">'+orders[2].toFixed(2)+'</span></div>';
-    } else if(oddsNums.length>0){
-        h+='<div style="margin-top:8px;font-size:0.75rem;color:#aaa">赔率: <span style="color:#f39c12">'+oddsNums.join('</span> <span style="color:#888">|</span> <span style="color:#f39c12">')+'</span></div>';
-    }
-    if(scores.length>0){
-        h+='<div style="margin-top:4px;font-size:0.75rem;color:#aaa">比分: <span style="color:#3498db">'+scores.join('</span> <span style="color:#888">|</span> <span style="color:#3498db">')+'</span></div>';
+        if(m.picks.length>0){
+            h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px">';
+            m.picks.forEach(function(p){
+                var label=p.label||p.h+'-'+p.a;
+                h+='<span style="background:rgba(243,156,18,0.1);border:1px solid rgba(243,156,18,0.12);border-radius:4px;padding:1px 6px;font-size:0.68rem;color:#ddd">'+label+' <span style="color:#f39c12">'+p.o+'</span></span>';
+            });
+            h+='</div>';
+        }
+        h+='</div>';
+    });
+    if(total>0||maxPayout>0){
+        h+='<div style="display:flex;justify-content:space-around;padding:6px 0;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.78rem;color:#aaa">';
+        if(bei>1) h+='<span>倍数 <b style="color:#3498db">'+bei+'倍</b></span>';
+        if(total>0) h+='<span>金额 <b style="color:#f39c12">'+total+'元</b></span>';
+        if(maxPayout>0) h+='<span>最高奖金 <b style="color:#e74c3c">'+maxPayout.toFixed(2)+'元</b></span>';
+        h+='</div>';
     }
     h+='</div>';
-    // 模型对比分析
+    // 5. 模型对比
     var ns=window._nsMatches||[];
-    var matched=[];
-    pairs.forEach(function(p){
+    var compared=[];
+    matches.forEach(function(m){
+        if(!m.homeCN||!m.awayCN) return;
         var hk,ak;
         Object.keys(TEAM_CN).forEach(function(k){
-            if(TEAM_CN[k]===p.home) hk=k;
-            if(TEAM_CN[k]===p.away) ak=k;
+            if(TEAM_CN[k]===m.homeCN) hk=k;
+            if(TEAM_CN[k]===m.awayCN) ak=k;
         });
-        if(hk&&ak) matched.push({homeKey:hk,awayKey:ak,homeCN:p.home,awayCN:p.away});
+        if(hk&&ak){
+            var match=ns.find(function(mm){return mm.home_team===hk&&mm.away_team===ak;});
+            if(match) compared.push({match:match,homeCN:m.homeCN,awayCN:m.awayCN,num:m.num});
+        }
     });
-    if(matched.length>0){
+    if(compared.length>0){
         h+='<div class="lotto-card full"><h5>🔍 模型对比分析</h5>';
-        matched.forEach(function(t){
-            var match=ns.find(function(m){return m.home_team===t.homeKey&&m.away_team===t.awayKey;});
-            if(match){
-                var odds=getOddsForMatch(match.home_team,match.away_team);
-                var pred=predictScore(match.home_team,match.away_team);
-                var ho=odds?parseFloat(odds.homeOdds).toFixed(2):'--';
-                var ddo=odds?parseFloat(odds.drawOdds).toFixed(2):'--';
-                var ao=odds?parseFloat(odds.awayOdds).toFixed(2):'--';
-                h+='<div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.12);border-radius:8px;padding:10px;margin-bottom:8px">';
-                h+='<div style="font-size:0.85rem;font-weight:bold;color:#2ecc71;margin-bottom:6px">'+t.homeCN+' vs '+t.awayCN+'</div>';
-                h+='<div style="display:flex;gap:10px;font-size:0.75rem;color:#aaa">';
-                h+='<span>主 <b style="color:#f39c12">'+ho+'</b> <span style="color:#666">|'+pred.homeWin.toFixed(0)+'%</span></span>';
-                h+='<span>平 <b style="color:#f39c12">'+ddo+'</b> <span style="color:#666">|'+pred.draw.toFixed(0)+'%</span></span>';
-                h+='<span>客 <b style="color:#f39c12">'+ao+'</b> <span style="color:#666">|'+pred.awayWin.toFixed(0)+'%</span></span>';
-                h+='</div><div style="margin-top:4px;font-size:0.7rem;color:#666">预测比分: '+pred.home+':'+pred.away+' | 总进球: '+pred.totalGoals+'</div>';
-                h+='</div>';
-            } else {
-                h+='<div style="color:#888;font-size:0.75rem;padding:4px 0">'+t.homeCN+' vs '+t.awayCN+' — 暂无赛程数据</div>';
-            }
+        compared.forEach(function(t){
+            var odds=getOddsForMatch(t.match.home_team,t.match.away_team);
+            var pred=predictScore(t.match.home_team,t.match.away_team);
+            var ho=odds?parseFloat(odds.homeOdds).toFixed(2):'--';
+            var ddo=odds?parseFloat(odds.drawOdds).toFixed(2):'--';
+            var ao=odds?parseFloat(odds.awayOdds).toFixed(2):'--';
+            h+='<div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.12);border-radius:8px;padding:10px;margin-bottom:8px">';
+            h+='<div style="display:flex;justify-content:space-between;font-size:0.85rem;font-weight:bold;color:#2ecc71;margin-bottom:6px">';
+            h+='<span>第'+t.num+'场</span><span>'+t.homeCN+' vs '+t.awayCN+'</span></div>';
+            h+='<div style="display:flex;gap:10px;font-size:0.75rem;color:#aaa">';
+            h+='<span>主 <b style="color:#f39c12">'+ho+'</b> <span style="color:#666">|'+pred.homeWin.toFixed(0)+'%</span></span>';
+            h+='<span>平 <b style="color:#f39c12">'+ddo+'</b> <span style="color:#666">|'+pred.draw.toFixed(0)+'%</span></span>';
+            h+='<span>客 <b style="color:#f39c12">'+ao+'</b> <span style="color:#666">|'+pred.awayWin.toFixed(0)+'%</span></span>';
+            h+='</div><div style="margin-top:4px;font-size:0.7rem;color:#666">预测比分: '+pred.home+':'+pred.away+' | 总进球: '+pred.totalGoals+'</div>';
+            h+='</div>';
         });
-        h+='</div>';
-    }
-    // 赔率建议
-    if(oddsNums.length>=3){
-        var minIdx=0;
-        for(var i=1;i<3;i++){if(oddsNums[i]<oddsNums[minIdx])minIdx=i;}
-        var lbl=['主胜','平局','客胜'][minIdx];
-        h+='<div class="lotto-card full"><h5>💡 赔率解读</h5>';
-        h+='<div style="font-size:0.82rem;color:#ddd">低赔方: <b style="color:#f39c12">'+lbl+'</b> ('+oddsNums[minIdx].toFixed(2)+')</div>';
         h+='</div>';
     }
     extraEl.innerHTML=h;
