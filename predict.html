@@ -751,6 +751,19 @@ function calcScoreProbs(home,away,realOdds){
     return scores;
 }
 
+function calcHandicapProb(homeTeam,awayTeam,realOdds,handicap,pick){
+    var scores=calcScoreProbs(homeTeam,awayTeam,realOdds);
+    if(!scores||!scores.length) return 0;
+    var total=0;
+    scores.forEach(function(s){
+        var eff=s.home-s.away+parseInt(handicap);
+        if(pick==='胜'&&eff>0) total+=s.prob;
+        else if(pick==='平'&&eff===0) total+=s.prob;
+        else if(pick==='负'&&eff<0) total+=s.prob;
+    });
+    return Math.round(total*10)/10;
+}
+
 function calcTotalGoalsProbs(home,away,realOdds){
     var scores=calcScoreProbs(home,away,realOdds);
     var totals={};
@@ -3576,7 +3589,7 @@ function analyzeTicket(text,extraEl){
             // 让球胜平负
             var hcpRe=/让球胜平负\(([^)]+)\)\s*(平|胜|负)/g;
             var hm;
-            while((hm=hcpRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:hm[2],origType:'让球胜平负'});
+            while((hm=hcpRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:hm[2],origType:'让球胜平负',origHcp:hm[1]});
             // 胜平负（不会误配让球内的）
             var spRe=/胜平负\s*(平|胜|负)/g;
             var sm;
@@ -3676,8 +3689,15 @@ function analyzeTicket(text,extraEl){
         m.picks.forEach(function(p){
             var impl=p.o?100/parseFloat(p.o):0;
             var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='';
-            if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
-            else if(p.h!=='--'&&curPred&&curOdds){
+            if(p.origType==='让球胜平负'&&curPred&&curOdds){
+                modelP=calcHandicapProb(match.home_team,match.away_team,curOdds,p.origHcp,p.label);
+                var hcpNum=parseInt(p.origHcp);
+                label=(hcpNum>0?'+':'')+hcpNum+'球'+(p.label==='胜'?'主胜':p.label==='平'?'平局':'主负');
+            }else if(p.origType==='胜平负'){
+                if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
+                else if(p.label==='胜'&&curPred){modelP=curPred.homeWin;label='主胜';}
+                else if(p.label==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
+            }else if(p.h!=='--'&&curPred&&curOdds){
                 var scores=calcScoreProbs(match.home_team,match.away_team,curOdds);
                 var found=scores?scores.find(function(s){return s.home===parseInt(p.h)&&s.away===parseInt(p.a);}):null;
                 modelP=found?found.prob:0;
