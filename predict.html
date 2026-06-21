@@ -3414,7 +3414,7 @@ function buildMixedParlay(nsMatches){
         var p4=[];
         picks.slice(0,4).forEach(function(p){p4.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
         if(p4.length>=2) result.push({label:'稳胆推荐',html:buildParlayHtml(p4)});
-        // 5. 最稳比分串关
+        // 5. 稳胆比分（单）
         var p5=[];
         picks.forEach(function(p){
             if(p.scores[0]&&p.scores[0].prob>=3){
@@ -3423,8 +3423,13 @@ function buildMixedParlay(nsMatches){
             }
         });
         p5.sort(function(a,b){return b.pick.prob-a.pick.prob;});
-        var p5b=p5.slice(0,4);
-        if(p5b.length>=2) result.push({label:'最稳比分串关',html:buildParlayHtml(p5b)});
+        if(p5.length>0){
+            var b=p5[0];
+            result.push({label:'稳胆比分（单）',html:'<div style="text-align:center;padding:16px"><div style="font-size:1.1rem;font-weight:bold;color:#f1c40f">'+b.pick.label+'</div><div style="color:#888;font-size:0.8rem;margin:4px 0">'+cn(b.match.home_team)+' vs '+cn(b.match.away_team)+'</div><div style="display:flex;justify-content:center;gap:20px;margin:8px 0"><span style="color:#aaa;font-size:0.8rem">概率 <b style="color:#eee">'+b.pick.prob.toFixed(1)+'%</b></span><span style="color:#aaa;font-size:0.8rem">赔率 <b style="color:#f39c12">'+b.pick.oddsNum.toFixed(2)+'</b></span></div><div style="font-size:0.7rem;color:#666">本场最稳比分，可选为单关投注</div></div>'});
+        }
+        // 6. 稳胆比分（多）
+        var p6=p5.slice(0,4);
+        if(p6.length>=2) result.push({label:'稳胆比分（多）',html:buildParlayHtml(p6)});
         return result;
     }
     function tabPaneMixed(){
