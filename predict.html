@@ -3537,40 +3537,21 @@ function analyzeTicket(text,extraEl){
         if(!cur) return;
         if(l.indexOf('胜平负')>=0) cur.type='胜平负';
         if(l.indexOf('比分')>=0) cur.type='比分';
-        // 逐行模糊匹配球队: 先试 VS 分割
-        if(!cur.home||!cur.away){
-            var vsParts=l.split(/[Vv][Ss]/);
-            if(vsParts.length>=2){
-                var left=vsParts[0],right=vsParts.slice(1).join(' ');
-                var leftCn=(left.match(/[\u4e00-\u9fff]+/g)||[]).join('');
-                var rightCn=(right.match(/[\u4e00-\u9fff]+/g)||[]).join('');
-                if(leftCn.length>=2&&rightCn.length>=2){
-                    var bestL=null,bestR=null,scoreL=0,scoreR=0;
-                    allCNs.forEach(function(cn){
-                        var sl=sim(leftCn,cn);if(sl>scoreL&&sl>=0.3){scoreL=sl;bestL=cn;}
-                        var sr=sim(rightCn,cn);if(sr>scoreR&&sr>=0.3){scoreR=sr;bestR=cn;}
-                    });
-                    if(bestL&&!cur.home) cur.home=bestL;
-                    if(bestR&&!cur.away) cur.away=bestR;
-                }
-            }
-        }
-        // 退一步: 捞中文片段逐个模糊匹配
-        if(!cur.home||!cur.away){
-            var segs=l.match(/[\u4e00-\u9fff]{2,}/g)||[];
-            var found=[];
-            segs.forEach(function(seg){
-                var best=null,bestScore=0;
-                allCNs.forEach(function(cn){
-                    var s=sim(seg,cn);var thr=seg.length<=2&&cn.length<=2?0.2:0.35;
-                    if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
-                });
-                if(best&&!found.some(function(f){return f.name===best;})) found.push({name:best,score:bestScore});
+        var segs=l.match(/[\u4e00-\u9fff]+/g)||[];
+        var found=[];
+        segs.forEach(function(seg){
+            if(seg.length<2) return;
+            var best=null,bestScore=0;
+            allCNs.forEach(function(cn){
+                var s=sim(seg,cn);
+                var thr=seg.length<=2||cn.length<=2?0.2:0.3;
+                if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
             });
-            found.sort(function(a,b){return b.score-a.score;});
-            if(!cur.home&&found.length>=1) cur.home=found[0].name;
-            if(!cur.away&&found.length>=2) cur.away=found[1].name;
-        }
+            if(best&&!found.some(function(f){return f.name===best;})) found.push({name:best,score:bestScore});
+        });
+        found.sort(function(a,b){return b.score-a.score;});
+        if(!cur.home&&found.length>=1) cur.home=found[0].name;
+        if(!cur.away&&found.length>=2) cur.away=found[1].name;
         var pr=l.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
         if(pr){
             pr.forEach(function(p){
@@ -3588,7 +3569,7 @@ function analyzeTicket(text,extraEl){
             var best=null,bestScore=0;
             allCN.forEach(function(cn){
                 var s=sim(m.home,cn);
-                var thr=m.home.length<=2&&cn.length<=2?0.2:0.4;
+                var thr=m.home.length<=2||cn.length<=2?0.2:0.35;
                 if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
             });
             m.homeCN=bestScore>=0.4?best:m.home;
@@ -3597,7 +3578,7 @@ function analyzeTicket(text,extraEl){
             var best=null,bestScore=0;
             allCN.forEach(function(cn){
                 var s=sim(m.away,cn);
-                var thr=m.away.length<=2&&cn.length<=2?0.2:0.4;
+                var thr=m.away.length<=2||cn.length<=2?0.2:0.35;
                 if(s>bestScore&&s>=thr){bestScore=s;best=cn;}
             });
             m.awayCN=bestScore>=0.4?best:m.away;
