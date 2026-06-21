@@ -3527,8 +3527,12 @@ function analyzeTicket(text,extraEl){
     extraEl.style.display='';
     var h='';
     // 1. 解析比赛场次
-    var allCNs=Object.keys(TEAM_CN).map(function(k){return TEAM_CN[k];});
-    allCNs.sort(function(a,b){return b.length-a.length;});
+    var allCNs=Object.keys(TEAM_CN).map(function(k){return {cn:TEAM_CN[k],rk:TEAM_RANK[k]||99};});
+    allCNs.sort(function(a,b){
+        if(a.cn.length!==b.cn.length) return b.cn.length-a.cn.length;
+        return a.rk-b.rk; // 同长度按FIFA排名优先（乌拉圭9 < 巴拉圭27）
+    });
+    allCNs=allCNs.map(function(x){return x.cn;});
     var matches=[];
     var cur=null;
     function matchTeams(text,cur){
@@ -3545,7 +3549,7 @@ function analyzeTicket(text,extraEl){
             });
             if(best&&!found.some(function(f){return f.name===best;})) found.push({name:best,score:bestScore});
         });
-        found.sort(function(a,b){return b.score-a.score;});
+        // 不按得分排序，保持文本出现顺序（第一个在text中的队=主队）
         if(!cur.home&&found.length>=1) cur.home=found[0].name;
         if(!cur.away&&found.length>=2) cur.away=found[1].name;
         if(found.length) console.log('[OCR行段]',text,'→匹配',found);
