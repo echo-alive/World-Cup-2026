@@ -3545,30 +3545,49 @@ function analyzeTicket(text,extraEl){
         body=body.replace(/(让球胜平负|胜平负|比分)/g,' $1');
         console.log('[新正文]',body);
 
-        // 按 VS 位置顺序截取每场选购文字（不抓队名）
+        // 按 VS 位置顺序截取每场选购文字
         var vsPos=[],p;
         while((p=body.indexOf('VS',p+1))>=0) vsPos.push(p);
 
         vsPos.forEach(function(vsPos,i){
             var cur={num:String(i+1),home:'',away:'',picks:[],type:''};matches.push(cur);
             var next=i+1<vsPos.length?vsPos[i+1]:body.length;
-            var pickText=body.substring(vsPos+2,next);
-            console.log('   →比赛'+cur.num,'选购',pickText);
-            if(pickText.indexOf('比分')>=0) cur.type='比分';
-            if(pickText.indexOf('胜平负')>=0) cur.type='胜平负';
-            if(pickText.indexOf('让球胜平负')>=0) cur.type='让球胜平负';
+            var raw=body.substring(vsPos+2,next);
+            console.log('   →比赛'+cur.num,'原始',raw);
+
+            // 找本场首个类型关键词
+            var kw=['让球胜平负','胜平负','比分'];
+            var fi=-1,fk='';
+            kw.forEach(function(k){
+                var idx=raw.indexOf(k);
+                if(idx>=0&&(fi<0||idx<fi)){fi=idx;fk=k;}
+            });
+            if(fi<0){console.log('   →无类型');return;}
+            cur.type=fk;
+            // 从关键词开始，到下一场边界（周日XXX 或 中文+VS 或结尾）
+            var rel=raw.substring(fi);
+            var end=rel.length;
+            var sun=rel.match(/周日\d+/);
+            if(sun&&sun.index>0&&sun.index<end) end=sun.index;
+            // 中文+VS 边界（跳过索引0，避免自己的队名）
+            var i2=rel.substring(1).search(/[\u4e00-\u9fff]+VS/);
+            if(i2>=0&&(i2+1)<end) end=i2+1;
+            rel=rel.substring(0,end);
+            console.log('   →本场',cur.type,rel);
+
             if(cur.type==='比分'){
-                var sc=pickText.match(/(\d):(\d)/g);
-                if(sc) sc.forEach(function(s){
+                (rel.match(/(\d):(\d)/g)||[]).forEach(function(s){
                     var pm=s.match(/(\d):(\d)/);
                     if(pm) cur.picks.push({h:pm[1],a:pm[2],o:''});
                 });
-            }
-            if(cur.type==='让球胜平负'){
-                var hcp=pickText.match(/让球胜平负\(([^)]+)\)\s*(平|胜|负)/);
+            }else if(cur.type==='让球胜平负'){
+                var hcp=rel.match(/让球胜平负\(([^)]+)\)\s*(平|胜|负)/);
                 if(hcp) cur.picks.push({h:'--',a:'--',o:'',label:hcp[2]});
+            }else if(cur.type==='胜平负'){
+                var l=rel.match(/胜平负\s*(平|胜|负)/);
+                if(l) cur.picks.push({h:'--',a:'--',o:'',label:l[1]});
             }
-            console.log('   →结果',cur.type,cur.picks);
+            console.log('   →结果',cur.picks);
         });
     }else{
         // --- 旧格式：OCR扫描票面 ---
