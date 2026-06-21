@@ -3626,43 +3626,6 @@ function analyzeTicket(text,extraEl){
             cur.type=cur.picks.length?cur.picks[0].origType:'';
             console.log('   →结果',cur.picks);
         });
-    }else{
-        // --- 旧格式：OCR扫描票面 ---
-        text=text.replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1');
-        text=text.replace(/([\u4e00-\u9fff])\s+(?=\d)/g,'$1');
-        text=text.replace(/(\d)\s+(?=[\u4e00-\u9fff])/g,'$1');
-        text=text.replace(/\((\d+)\s*[；;]\s*(\d+)\)/g,'($1:$2)');
-        text=text.replace(/(\d+)[，,](\d{3}(?!\d))/g,'$1.$2');
-        text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');
-        text=text.replace(/([)平])\s*\d(\d+\.\d{3})/g,'$1@$2');
-
-        var lines=text.split('\n').filter(function(l){return l.trim();});
-        var cur=null;
-        lines.forEach(function(l){
-            var parts=l.split(/(?=第\d+场)/);
-            parts.forEach(function(part){
-                var mm=part.match(/^第(\d+)场/);
-                if(mm){
-                    cur={num:mm[1],home:'',away:'',picks:[],type:''};matches.push(cur);
-                    part=part.replace(/^第\d+场/,'');
-                }
-                if(!cur) return;
-                if(part.indexOf('胜平负')>=0) cur.type='胜平负';
-                if(part.indexOf('比分')>=0) cur.type='比分';
-                if(part.indexOf('进球总数')>=0||part.indexOf('总进球')>=0) cur.type='进球总数';
-                var pr=part.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/g);
-                if(pr){
-                    pr.forEach(function(p){
-                        var pm=p.match(/\((\d+)[:：](\d+)\)\s*@\s*(\d+\.\d{3})/);
-                        if(pm) cur.picks.push({h:pm[1],a:pm[2],o:pm[3]});
-                    });
-                }
-                var dm=part.match(/平\s*@\s*(\d+\.\d{3})/);
-                if(dm) cur.picks.push({h:'--',a:'--',o:dm[1],label:'平'});
-                var tgm=part.match(/(?:进球总数|总进球)\s*(\d+)\s*@\s*(\d+\.\d{3})/);
-                if(tgm) cur.picks.push({h:tgm[1],a:'--',o:tgm[2],origType:'进球总数',label:tgm[1]+'球'});
-            });
-        });
     }
 
     // 2. 用页面数据补充队名
