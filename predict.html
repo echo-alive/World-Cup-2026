@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -741,9 +742,10 @@ function poissonProb(lambda,k){
 var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
+var ocrLangPath=location.href.replace(/[^/]*$/,'')+'tessdata';
 function runOCR(file,logger){
-    if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file);}
-    return Tesseract.createWorker('chi_sim',1,{logger:logger}).then(function(w){ocrWorker=w;return w.recognize(file);});
+    if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file,{rotateAuto:true});}
+    return Tesseract.createWorker('chi_sim',1,{logger:logger,langPath:ocrLangPath}).then(function(w){ocrWorker=w;return w.recognize(file,{rotateAuto:true});});
 }
 function loadCalibCache(){
     try{var c=localStorage.getItem(CALIBRATION_CACHE_KEY);if(c) CALIBRATION_CACHE=JSON.parse(c);}catch(e){}
@@ -4052,8 +4054,8 @@ function analyzeTicket(text,extraEl){
             var hcpRe=/让球胜平负\s*[（(]\s*([^）)]+)\s*[）)]\s*(平|胜|负)/g;
             var hm;
             while((hm=hcpRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:hm[2],origType:'让球胜平负',origHcp:hm[1].replace(/\s/g,'')});
-            // 胜平负（不会误配让球内的）
-            var spRe=/胜平负\s*(平|胜|负)/g;
+            // 胜平负（不会误配让球内的）- 支持"主胜"/"主平"/"主负"
+            var spRe=/胜平负\s*(主?[胜平负])/g;
             var sm;
             while((sm=spRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:sm[1],origType:'胜平负'});
             // 比分
@@ -4064,8 +4066,8 @@ function analyzeTicket(text,extraEl){
                     if(pm) cur.picks.push({h:pm[1],a:pm[2],o:'',origType:'比分'});
                 });
             }
-            // 进球总数
-            var tgRe=/进球总数(\d+)/g;
+            // 进球总数 - 支持"进球总数"和"总进球数"
+            var tgRe=/(?:进球总数|总进球数)(\d+)/g;
             var tg;
             while((tg=tgRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:tg[1]+'球',origType:'进球总数'});
             cur.type=cur.picks.length?cur.picks[0].origType:'';
@@ -4162,9 +4164,10 @@ function analyzeTicket(text,extraEl){
                 label=hcpLabel;
             }else if(p.origType==='胜平负'){
                 typeTag='SPF';
-                if(p.label==='平'&&curPred){modelP=curPred.draw;label='平局';}
-                else if(p.label==='胜'&&curPred){modelP=curPred.homeWin;label='主胜';}
-                else if(p.label==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
+                var spfLabel=p.label.replace('主','');
+                if(spfLabel==='平'&&curPred){modelP=curPred.draw;label='平局';}
+                else if(spfLabel==='胜'&&curPred){modelP=curPred.homeWin;label='主胜';}
+                else if(spfLabel==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
             }else if(p.origType==='进球总数'){
                 typeTag='总进球';
                 var totalGoal=parseInt(p.h);
