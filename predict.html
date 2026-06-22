@@ -3834,7 +3834,6 @@ function buildMixedParlay(nsMatches){
             var hi=p.x2.reduce(function(a,b){return a.o>b.o?a:b;});
             h3.push({match:p.match,pick:{type:'胜平负',label:hi.l,prob:hi.p,oddsNum:hi.o}});
         });
-        h3.sort(function(a,b){return b.pick.oddsNum-a.pick.oddsNum;});
         if(h3.length>=2) result.push({label:'高赔推荐',html:buildParlayHtml(h3)});
         // 4. 稳胆推荐 (概率最高的组合)
         var p4=[];
@@ -3848,7 +3847,6 @@ function buildMixedParlay(nsMatches){
                 p5.push({match:p.match,pick:{type:'比分',label:p.scores[0].home+'-'+p.scores[0].away,prob:p.scores[0].prob,oddsNum:so}});
             }
         });
-        p5.sort(function(a,b){return b.pick.prob-a.pick.prob;});
         if(p5.length>=2) result.push({label:'稳胆比分',html:buildParlayHtml(p5)});
         return result;
     }
