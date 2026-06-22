@@ -372,7 +372,12 @@
             </div>
             <div class="modal-body" id="ocrBody">
                 <div id="ocrPreview" style="text-align:center;margin-bottom:12px"></div>
-                <div id="ocrProgress" style="text-align:center;color:#f39c12;padding:8px;font-size:0.8rem;display:none"></div>
+                <div id="ocrProgress" style="display:none">
+                    <div id="ocrProgressText" style="text-align:center;color:#f39c12;padding:4px 8px 6px;font-size:0.8rem"></div>
+                    <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin:0 20px">
+                        <div id="ocrProgressBar" style="width:0%;height:100%;background:#f39c12;border-radius:2px;transition:width 0.3s"></div>
+                    </div>
+                </div>
                 <div id="ocrResult" style="background:rgba(0,0,0,0.2);border-radius:8px;padding:12px;font-size:0.82rem;line-height:1.7;white-space:pre-wrap;word-break:break-all;display:none"></div>
                 <div id="ocrExtra" style="margin-top:8px;display:none">
                     <div style="font-size:0.78rem;color:#f39c12;margin-bottom:6px">⚡ 识别到比赛信息</div>
@@ -4038,23 +4043,27 @@ function handleOCRFile(input){
     var body=document.getElementById('ocrBody');
     var preview=document.getElementById('ocrPreview');
     var progress=document.getElementById('ocrProgress');
+    var progressText=document.getElementById('ocrProgressText');
+    var progressBar=document.getElementById('ocrProgressBar');
     var result=document.getElementById('ocrResult');
     var extra=document.getElementById('ocrExtra');
     result.style.display='none';
     extra.style.display='none';
     progress.style.display='';
-    progress.innerHTML='⏳ 读取图片...';
+    progress.style.display='';
+    progressBar.style.width='0%';
+    progressText.innerHTML='⏳ 读取图片...';
     var reader=new FileReader();
     reader.onload=function(e){
         _ocrImageDataURL=e.target.result;
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
-        progress.innerHTML='⏳ 加载引擎...';
+        progressText.innerHTML='⏳ 加载引擎...';
         runOCR(file,function(m){
-            if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
-            else if(m.status==='loading tesseract core') progress.innerHTML='⏳ 加载引擎...';
-            else if(m.status==='loading language traineddata') progress.innerHTML='⏳ 加载语言包...';
-            else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
-            else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
+            if(m.status==='recognizing text'){progressBar.style.width=Math.round(m.progress*100)+'%';progressText.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';}
+            else if(m.status==='loading tesseract core'){progressBar.style.width='30%';progressText.innerHTML='⏳ 加载引擎...';}
+            else if(m.status==='loading language traineddata'){var pct=Math.round((m.progress||0)*100);progressBar.style.width=pct+'%';progressText.innerHTML='⏳ 加载语言包 '+pct+'%';}
+            else if(m.status==='initializing tesseract'){progressBar.style.width='80%';progressText.innerHTML='⏳ 初始化引擎...';}
+            else if(m.status==='initializing api'){progressBar.style.width='90%';progressText.innerHTML='⏳ 初始化API...';}
         }).then(function(r){
             var text=(r.data||r).text.trim();
             if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
