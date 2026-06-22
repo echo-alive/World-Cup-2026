@@ -382,6 +382,12 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="imgLightbox" onclick="closeImageLightbox()" style="display:none;cursor:zoom-out">
+        <div style="max-width:95vw;max-height:95vh;margin:auto;display:flex;align-items:center;justify-content:center">
+            <img id="lightboxImg" style="max-width:100%;max-height:95vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6)">
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
     <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'});this.blur()">↑</button>
     <div class="compare-bar" id="compareBar">
@@ -959,6 +965,7 @@ function getTournamentForm(team){
     return {gf:gf,ga:ga,w:w,d:d,l:l,n:matches.length,opps:opps,recent:recent};
 }
 
+var _ocrImageDataURL='';
 var H2H = {
     'Brazil-Germany':[
         {year:'2002 决赛',score:'0-2',winner:'Germany'},
@@ -4023,7 +4030,8 @@ function handleOCRFile(input){
     var tmr=setTimeout(function(){progress.innerHTML='⏳ 下载语言包中...<br><span style="font-size:0.7rem;color:#888">首次需下载约7MB，请稍候</span>';},5000);
     var reader=new FileReader();
     reader.onload=function(e){
-        preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img">';
+        _ocrImageDataURL=e.target.result;
+        preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
         runOCR(file,function(m){
             if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
             else if(m.status==='loading tesseract core'||m.status==='loading language traineddata'){clearTimeout(tmr);progress.innerHTML='⏳ 下载语言包中...<br><span style="font-size:0.7rem;color:#888">首次需下载约7MB，请稍候</span>';}
@@ -4035,7 +4043,8 @@ function handleOCRFile(input){
             progress.style.display='none';
             result.style.display='';
             result.style.display='none';
-            preview.innerHTML='';
+            preview.style.position='relative';
+            preview.innerHTML+='<div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.5);pointer-events:none">点击图片查看大图</div>';
             analyzeTicket(text,extra);
         }).catch(function(err){
             progress.innerHTML='❌ 识别失败';
@@ -4345,6 +4354,8 @@ function analyzeTicket(text,extraEl){
         else if(okRatio>=0.4) overall='⚠️ 部分选购偏离模型预期，建议谨慎';
         else overall='❌ 多数选购与模型预期不符，风险较高';
         var overallColor=okRatio>=0.7?'#2ecc71':okRatio>=0.4?'#f39c12':'#e74c3c';
+        var score=Math.round(pickStats.good/totalPicks*50+pickStats.medium/totalPicks*30+pickStats.low/totalPicks*15+pickStats.bad/totalPicks*5);
+        var scColor=score>=80?'#2ecc71':score>=60?'#f39c12':'#e74c3c';
         h+='<div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
         h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
         h+='<span style="font-size:0.85rem;font-weight:600;color:#eee">📋 整体分析</span>';
@@ -4354,7 +4365,12 @@ function analyzeTicket(text,extraEl){
         h+='<span style="flex:1;text-align:center;background:rgba(52,152,219,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#3498db"><b>'+pickStats.medium+'</b><br>概率适中</span>';
         h+='<span style="flex:1;text-align:center;background:rgba(243,156,18,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#f39c12"><b>'+pickStats.low+'</b><br>概率偏低</span>';
         h+='<span style="flex:1;text-align:center;background:rgba(231,76,60,0.12);border-radius:6px;padding:6px 4px;font-size:0.7rem;color:#e74c3c"><b>'+pickStats.bad+'</b><br>小概率</span></div>';
-        h+='<div style="font-size:0.78rem;color:'+overallColor+';font-weight:500;text-align:center">'+overall+'</div></div>';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+        h+='<div style="font-size:0.78rem;color:'+overallColor+';font-weight:500">'+overall+'</div>';
+        h+='<div style="text-align:center;padding:0 10px"><span style="font-size:0.6rem;color:#888">评分</span><br><span style="font-size:1.1rem;font-weight:bold;color:'+scColor+'">'+score+'</span><span style="font-size:0.7rem;color:#888">/100</span></div>';
+        h+='</div>';
+        if(_ocrImageDataURL) h+='<div style="text-align:center;margin-top:6px"><button onclick="openImageLightbox()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#ccc;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:0.75rem">📷 查看原图</button></div>';
+        h+='</div>';
     }
     if(total>0||maxPayout>0){
         h+='<div style="display:flex;justify-content:space-around;padding:8px 0;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.8rem;color:#aaa">';
@@ -4363,6 +4379,16 @@ function analyzeTicket(text,extraEl){
         h+='</div>';
     }
     extraEl.innerHTML=h;
+}
+function openImageLightbox(){
+    var img=document.getElementById('lightboxImg');
+    img.src=_ocrImageDataURL;
+    document.getElementById('imgLightbox').style.display='flex';
+    document.body.style.overflow='hidden';
+}
+function closeImageLightbox(){
+    document.getElementById('imgLightbox').style.display='none';
+    document.body.style.overflow='';
 }
 function closeOCRModal(){
     document.getElementById('ocrModal').className='modal-overlay';
