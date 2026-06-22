@@ -3563,6 +3563,7 @@ function buildTournamentAnalysis(matches){
 
 function buildLotteryRef(nsMatches,stats){
     if(!nsMatches||nsMatches.length===0) return '';
+    nsMatches=nsMatches.slice().sort(function(a,b){return a.kickoff_time.localeCompare(b.kickoff_time);});
 
     var rows=[];
     nsMatches.forEach(function(m){
@@ -3617,8 +3618,6 @@ function buildLotteryRef(nsMatches,stats){
 
         rows.push({match:m,best:best,value:value,isUpset:isUpset,oddsFav:oddsFav,favTeam:favTeam,dc:dc,hcap:hcap,h:h,a:a});
     });
-    rows.sort(function(a,b){return a.match.kickoff_time.localeCompare(b.match.kickoff_time);});
-
     if(rows.length===0) return '';
 
     var html='<div class="lotto-ref">';
@@ -3720,6 +3719,7 @@ function buildLotteryRef(nsMatches,stats){
 
 function buildMixedParlay(nsMatches){
     if(!nsMatches||nsMatches.length<2) return '';
+    nsMatches=nsMatches.slice().sort(function(a,b){return a.kickoff_time.localeCompare(b.kickoff_time);});
     var picks=[];
     nsMatches.forEach(function(m){
         var h=m.home_team, a=m.away_team;
@@ -3742,7 +3742,6 @@ function buildMixedParlay(nsMatches){
         goals.sort(function(a,b){return b.prob-a.prob;});
         picks.push({match:m,mk:h+'_'+a,x2:x2,x2b:x2[0],scores:scores.slice(0,4),goals:goals.slice(0,3)});
     });
-    picks.sort(function(a,b){return a.match.kickoff_time.localeCompare(b.match.kickoff_time);});
     if(picks.length<2) return '';
 
     function tabPaneX2(){
