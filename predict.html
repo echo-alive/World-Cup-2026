@@ -311,15 +311,23 @@
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
         @media(max-width:600px){.group-card table{font-size:0.65rem}.group-card td,.group-card th{padding:4px 3px}.group-card h3{font-size:0.78rem}.group-card{overflow-x:auto}.status-badge{font-size:0.55rem;padding:1px 4px}.gu-match{font-size:0.65rem}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.bottom-actions{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);gap:8px;padding:8px 12px;justify-content:flex-end}body{padding-bottom:54px}.desktop-btn{display:none !important}.nav-item{padding:5px 8px;font-size:0.7rem}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-filter{min-width:130px}}
         @media(min-width:768px){.match-nav{max-width:100%;margin:0 auto 12px;border-radius:12px}}
-        .pull-ind{position:absolute;top:-50px;left:0;right:0;text-align:center;padding:10px;font-size:0.8rem;color:#888;transition:transform 0.3s;z-index:10;pointer-events:none}
-        .pull-ind .pi-icon{display:inline-block;font-size:1.2rem;transition:transform 0.3s}
-        .pull-ind .pi-text{display:block;margin-top:4px}
-        .pull-wrap{position:relative;overflow:hidden}
+        .pull-wrap{position:relative;overflow:hidden;touch-action:pan-x}
+        .pull-ind{position:absolute;top:-80px;left:0;right:0;text-align:center;padding:24px 10px 16px;font-size:0.82rem;color:rgba(255,255,255,0.5);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:10;pointer-events:none;background:linear-gradient(180deg,rgba(52,152,219,0.08) 0%,transparent 100%)}
+        .pull-ind .pi-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin:0 auto 6px;border-radius:50%;font-size:1.1rem;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),background 0.3s,color 0.3s;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5)}
+        .pull-ind .pi-icon.active{background:rgba(52,152,219,0.15);color:#3498db}
+        .pull-ind .pi-text{display:block;font-size:0.75rem;letter-spacing:0.3px;transition:color 0.3s}
+        .pull-ind .pi-text.ready{color:#3498db}
+        .pull-ind .pi-text.loading{color:#f39c12}
+        .pull-ind .pi-spinner{display:none;width:18px;height:18px;border:2px solid rgba(52,152,219,0.2);border-top-color:#3498db;border-radius:50%;animation:ptr-spin 0.8s linear infinite;margin:0 auto 6px}
+        .pull-ind.refreshing .pi-spinner{display:block}
+        .pull-ind.refreshing .pi-icon{display:none}
+        @keyframes ptr-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        @media(min-width:768px){.pull-wrap{overflow:visible}.pull-ind{display:none}}
     </style>
 </head>
 <body>
 <div class="pull-wrap" id="pullWrap">
-<div class="pull-ind" id="pullInd"><span class="pi-icon" id="pullIcon">↓</span><span class="pi-text" id="pullText">下拉刷新</span></div>
+<div class="pull-ind" id="pullInd"><div class="pi-spinner" id="pullSpinner"></div><span class="pi-icon" id="pullIcon">↓</span><span class="pi-text" id="pullText">下拉刷新</span></div>
 <div class="container">
     <header>
         <h1>2026 世界杯智能预测</h1>
@@ -4080,9 +4088,12 @@ async function loadData(){
         if(d.code===0&&d.data&&d.data.matches){
             allMatches=d.data.matches;
             window._advCache=null;
-            pullState.locked=false;
-            if(pullText) pullText.textContent='刷新成功';
-            setTimeout(function(){if(pullText) pullText.textContent='下拉刷新';},1500);
+    pullState.locked=false;
+    if(pullEl&&pullEl.classList.contains('refreshing')){
+        pullText.textContent='✓ 刷新成功';
+        pullText.className='pi-text';
+        setTimeout(pullReset,1200);
+    }
             var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
             var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
             el.className='api ok';
@@ -4105,8 +4116,11 @@ async function loadData(){
         el.className='api err';el.innerHTML='❌ API连接失败('+e.message+') <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
     }
     pullState.locked=false;
-    if(pullIcon){pullIcon.textContent='↓';pullIcon.style.transform='rotate(0deg)';}
-    if(pullText){pullText.textContent='下拉刷新';}
+    if(pullEl&&pullEl.classList.contains('refreshing')){
+        pullText.textContent='✕ 刷新失败';
+        pullText.className='pi-text';
+        setTimeout(pullReset,1500);
+    }
 }
 
 async function initOdds(){
@@ -4121,50 +4135,63 @@ async function initOdds(){
 }
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
-// Pull-to-refresh
+// Pull-to-refresh (mobile only)
+var isTouchDevice='ontouchstart' in window||navigator.maxTouchPoints>0;
 var pullState={startY:0,pulling:false,locked:false};
 var pullEl=document.getElementById('pullInd');
 var pullIcon=document.getElementById('pullIcon');
 var pullText=document.getElementById('pullText');
-document.addEventListener('touchstart',function(e){
-    if(pullState.locked||window.scrollY>0) return;
-    pullState.startY=e.touches[0].clientY;
-    pullState.pulling=true;
-},{passive:true});
-document.addEventListener('touchmove',function(e){
-    if(!pullState.pulling||pullState.locked) return;
-    var dist=e.touches[0].clientY-pullState.startY;
-    if(dist>0){
-        var pull=Math.min(dist*0.5,80);
-        pullEl.style.transform='translateY('+pull+'px)';
-        if(pull>=60){
-            pullIcon.textContent='↻';pullIcon.style.transform='rotate(360deg)';
-            pullText.textContent='释放刷新';
-        } else {
-            pullIcon.textContent='↓';pullIcon.style.transform='rotate('+(pull*6)+'deg)';
-            pullText.textContent='下拉刷新';
+var pullSpinner=document.getElementById('pullSpinner');
+if(!isTouchDevice&&pullEl) pullEl.style.display='none';
+function pullReset(){
+    pullEl.classList.remove('refreshing');
+    pullIcon.className='pi-icon';
+    pullIcon.textContent='↓';
+    pullIcon.style.transform='rotate(0deg)';
+    pullText.className='pi-text';
+    pullText.textContent='下拉刷新';
+}
+if(isTouchDevice){
+    document.addEventListener('touchstart',function(e){
+        if(pullState.locked||window.scrollY>0) return;
+        pullState.startY=e.touches[0].clientY;
+        pullState.pulling=true;
+    },{passive:true});
+    document.addEventListener('touchmove',function(e){
+        if(!pullState.pulling||pullState.locked) return;
+        var dist=e.touches[0].clientY-pullState.startY;
+        if(dist>0){
+            var pull=Math.min(dist*0.4,70);
+            pullEl.style.transform='translateY('+pull+'px)';
+            if(pull>=55){
+                pullIcon.className='pi-icon active';pullIcon.textContent='↑';pullIcon.style.transform='rotate(0deg)';
+                pullText.className='pi-text ready';pullText.textContent='释放刷新';
+            } else {
+                pullIcon.className='pi-icon';pullIcon.textContent='↓';pullIcon.style.transform='rotate('+(pull*5)+'deg)';
+                pullText.className='pi-text';pullText.textContent='下拉刷新';
+            }
         }
-    }
-},{passive:true});
-document.addEventListener('touchend',function(e){
-    if(!pullState.pulling||pullState.locked) return;
-    pullState.pulling=false;
-    var finalDist=parseFloat(pullEl.style.transform.match(/translateY\(([\d.]+)px\)/)?.[1]||0);
-    pullEl.style.transform='translateY(0px)';
-    pullIcon.textContent='↻';pullIcon.style.transform='rotate(360deg)';
-    if(finalDist>=60){
-        pullState.locked=true;
-        pullText.textContent='刷新中...';
-        loadData();
-    } else {
-        pullIcon.textContent='↓';pullIcon.style.transform='rotate(0deg)';
-        pullText.textContent='下拉刷新';
-    }
-},{passive:true});
-window.addEventListener('scroll',function(){
-    if(window.scrollY===0&&!pullState.locked){pullState.pulling=true;}
-    else{pullState.pulling=false;}
-},{passive:true});
+    },{passive:true});
+    document.addEventListener('touchend',function(e){
+        if(!pullState.pulling||pullState.locked) return;
+        pullState.pulling=false;
+        var finalDist=parseFloat((pullEl.style.transform||'').match(/translateY\(([\d.]+)px\)/)?.[1]||0);
+        pullEl.style.transform='translateY(0px)';
+        if(finalDist>=55){
+            pullState.locked=true;
+            pullEl.classList.add('refreshing');
+            pullText.className='pi-text loading';
+            pullText.textContent='刷新中...';
+            loadData();
+        } else {
+            pullReset();
+        }
+    },{passive:true});
+    window.addEventListener('scroll',function(){
+        if(window.scrollY===0&&!pullState.locked){pullState.pulling=true;}
+        else if(!pullState.locked){pullState.pulling=false;}
+    },{passive:true});
+}
 
 window.addEventListener('unhandledrejection',function(e){console.error('Unhandled promise rejection:',e.reason);});
 document.addEventListener('DOMContentLoaded', function(){
