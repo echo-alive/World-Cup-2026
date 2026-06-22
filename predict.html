@@ -1964,37 +1964,42 @@ async function fetchOdds(){
     }catch(e){}
     // Fetch from API
     try{
-        var r=await fetch('https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/?apiKey='+ODDS_API_KEY+'&regions=eu&markets=h2h&oddsFormat=decimal');
+        var r=await fetch('https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/?apiKey='+ODDS_API_KEY+'&regions=eu,uk&markets=h2h&oddsFormat=decimal');
         if(!r.ok) return;
         var data=await r.json();
+        var SHARP_BKS=['pinnacle','betfair','betfair_ex_eu','matchbook'];
         var newOdds={};
         data.forEach(function(item){
             var key=item.home_team+'-'+item.away_team;
-            var totalH=0,totalD=0,totalA=0,cnt=0;
+            var sharpH=0,sharpD=0,sharpA=0,sharpCnt=0;
+            var allH=0,allD=0,allA=0,allCnt=0;
             item.bookmakers.forEach(function(bk){
                 bk.markets.forEach(function(mk){
                     if(mk.key==='h2h'){
                         mk.outcomes.forEach(function(o){
-                            if(o.name===item.home_team) totalH+=o.price;
-                            else if(o.name==='Draw') totalD+=o.price;
-                            else totalA+=o.price;
+                            if(o.name===item.home_team){allH+=o.price;if(SHARP_BKS.indexOf(bk.key)>=0)sharpH+=o.price;}
+                            else if(o.name==='Draw'){allD+=o.price;if(SHARP_BKS.indexOf(bk.key)>=0)sharpD+=o.price;}
+                            else {allA+=o.price;if(SHARP_BKS.indexOf(bk.key)>=0)sharpA+=o.price;}
                         });
-                        cnt++;
+                        allCnt++;
+                        if(SHARP_BKS.indexOf(bk.key)>=0) sharpCnt++;
                     }
                 });
             });
+            var useSharp=sharpCnt>0;
+            var cnt=useSharp?sharpCnt:allCnt;
+            var avgH=useSharp?+(sharpH/sharpCnt).toFixed(2):+(allH/allCnt).toFixed(2);
+            var avgD=useSharp?+(sharpD/sharpCnt).toFixed(2):+(allD/allCnt).toFixed(2);
+            var avgA=useSharp?+(sharpA/sharpCnt).toFixed(2):+(allA/allCnt).toFixed(2);
             if(cnt>0){
-                var avgH=+(totalH/cnt).toFixed(2);
-                var avgD=+(totalD/cnt).toFixed(2);
-                var avgA=+(totalA/cnt).toFixed(2);
                 var pH=(1/avgH*100).toFixed(1);
                 var pD=(1/avgD*100).toFixed(1);
                 var pA=(1/avgA*100).toFixed(1);
                 newOdds[key]={
                     homeOdds:avgH, drawOdds:avgD, awayOdds:avgA,
                     homeProb:pH, drawProb:pD, awayProb:pA,
-                    bookmakers:item.bookmakers.length,
-                    source:'The Odds API'
+                    bookmakers:cnt,
+                    source:useSharp?'Sharp Books':'All Books'
                 };
             }
         });
