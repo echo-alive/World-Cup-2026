@@ -364,6 +364,7 @@
         </div>
     </div>
 
+    <input type="file" id="tessdataInput" accept=".traineddata" style="display:none">
     <div class="modal-overlay" id="ocrModal" onclick="if(event.target===this)closeOCRModal()">
         <div class="modal">
             <div class="modal-head">
@@ -787,15 +788,15 @@ var ocrLangPath=location.href.replace(/[^/]*$/,'')+'tessdata';
 var _tessdataBuffer=null;
 function preloadTessdata(cb){
     if(_tessdataBuffer){cb();return;}
-    var xhr=new XMLHttpRequest();
-    xhr.open('GET',ocrLangPath+'/chi_sim.traineddata',true);
-    xhr.responseType='arraybuffer';
-    xhr.onload=function(){
-        _tessdataBuffer=xhr.response;
-        cb();
+    var inp=document.getElementById('tessdataInput');
+    inp.onchange=function(){
+        var f=inp.files[0];
+        if(!f){cb();return;}
+        var r=new FileReader();
+        r.onload=function(e){_tessdataBuffer=e.target.result;cb();};
+        r.readAsArrayBuffer(f);
     };
-    xhr.onerror=function(){cb();};
-    xhr.send();
+    inp.click();
 }
 function runOCR(file,logger){
     if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file,{rotateAuto:true});}
@@ -4079,8 +4080,8 @@ function handleOCRFile(input){
     reader.onload=function(e){
         _ocrImageDataURL=e.target.result;
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
-        progressText.innerHTML='⏳ 加载语言包...';
-        progressBar.style.width='10%';
+        progressText.innerHTML=_tessdataBuffer?'⏳ 加载引擎...':'请选择语言包文件 chi_sim.traineddata';
+        progressBar.style.width=_tessdataBuffer?'30%':'5%';
         preloadTessdata(function(){
         progressText.innerHTML='⏳ 加载引擎...';
         progressBar.style.width='30%';
