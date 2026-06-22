@@ -310,6 +310,7 @@
         .date-pill.today{border-color:#f39c12}
         .date-pill .cnt{font-size:0.65rem;opacity:0.7;margin-left:3px}
         @media(max-width:600px){.group-card table{font-size:0.65rem}.group-card td,.group-card th{padding:4px 3px}.group-card h3{font-size:0.78rem}.group-card{overflow-x:auto}.status-badge{font-size:0.55rem;padding:1px 4px}.gu-match{font-size:0.65rem}.vs,.score{padding:6px 0}.grid{grid-template-columns:1fr}.box.full{grid-column:span 1}.scores{grid-template-columns:repeat(2,1fr)}.standings{grid-template-columns:1fr}.match-nav{margin:0 -15px 12px;border-radius:0;box-sizing:border-box;padding:0 15px;width:calc(100% + 30px)}.bottom-actions{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:linear-gradient(135deg,rgba(20,16,50,0.98),rgba(30,25,60,0.98));backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);gap:8px;padding:8px 12px;justify-content:flex-end}body{padding-bottom:54px}.desktop-btn{display:none !important}.nav-item{padding:5px 8px;font-size:0.7rem}.nav-list{padding:10px 0}.logo{width:40px;height:40px}.t-name{font-size:0.9rem}.t-rank{font-size:0.65rem}.t-pts{font-size:0.65rem}.vs{font-size:1rem;padding:0 6px}.score{font-size:1.5rem}.teams{margin:12px 0}.team-filter{min-width:130px}}
+        @media(max-width:600px){.box .goal-dist{grid-template-columns:repeat(8,1fr);gap:2px}}
         @media(min-width:768px){.match-nav{max-width:100%;margin:0 auto 12px;border-radius:12px}}
         .pull-wrap{position:relative;overflow:hidden;touch-action:pan-x}
         .pull-ind{position:absolute;top:-80px;left:0;right:0;text-align:center;padding:24px 10px 16px;font-size:0.82rem;color:rgba(255,255,255,0.5);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:10;pointer-events:none;background:linear-gradient(180deg,rgba(52,152,219,0.08) 0%,transparent 100%)}
@@ -2612,11 +2613,44 @@ function buildMatchCard(match, stats, idx){
         html+='<div><div style="font-size:0.8rem;color:#888">'+cn(a)+'</div><span class="rest-badge '+r2c+'">休息'+rest2.days+'天</span><div style="color:#666;font-size:0.7rem;margin-top:4px">上次: '+rest2.lastDate+'</div></div>';
         html+='</div></div>';
 
+        // Total goals distribution
+        var goalProbs=calcTotalGoalsProbs(h,a,realOdds);
+        var maxGP=0;
+        goalProbs.forEach(function(g){if(g.prob>maxGP)maxGP=g.prob;});
+        html+='<div class="box full"><h4>⚽ 进球个数预测</h4>';
+        html+='<div style="margin-bottom:10px;display:flex;align-items:baseline;justify-content:center;gap:4px"><span style="font-size:1.3rem;font-weight:bold;color:#f39c12">'+ou.avg+'</span><span style="color:#888;font-size:0.78rem">球</span><span style="color:#666;font-size:0.72rem;margin-left:6px">预计总进球</span></div>';
+        html+='<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:10px">';
+        goalProbs.forEach(function(g){
+            var pct=g.prob;
+            var barH=Math.max(4,Math.round(pct/maxGP*48));
+            var isBest=pct===maxGP&&pct>0;
+            html+='<div style="display:flex;flex-direction:column;align-items:center">';
+            html+='<div style="font-size:0.6rem;color:'+(isBest?'#f39c12':'#888')+';margin-bottom:2px;font-weight:'+(isBest?'bold':'normal')+'">'+pct+'%</div>';
+            html+='<div style="width:100%;height:50px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">';
+            html+='<div style="width:70%;height:'+barH+'px;border-radius:3px 3px 0 0;background:'+(isBest?'#f39c12':pct>=15?'rgba(52,152,219,0.6)':pct>=8?'rgba(52,152,219,0.35)':'rgba(255,255,255,0.1)')+';min-height:3px;transition:height 0.3s"></div></div>';
+            html+='<div style="font-size:0.7rem;color:#aaa;margin-top:3px;font-weight:'+(isBest?'bold':'normal')+'">'+(g.goals==='7+'?'7+':g.goals+'球')+'</div>';
+            html+='</div>';
+        });
+        html+='</div>';
+        var cumOver15=0,cumOver25=0,cumOver35=0;
+        goalProbs.forEach(function(g){
+            var gv=parseInt(g.goals)||7;
+            if(gv>=2) cumOver15+=g.prob;
+            if(gv>=3) cumOver25+=g.prob;
+            if(gv>=4) cumOver35+=g.prob;
+        });
+        html+='<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">';
+        html+='<span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:rgba(46,204,113,0.12);color:#2ecc71">大1.5 '+(Math.round(cumOver15*10)/10)+'%</span>';
+        html+='<span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:rgba(243,156,18,0.12);color:#f39c12">大2.5 '+(Math.round(cumOver25*10)/10)+'%</span>';
+        html+='<span style="font-size:0.68rem;padding:2px 8px;border-radius:4px;background:rgba(231,76,60,0.12);color:#e74c3c">大3.5 '+(Math.round(cumOver35*10)/10)+'%</span>';
+        html+='</div>';
+        html+='</div>';
+
         // Over/Under
         html+='<div class="box full"><h4>📊 大小球预测</h4>';
         html+='<div style="text-align:center;margin-bottom:8px"><span style="font-size:1.3rem;font-weight:bold;color:#f39c12">'+ou.avg+'</span><span style="color:#888;font-size:0.8rem;margin-left:4px">预计总进球</span></div>';
-        html+='<div class="prob-row"><span class="prob-label">大 2.5</span><div style="flex:1"><div class="prob-bar over" style="width:'+ou.over25+'%"></div></div><span class="prob-val" style="color:#2ecc71">'+ou.over25+'%</span></div>';
-        html+='<div class="prob-row"><span class="prob-label">小 2.5</span><div style="flex:1"><div class="prob-bar under" style="width:'+ou.under25+'%"></div></div><span class="prob-val" style="color:#e74c3c">'+ou.under25+'%</span></div>';
+        html+='<div class="prob-row"><span class="prob-label">大2.5</span><div style="flex:1"><div class="prob-bar over" style="width:'+ou.over25+'%"></div></div><span class="prob-val" style="color:#2ecc71">'+ou.over25+'%</span></div>';
+        html+='<div class="prob-row"><span class="prob-label">小2.5</span><div style="flex:1"><div class="prob-bar under" style="width:'+ou.under25+'%"></div></div><span class="prob-val" style="color:#e74c3c">'+ou.under25+'%</span></div>';
         html+='</div>';
 
         // Half-time
