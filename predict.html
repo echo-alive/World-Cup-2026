@@ -3274,7 +3274,7 @@ function buildLotteryRef(nsMatches,stats){
     html+='<div class="lotto-h">🎰 竞彩参考</div><div class="lotto-g">';
 
     // 单关精选
-    var sorted=[].concat(rows).sort(function(a,b){return b.best.prob-a.best.prob;});
+    var sorted=rows;
     html+='<div class="lotto-card full"><h5>⭐ 单关精选</h5>';
     sorted.forEach(function(r){
         var cls=r.best.prob>=65?'high':r.best.prob>=55?'mid':'low';
@@ -3460,7 +3460,7 @@ function buildMixedParlay(nsMatches){
         var result=[];
         // 1. 混合轮换
         var p1=[],used1={},ti1=0,types=['x2','score','goals'];
-        var s1=[].concat(picks).sort(function(a,b){return b.x2b.p-a.x2b.p;});
+        var s1=picks;
         var idx1=0;
         while(idx1<s1.length){
             var p=s1[idx1];idx1++;
