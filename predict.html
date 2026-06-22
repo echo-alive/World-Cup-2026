@@ -4112,7 +4112,7 @@ window.addEventListener('unhandledrejection',function(e){console.error('Unhandle
 document.addEventListener('DOMContentLoaded', function(){
     loadData();
     initOdds();
-    setInterval(loadData, 60000);
+    setInterval(loadData, 180000);
     document.getElementById('team-filter-dropdown').addEventListener('mousedown', function(e){
         var opt=e.target.closest('.search-option');
         if(opt && opt.dataset.team){
