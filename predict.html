@@ -2769,7 +2769,7 @@ function buildMatchCard(match, stats, idx){
             var wc=m.winner===h?'w':m.winner===a?'l':'d';
             html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem">';
             html+='<span style="color:#888;width:90px;flex-shrink:0">'+m.year+'</span>';
-            html+='<span class="'+wc+'" style="padding:1px 6px;border-radius:3px;font-size:0.72rem;flex-shrink:0">'+m.winner+'</span>';
+            html+='<span class="'+wc+'" style="padding:1px 6px;border-radius:3px;font-size:0.72rem;flex-shrink:0">'+(m.winner==='Draw'?'平局':cn(m.winner))+'</span>';
             html+='<span style="color:#f1c40f;font-weight:bold;margin-left:auto">'+m.score+'</span>';
             html+='</div>';
         });
