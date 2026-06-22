@@ -4018,21 +4018,21 @@ function analyzeTicket(text,extraEl){
     body=body.replace(/>/g,'');
     body=body.replace(/[同。，、]/g,'');
     body=body.replace(/\s*([()])\s*/g,'$1');
-    body=body.replace(/(让球胜平负|胜平负|比分|进球总数)/g,' $1');
+    body=body.replace(/(让球胜平负|胜平负|比分|进球总数|总进球数)/g,' $1');
     console.log('[正文]',body);
 
     var matches=[];
     var vsPos=[],p;
     while((p=body.indexOf('VS',p+1))>=0) vsPos.push(p);
 
-    vsPos.forEach(function(vsPos,i){
+    vsPos.forEach(function(pos,i){
             var cur={num:String(i+1),home:'',away:'',picks:[],type:''};matches.push(cur);
             var next=i+1<vsPos.length?vsPos[i+1]:body.length;
-            var raw=body.substring(vsPos+2,next);
+            var raw=body.substring(pos+2,next);
             console.log('   →比赛'+cur.num,'原始',raw);
 
             // 截取本场原文到下一场边界
-            var typeKW=['让球胜平负','胜平负','比分','进球总数'];
+            var typeKW=['让球胜平负','胜平负','比分','进球总数','总进球数'];
             var fi=-1,fk='';
             typeKW.forEach(function(k){
                 var idx=raw.indexOf(k);
@@ -4065,10 +4065,9 @@ function analyzeTicket(text,extraEl){
                     if(pm) cur.picks.push({h:pm[1],a:pm[2],o:'',origType:'比分'});
                 });
             }
-            // 进球总数 - 支持"进球总数"和"总进球数"
-            var tgRe=/(?:进球总数|总进球数)(\d+)/g;
-            var tg;
-            while((tg=tgRe.exec(rel))!==null) cur.picks.push({h:'--',a:'--',o:'',label:tg[1]+'球',origType:'进球总数'});
+            // 进球总数 - 支持"进球总数""总进球数""全总进球数"
+            var tgMatch=rel.match(/(?:进球总数|全?总进球数)((?:\s*\d+)+)/);
+            if(tgMatch) tgMatch[1].match(/\d+/g).forEach(function(n){cur.picks.push({h:'--',a:'--',o:'',label:n+'球',origType:'进球总数'});});
             cur.type=cur.picks.length?cur.picks[0].origType:'';
             console.log('   →结果',cur.picks);
         });
