@@ -917,6 +917,21 @@ function rk(name){
     return en&&TEAM_RANK[en]?TEAM_RANK[en]:'--';
 }
 
+function getTournamentForm(team){
+    var matches=allMatches.filter(function(m){return m.status==='FT'&&(m.home_team===team||m.away_team===team);});
+    var gf=0,ga=0,w=0,d=0,l=0,opps=[],recent=[];
+    matches.forEach(function(m){
+        var isHome=m.home_team===team;
+        var hs=m.home_score,as=m.away_score;
+        if(hs==null||as==null) return;
+        if(isHome){gf+=hs;ga+=as;if(hs>as) w++;else if(hs===as) d++;else l++;}
+        else{gf+=as;ga+=hs;if(as>hs) w++;else if(as===hs) d++;else l++;}
+        opps.push(isHome?m.away_team:m.home_team);
+        recent.push({opp:isHome?m.away_team:m.home_team,for:isHome?hs:as,aga:isHome?as:hs});
+    });
+    return {gf:gf,ga:ga,w:w,d:d,l:l,n:matches.length,opps:opps,recent:recent};
+}
+
 var H2H = {
     'Brazil-Germany':[
         {year:'2002 决赛',score:'0-2',winner:'Germany'},
@@ -4148,6 +4163,55 @@ function analyzeTicket(text,extraEl){
         h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
         h+='<span style="font-size:0.9rem;font-weight:600;color:#eee">'+(m.homeCN||m.home)+' <span style="color:#666;font-weight:400;font-size:0.7rem">VS</span> '+(m.awayCN||m.away)+'</span>';
         h+='<span style="font-size:0.7rem;color:#888;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:10px">第'+m.num+'场</span></div>';
+
+        // 本届数据
+        var hForm=match.home_team?getTournamentForm(match.home_team):null;
+        var aForm=match.away_team?getTournamentForm(match.away_team):null;
+        if(hForm&&aForm){
+            h+='<div style="display:flex;gap:6px;margin-bottom:8px;font-size:0.7rem">';
+            h+='<div style="flex:1;background:rgba(255,255,255,0.04);border-radius:4px;padding:5px 6px;text-align:center">';
+            h+='<div style="color:#888;margin-bottom:2px">'+cn(match.home_team)+' 战绩</div>';
+            h+='<b style="color:#eee">'+hForm.w+'胜 '+hForm.d+'平 '+hForm.l+'负</b>';
+            h+=' <span style="color:#2ecc71">进'+hForm.gf+'</span> <span style="color:#e74c3c">失'+hForm.ga+'</span>';
+            if(hForm.n>0) h+=' <span style="color:#888">| 均'+((hForm.gf/hForm.n).toFixed(1))+'球</span>';
+            h+='</div>';
+            h+='<div style="flex:1;background:rgba(255,255,255,0.04);border-radius:4px;padding:5px 6px;text-align:center">';
+            h+='<div style="color:#888;margin-bottom:2px">'+cn(match.away_team)+' 战绩</div>';
+            h+='<b style="color:#eee">'+aForm.w+'胜 '+aForm.d+'平 '+aForm.l+'负</b>';
+            h+=' <span style="color:#2ecc71">进'+aForm.gf+'</span> <span style="color:#e74c3c">失'+aForm.ga+'</span>';
+            if(aForm.n>0) h+=' <span style="color:#888">| 均'+((aForm.ga/aForm.n).toFixed(1))+'球</span>';
+            h+='</div></div>';
+
+            // 排名 + 身价
+            var hRank=TEAM_RANK[match.home_team]||'--', aRank=TEAM_RANK[match.away_team]||'--';
+            var hVal=TEAM_VAL[match.home_team]||'--', aVal=TEAM_VAL[match.away_team]||'--';
+            h+='<div style="display:flex;gap:6px;margin-bottom:8px;font-size:0.7rem;color:#888">';
+            h+='<div style="flex:1;text-align:center">排名 <b style="color:#f39c12">#'+hRank+'</b> | 身价 <b style="color:#2ecc71">'+hVal+'</b></div>';
+            h+='<div style="flex:1;text-align:center">排名 <b style="color:#f39c12">#'+aRank+'</b> | 身价 <b style="color:#e74c3c">'+aVal+'</b></div>';
+            h+='</div>';
+
+            // 近期比分
+            if(hForm.recent.length>0||aForm.recent.length>0){
+                h+='<div style="display:flex;gap:6px;margin-bottom:8px;font-size:0.65rem">';
+                if(hForm.recent.length>0){
+                    h+='<div style="flex:1">';
+                    hForm.recent.slice(-3).forEach(function(r){
+                        var oppCN=cn(r.opp);
+                        h+='<div style="color:#aaa;margin-bottom:1px"><span style="color:#eee">'+oppCN+'</span> '+r.for+'-'+r.aga+'</div>';
+                    });
+                    h+='</div>';
+                }
+                if(aForm.recent.length>0){
+                    h+='<div style="flex:1;text-align:right">';
+                    aForm.recent.slice(-3).forEach(function(r){
+                        var oppCN=cn(r.opp);
+                        h+='<div style="color:#aaa;margin-bottom:1px">'+r.for+'-'+r.aga+' <span style="color:#eee">'+oppCN+'</span></div>';
+                    });
+                    h+='</div>';
+                }
+                h+='</div>';
+            }
+        }
 
         m.picks.forEach(function(p){
             var impl=p.o?100/parseFloat(p.o):0;
