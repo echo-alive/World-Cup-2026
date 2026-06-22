@@ -4170,7 +4170,7 @@ function analyzeTicket(text,extraEl){
                 else if(spfLabel==='负'&&curPred){modelP=curPred.awayWin;label='主负';}
             }else if(p.origType==='进球总数'){
                 typeTag='总进球';
-                var totalGoal=parseInt(p.h);
+                var totalGoal=parseInt(p.label);
                 if(curOdds){
                     var tgp=calcTotalGoalsProbs(match.home_team,match.away_team,curOdds);
                     if(tgp){
