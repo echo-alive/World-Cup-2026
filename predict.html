@@ -784,9 +784,32 @@ var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
 var ocrLangPath=location.href.replace(/[^/]*$/,'')+'tessdata';
+var _tessdataBuffer=null;
+function preloadTessdata(cb){
+    if(_tessdataBuffer){cb();return;}
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET',ocrLangPath+'/chi_sim.traineddata',true);
+    xhr.responseType='arraybuffer';
+    xhr.onload=function(){
+        _tessdataBuffer=xhr.response;
+        cb();
+    };
+    xhr.onerror=function(){cb();};
+    xhr.send();
+}
 function runOCR(file,logger){
     if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file,{rotateAuto:true});}
-    return Tesseract.createWorker('chi_sim',1,{logger:logger,langPath:ocrLangPath}).then(function(w){ocrWorker=w;return w.recognize(file,{rotateAuto:true});});
+    var origFetch=window.fetch;
+    if(_tessdataBuffer){
+        window.fetch=function(u,o){
+            if(typeof u==='string'&&u.indexOf('chi_sim.traineddata')>=0) return Promise.resolve(new Response(_tessdataBuffer));
+            return origFetch(u,o);
+        };
+    }
+    return Tesseract.createWorker('chi_sim',1,{logger:logger,langPath:ocrLangPath}).then(function(w){
+        window.fetch=origFetch;
+        ocrWorker=w;return w.recognize(file,{rotateAuto:true});
+    });
 }
 function loadCalibCache(){
     try{var c=localStorage.getItem(CALIBRATION_CACHE_KEY);if(c) CALIBRATION_CACHE=JSON.parse(c);}catch(e){}
@@ -4050,14 +4073,17 @@ function handleOCRFile(input){
     result.style.display='none';
     extra.style.display='none';
     progress.style.display='';
-    progress.style.display='';
     progressBar.style.width='0%';
     progressText.innerHTML='⏳ 读取图片...';
     var reader=new FileReader();
     reader.onload=function(e){
         _ocrImageDataURL=e.target.result;
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
+        progressText.innerHTML='⏳ 加载语言包...';
+        progressBar.style.width='10%';
+        preloadTessdata(function(){
         progressText.innerHTML='⏳ 加载引擎...';
+        progressBar.style.width='30%';
         runOCR(file,function(m){
             if(m.status==='recognizing text'){progressBar.style.width=Math.round(m.progress*100)+'%';progressText.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';}
             else if(m.status==='loading tesseract core'){progressBar.style.width='30%';progressText.innerHTML='⏳ 加载引擎...';}
@@ -4066,7 +4092,7 @@ function handleOCRFile(input){
             else if(m.status==='initializing api'){progressBar.style.width='90%';progressText.innerHTML='⏳ 初始化API...';}
         }).then(function(r){
             var text=(r.data||r).text.trim();
-            if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
+            if(!text){progressText.innerHTML='⚠️ 未识别到文字';return;}
             progress.style.display='none';
             result.style.display='';
             result.style.display='none';
@@ -4074,8 +4100,9 @@ function handleOCRFile(input){
             preview.innerHTML+='<div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.5);pointer-events:none">点击图片查看大图</div>';
             analyzeTicket(text,extra);
         }).catch(function(err){
-            progress.innerHTML='❌ 识别失败';
+            progressText.innerHTML='❌ 识别失败';
             console.error('OCR failed:',err);
+        });
         });
     };
     reader.readAsDataURL(file);
