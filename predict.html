@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="tessdata/chi_sim.traineddata.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
@@ -364,7 +365,6 @@
         </div>
     </div>
 
-    <input type="file" id="tessdataInput" accept=".traineddata" style="display:none">
     <div class="modal-overlay" id="ocrModal" onclick="if(event.target===this)closeOCRModal()">
         <div class="modal">
             <div class="modal-head">
@@ -788,15 +788,14 @@ var ocrLangPath=location.href.replace(/[^/]*$/,'')+'tessdata';
 var _tessdataBuffer=null;
 function preloadTessdata(cb){
     if(_tessdataBuffer){cb();return;}
-    var inp=document.getElementById('tessdataInput');
-    inp.onchange=function(){
-        var f=inp.files[0];
-        if(!f){cb();return;}
-        var r=new FileReader();
-        r.onload=function(e){_tessdataBuffer=e.target.result;cb();};
-        r.readAsArrayBuffer(f);
-    };
-    inp.click();
+    try{
+        var bin=atob(_TESSDATA_B64);
+        var buf=new ArrayBuffer(bin.length);
+        var view=new Uint8Array(buf);
+        for(var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
+        _tessdataBuffer=buf;
+    }catch(e){}
+    cb();
 }
 function runOCR(file,logger){
     if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file,{rotateAuto:true});}
@@ -4080,8 +4079,8 @@ function handleOCRFile(input){
     reader.onload=function(e){
         _ocrImageDataURL=e.target.result;
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
-        progressText.innerHTML=_tessdataBuffer?'⏳ 加载引擎...':'请选择语言包文件 chi_sim.traineddata';
-        progressBar.style.width=_tessdataBuffer?'30%':'5%';
+        progressText.innerHTML='⏳ 加载语言包...';
+        progressBar.style.width='10%';
         preloadTessdata(function(){
         progressText.innerHTML='⏳ 加载引擎...';
         progressBar.style.width='30%';
