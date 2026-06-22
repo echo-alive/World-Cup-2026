@@ -4068,8 +4068,7 @@ function analyzeTicket(text,extraEl){
             // 进球总数 - 支持"进球总数""总进球数""全总进球数"
             var tgMatch=rel.match(/(?:进球总数|全?总进球数)((?:\s*\d+)+)/);
             if(tgMatch) tgMatch[1].match(/\d+/g).forEach(function(n){
-                if(parseInt(n)>10) n.split('').forEach(function(d){cur.picks.push({h:'--',a:'--',o:'',label:d+'球',origType:'进球总数'});});
-                else cur.picks.push({h:'--',a:'--',o:'',label:n+'球',origType:'进球总数'});
+                var v=parseInt(n);if(v>10) v-=10;cur.picks.push({h:'--',a:'--',o:'',label:v+'球',origType:'进球总数'});
             });
             cur.type=cur.picks.length?cur.picks[0].origType:'';
             console.log('   →结果',cur.picks);
