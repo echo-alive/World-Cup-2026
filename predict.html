@@ -549,16 +549,43 @@ function eloWinProb(eloA,eloB){
 
 function getTeamStrength(name){
     var elo=TEAM_ELO[name]||1500;
-    var xg=TEAM_XG[name]||1.0;
-    var conc=TEAM_CONCEDED[name]||1.2;
+    var xg=getBlendedXG(name);
+    var conc=getBlendedConceded(name);
     return elo*0.6+(xg*500-conc*200)*0.4;
+}
+
+function getBlendedXG(team){
+    var pre=TEAM_XG[team]||1.0;
+    var form=getTournamentForm(team);
+    if(form.n===0) return pre;
+    var alpha=Math.max(0.3,1-form.n*0.25);
+    var tournAvg=form.n>0?form.gf/form.n:0;
+    return pre*alpha+tournAvg*(1-alpha);
+}
+function getBlendedConceded(team){
+    var pre=TEAM_CONCEDED[team]||1.2;
+    var form=getTournamentForm(team);
+    if(form.n===0) return pre;
+    var alpha=Math.max(0.3,1-form.n*0.25);
+    var tournAvg=form.n>0?form.ga/form.n:0;
+    return pre*alpha+tournAvg*(1-alpha);
+}
+function getBlendedHTGF(team){
+    var pre=TEAM_HTGF[team]||0.5;
+    var form=getTournamentForm(team);
+    if(form.n===0) return pre;
+    var alpha=Math.max(0.3,1-form.n*0.25);
+    var halfGoals=0;
+    form.recent.forEach(function(r){halfGoals+=(r.for/2);});
+    var tournAvg=form.n>0?halfGoals/form.n:0;
+    return pre*alpha+tournAvg*(1-alpha);
 }
 
 function predictScore(home,away){
     var eloH=TEAM_ELO[home]||1500, eloA=TEAM_ELO[away]||1500;
     var homeAdv=60;
-    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
-    var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
+    var xgH=getBlendedXG(home), xgA=getBlendedXG(away);
+    var concH=getBlendedConceded(home), concA=getBlendedConceded(away);
     var avgH=(xgH+concA)/2;
     var avgA=(xgA+concH)/2;
     var lambdaH=avgH, lambdaA=avgA;
@@ -576,8 +603,8 @@ function predictScore(home,away){
 }
 
 function predictOverUnder(home,away){
-    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
-    var concH=TEAM_CONCEDED[home]||1.2, concA=TEAM_CONCEDED[away]||1.2;
+    var xgH=getBlendedXG(home), xgA=getBlendedXG(away);
+    var concH=getBlendedConceded(home), concA=getBlendedConceded(away);
     var lambdaH=(xgH+concA)/2;
     var lambdaA=(xgA+concH)/2;
     var lambda=lambdaH+lambdaA;
@@ -589,8 +616,8 @@ function predictOverUnder(home,away){
 }
 
 function predictHalfTime(home,away){
-    var htH=TEAM_HTGF[home]||0.5, htA=TEAM_HTGF[away]||0.5;
-    var xgH=TEAM_XG[home]||1.0, xgA=TEAM_XG[away]||1.0;
+    var htH=getBlendedHTGF(home), htA=getBlendedHTGF(away);
+    var xgH=getBlendedXG(home), xgA=getBlendedXG(away);
     var htRatio=0.42;
     var htGoals=(htH+htA)*htRatio;
     var htHome=htH*htRatio;
@@ -758,8 +785,8 @@ loadCalibCache();
 function calibrateLambdas(home,away,realOdds){
     var cacheKey=home+'-'+away;
     if(!realOdds&&CALIBRATION_CACHE[cacheKey]) return CALIBRATION_CACHE[cacheKey];
-    var base_xgH=TEAM_XG[home]||1.0, base_xgA=TEAM_XG[away]||1.0;
-    var base_concH=TEAM_CONCEDED[home]||1.2, base_concA=TEAM_CONCEDED[away]||1.2;
+    var base_xgH=getBlendedXG(home), base_xgA=getBlendedXG(away);
+    var base_concH=getBlendedConceded(home), base_concA=getBlendedConceded(away);
     var base_lH=(base_xgH+base_concA)/2;
     var base_lA=(base_xgA+base_concH)/2;
     if(!realOdds) return {lH:base_lH,lA:base_lA,htRatio:0.42};
@@ -3643,6 +3670,10 @@ function buildLotteryRef(nsMatches,stats){
     html+='<div class="lotto-card full"><h5>⭐ 单关精选</h5>';
     sorted.forEach(function(r){
         var cls=r.best.prob>=65?'high':r.best.prob>=55?'mid':'low';
+        var hForm=r.h?getTournamentForm(r.h):null, aForm=r.a?getTournamentForm(r.a):null;
+        var hTag='', aTag='';
+        if(hForm&&hForm.n>0) hTag='<span style="font-size:0.6rem;color:#888;display:inline-block;margin-right:3px">'+cn(r.h)+' '+hForm.w+'胜'+hForm.d+'平'+hForm.l+'负 进'+hForm.gf+'失'+hForm.ga+'</span>';
+        if(aForm&&aForm.n>0) aTag='<span style="font-size:0.6rem;color:#888;display:inline-block">'+cn(r.a)+' '+aForm.w+'胜'+aForm.d+'平'+aForm.l+'负 进'+aForm.gf+'失'+aForm.ga+'</span>';
         html+='<div class="lotto-row">';
         html+='<span class="lr-teams">'+cn(r.h)+' vs '+cn(r.a)+'</span>';
         html+='<span class="lr-pick">'+r.best.label+'</span>';
@@ -3650,6 +3681,7 @@ function buildLotteryRef(nsMatches,stats){
         html+='<div class="lr-bar-wrap"><div class="lr-bar '+(cls==='high'?'green':cls==='mid'?'yellow':'red')+'" style="width:'+r.best.prob+'%"></div></div>';
         html+='<span class="lr-prob '+cls+'">'+r.best.prob+'%</span>';
         html+='</div>';
+        if(hTag||aTag) html+='<div style="font-size:0.6rem;color:#666;padding:2px 0 4px 8px;display:flex;justify-content:space-between">'+(hTag||'')+(aTag||'')+'</div>';
     });
     html+='</div>';
 
@@ -3817,6 +3849,8 @@ function buildMixedParlay(nsMatches){
         parlay.forEach(function(p){
             var m=p.match;
             h+='<tr><td>'+cn(m.home_team)+' vs '+cn(m.away_team)+'</td><td><span class="lottery-tag '+(p.pick.type==='比分'||p.pick.type==='总进球'?'red':'green')+'">'+p.pick.type+'</span></td><td>'+p.pick.label+'</td><td style="color:#f39c12;font-weight:bold">'+p.pick.oddsNum.toFixed(2)+'</td><td class="'+(p.pick.prob>=30?'hot':p.pick.prob>=15?'warm':'')+'">'+p.pick.prob.toFixed(1)+'%</td></tr>';
+            var hF=m.home_team?getTournamentForm(m.home_team):null, aF=m.away_team?getTournamentForm(m.away_team):null;
+            if(hF&&hF.n>0) h+='<tr style="font-size:0.6rem;color:#666"><td colspan="5">'+cn(m.home_team)+' '+hF.w+'胜'+hF.d+'平'+hF.l+'负 进'+hF.gf+'失'+hF.ga+' &nbsp;|&nbsp; '+cn(m.away_team)+' '+aF.w+'胜'+aF.d+'平'+aF.l+'负 进'+aF.gf+'失'+aF.ga+'</td></tr>';
         });
         h+='</table>';
         h+='<div style="display:flex;justify-content:space-around;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa"><span>综合赔率 <b style="color:#f39c12">'+comb.toFixed(2)+'</b></span><span>投入 <b style="color:#fff">10元</b></span><span>奖金 <b style="color:#e74c3c;font-size:1rem">'+pay.toFixed(2)+'元</b></span></div>';
