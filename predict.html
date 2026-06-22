@@ -389,6 +389,9 @@
     </div>
 
     <div class="toast" id="toast"></div>
+    <div style="text-align:center;padding:12px 0 20px;font-size:0.68rem;color:#555">
+        <span onclick="clearAllCache()" style="cursor:pointer;text-decoration:underline;color:#666">清除缓存</span>
+    </div>
     <button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'});this.blur()">↑</button>
     <div class="compare-bar" id="compareBar">
         <div class="compare-items" id="compareItems"></div>
@@ -3389,6 +3392,21 @@ function updateCompareBar(){
 }
 function removeCompare(idx){compareList.splice(idx,1);saveCompare();updateCompareBar();render();}
 function clearCompare(){compareList=[];saveCompare();updateCompareBar();render();showToast('已清空对比');}
+function clearAllCache(){
+    localStorage.removeItem('oddsCache');
+    localStorage.removeItem('calibCache');
+    localStorage.removeItem('fifa_favorites');
+    localStorage.removeItem('fifa_compare');
+    localStorage.removeItem('fifa_history');
+    oddsData={};
+    CALIBRATION_CACHE={};
+    compareList=[];
+    var ls=document.getElementById('lotterySelector');
+    if(ls) ls.value='';
+    document.querySelectorAll('.fav-btn').forEach(function(b){b.className='fav-btn';});
+    showToast('已清除所有缓存数据');
+    setTimeout(function(){location.reload();},800);
+}
 
 function openCompareModal(){
     if(compareList.length<2){showToast('至少选择2场比赛');return;}
@@ -4025,19 +4043,19 @@ function handleOCRFile(input){
     result.style.display='none';
     extra.style.display='none';
     progress.style.display='';
-    progress.innerHTML='⏳ 准备识别...';
-    progress.innerHTML='⏳ 准备识别...';
-    var tmr=setTimeout(function(){progress.innerHTML='⏳ 下载语言包中...<br><span style="font-size:0.7rem;color:#888">首次需下载约7MB，请稍候</span>';},5000);
+    progress.innerHTML='⏳ 读取图片...';
     var reader=new FileReader();
     reader.onload=function(e){
         _ocrImageDataURL=e.target.result;
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
+        progress.innerHTML='⏳ 加载引擎...';
         runOCR(file,function(m){
             if(m.status==='recognizing text') progress.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';
-            else if(m.status==='loading tesseract core'||m.status==='loading language traineddata'){clearTimeout(tmr);progress.innerHTML='⏳ 下载语言包中...<br><span style="font-size:0.7rem;color:#888">首次需下载约7MB，请稍候</span>';}
+            else if(m.status==='loading tesseract core') progress.innerHTML='⏳ 加载引擎...';
+            else if(m.status==='loading language traineddata') progress.innerHTML='⏳ 加载语言包...';
             else if(m.status==='initializing tesseract') progress.innerHTML='⏳ 初始化引擎...';
             else if(m.status==='initializing api') progress.innerHTML='⏳ 初始化API...';
-        }).then(function(r){clearTimeout(tmr);
+        }).then(function(r){
             var text=(r.data||r).text.trim();
             if(!text){progress.innerHTML='⚠️ 未识别到文字';return;}
             progress.style.display='none';
