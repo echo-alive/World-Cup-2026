@@ -4327,10 +4327,11 @@ function analyzeTicket(text,extraEl){
                 typeTag='让球';
                 var hcpNum=parseInt(p.origHcp);
                 var hcpLabel=(hcpNum>0?'+':'')+hcpNum+'球'+(p.label==='胜'?'主胜':p.label==='平'?'平局':'主负');
+                var hcpPick=p.label.replace('主','');
                 if(curOdds){
-                    modelP=calcHandicapProb(match.home_team,match.away_team,curOdds,p.origHcp,p.label);
+                    modelP=calcHandicapProb(match.home_team,match.away_team,curOdds,p.origHcp,hcpPick);
                 }else if(curPred){
-                    modelP=calcHandicapProbSimple(curPred.home,curPred.away,p.origHcp,p.label);
+                    modelP=calcHandicapProbSimple(curPred.home,curPred.away,p.origHcp,hcpPick);
                 }
                 label=hcpLabel;
             }else if(p.origType==='胜平负'){
