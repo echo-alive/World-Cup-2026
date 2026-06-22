@@ -4408,7 +4408,7 @@ function analyzeTicket(text,extraEl){
         else if(okRatio>=0.4) overall='⚠️ 部分选购偏离模型预期，建议谨慎';
         else overall='❌ 多数选购与模型预期不符，风险较高';
         var overallColor=okRatio>=0.7?'#2ecc71':okRatio>=0.4?'#f39c12':'#e74c3c';
-        var score=Math.round(pickStats.good/totalPicks*50+pickStats.medium/totalPicks*30+pickStats.low/totalPicks*15+pickStats.bad/totalPicks*5);
+        var score=Math.round(pickStats.good/totalPicks*95+pickStats.medium/totalPicks*70+pickStats.low/totalPicks*40+pickStats.bad/totalPicks*10);
         var scColor=score>=80?'#2ecc71':score>=60?'#f39c12':'#e74c3c';
         h+='<div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
         h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
