@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界杯2026 - 智能预测</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="tessdata/chi_sim.traineddata.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
@@ -784,30 +783,9 @@ function poissonProb(lambda,k){
 var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
-var ocrLangPath=location.href.replace(/[^/]*$/,'')+'tessdata';
-var _tessdataBuffer=null;
-function preloadTessdata(cb){
-    if(_tessdataBuffer){cb();return;}
-    try{
-        var bin=atob(_TESSDATA_B64);
-        var buf=new ArrayBuffer(bin.length);
-        var view=new Uint8Array(buf);
-        for(var i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
-        _tessdataBuffer=buf;
-    }catch(e){}
-    cb();
-}
 function runOCR(file,logger){
     if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file,{rotateAuto:true});}
-    var origFetch=window.fetch;
-    if(_tessdataBuffer){
-        window.fetch=function(u,o){
-            if(typeof u==='string'&&u.indexOf('chi_sim.traineddata')>=0) return Promise.resolve(new Response(_tessdataBuffer));
-            return origFetch(u,o);
-        };
-    }
-    return Tesseract.createWorker('chi_sim',1,{logger:logger,langPath:ocrLangPath}).then(function(w){
-        window.fetch=origFetch;
+    return Tesseract.createWorker('chi_sim',1,{logger:logger}).then(function(w){
         ocrWorker=w;return w.recognize(file,{rotateAuto:true});
     });
 }
@@ -4079,9 +4057,6 @@ function handleOCRFile(input){
     reader.onload=function(e){
         _ocrImageDataURL=e.target.result;
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
-        progressText.innerHTML='⏳ 加载语言包...';
-        progressBar.style.width='10%';
-        preloadTessdata(function(){
         progressText.innerHTML='⏳ 加载引擎...';
         progressBar.style.width='30%';
         runOCR(file,function(m){
@@ -4102,7 +4077,6 @@ function handleOCRFile(input){
         }).catch(function(err){
             progressText.innerHTML='❌ 识别失败';
             console.error('OCR failed:',err);
-        });
         });
     };
     reader.readAsDataURL(file);
