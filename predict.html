@@ -610,22 +610,51 @@ function calcRestDays(matches,team){
 }
 
 function getAdvancementProb(groupTeams,remainingMatches,team){
-    var pts=groupTeams[team]?groupTeams[team].pts:0;
-    var played=groupTeams[team]?groupTeams[team].p:0;
-    var remaining=3-played;
-    var maxPts=pts+remaining*3;
-    var prob=0;
-    if(maxPts<3) prob=0;
-    else if(maxPts>=9) prob=remaining<=1?95:remaining===2?70:50;
-    else if(maxPts>=7) prob=remaining<=1?70:50;
-    else if(maxPts>=6) prob=50;
-    else if(maxPts>=4) prob=25;
-    else prob=5;
-    if(pts>=6) prob=Math.max(prob,85);
-    else if(pts>=4) prob=Math.max(prob,50);
-    else if(pts>=3) prob=Math.max(prob,25);
-    else if(pts>=1) prob=Math.max(prob,10);
-    return Math.min(99,Math.max(1,prob));
+    if(window._advCache&&window._advCache[team]!==undefined) return window._advCache[team];
+    var teamNames=Object.keys(groupTeams);
+    var topN=teamNames.length<=4?2:3;
+    var grpMatches=[];
+    for(var i=0;i<remainingMatches.length;i++){
+        var m=remainingMatches[i];
+        if(m.status!=='FT'&&groupTeams[m.home_team]&&groupTeams[m.away_team]) grpMatches.push(m);
+    }
+    if(grpMatches.length===0){
+        var sorted=teamNames.map(function(t){var s=groupTeams[t];s.name=t;s.gd=s.gf-s.ga;return s;});
+        sorted.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+        for(var i=0;i<topN;i++){if(sorted[i].name===team) return 99;}
+        return 1;
+    }
+    var matchPreds=[];
+    for(var i=0;i<grpMatches.length;i++){
+        var m=grpMatches[i];
+        var pred=predictScore(m.home_team,m.away_team);
+        var totalP=pred.homeWin+pred.draw+pred.awayWin;
+        matchPreds.push({home:m.home_team,away:m.away_team,hw:pred.homeWin/totalP,dw:pred.draw/totalP,aw:pred.awayWin/totalP});
+    }
+    var hSl=[{h:1,a:0},{h:2,a:0},{h:2,a:1},{h:3,a:1},{h:1,a:0},{h:3,a:0},{h:3,a:2}];
+    var dSl=[{h:0,a:0},{h:1,a:1},{h:2,a:2}];
+    var aSl=[{h:0,a:1},{h:0,a:2},{h:1,a:2},{h:1,a:3},{h:0,a:1},{h:0,a:3},{h:2,a:3}];
+    var SIMS=2000,advanceCount=0;
+    for(var s=0;s<SIMS;s++){
+        var sim={};
+        teamNames.forEach(function(tn){var st=groupTeams[tn];sim[tn]={p:st.p,w:st.w,d:st.d,l:st.l,gf:st.gf,ga:st.ga,pts:st.pts,name:tn};});
+        for(var mi=0;mi<matchPreds.length;mi++){
+            var mp=matchPreds[mi];
+            var rand=Math.random()*100;
+            var h=mp.home,a=mp.away,sl;
+            if(rand<mp.hw){sl=hSl[Math.floor(Math.random()*hSl.length)];sim[h].p++;sim[h].w++;sim[h].pts+=3;sim[a].p++;sim[a].l++;}
+            else if(rand<mp.hw+mp.dw){sl=dSl[Math.floor(Math.random()*dSl.length)];sim[h].p++;sim[h].d++;sim[h].pts++;sim[a].p++;sim[a].d++;sim[a].pts++;}
+            else{sl=aSl[Math.floor(Math.random()*aSl.length)];sim[a].p++;sim[a].w++;sim[a].pts+=3;sim[h].p++;sim[h].l++;}
+            sim[h].gf+=sl.h;sim[h].ga+=sl.a;sim[a].gf+=sl.a;sim[a].ga+=sl.h;
+        }
+        var finalArr=teamNames.map(function(tn){var o=sim[tn];o.gd=o.gf-o.ga;return o;});
+        finalArr.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+        for(var ri=0;ri<topN;ri++){if(finalArr[ri].name===team){advanceCount++;break;}}
+    }
+    var prob=Math.max(1,Math.min(99,Math.round(advanceCount/SIMS*100)));
+    if(!window._advCache) window._advCache={};
+    window._advCache[team]=prob;
+    return prob;
 }
 
 function simulateKnockout(teams){
@@ -4043,6 +4072,7 @@ async function loadData(){
         var d=await r.json();
         if(d.code===0&&d.data&&d.data.matches){
             allMatches=d.data.matches;
+            window._advCache=null;
             var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
             var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
             el.className='api ok';
