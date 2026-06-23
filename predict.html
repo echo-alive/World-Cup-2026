@@ -859,10 +859,18 @@ function poissonProb(lambda,k){
 var CALIBRATION_CACHE={};
 var CALIBRATION_CACHE_KEY='wc2026_calib_cache';
 var ocrWorker=null;
-function runOCR(file,logger){
-    if(ocrWorker){ocrWorker.logger=logger;return ocrWorker.recognize(file,{rotateAuto:true});}
-    return Tesseract.createWorker('chi_sim',1,{logger:logger}).then(function(w){
+function runOCR(file){
+    if(ocrWorker) return ocrWorker.recognize(file,{rotateAuto:true});
+    return Tesseract.createWorker('chi_sim',1).then(function(w){
         ocrWorker=w;return w.recognize(file,{rotateAuto:true});
+    });
+}
+function preloadOCR(){
+    if(ocrWorker) return;
+    Tesseract.createWorker('chi_sim',1).then(function(w){
+        ocrWorker=w;
+    }).catch(function(e){
+        console.log('OCR preload:',e.message);
     });
 }
 function loadCalibCache(){
@@ -4247,22 +4255,23 @@ function handleOCRFile(input){
         preview.innerHTML='<img src="'+e.target.result+'" class="ocr-preview-img" style="cursor:pointer" onclick="openImageLightbox()">';
         progressText.innerHTML='⏳ 加载引擎...';
         progressBar.style.width='30%';
-        runOCR(file,function(m){
-            if(m.status==='recognizing text'){progressBar.style.width=Math.round(m.progress*100)+'%';progressText.innerHTML='⏳ 识别中 '+Math.round(m.progress*100)+'%';}
-            else if(m.status==='loading tesseract core'){progressBar.style.width='30%';progressText.innerHTML='⏳ 加载引擎...';}
-            else if(m.status==='loading language traineddata'){var pct=Math.round((m.progress||0)*100);progressBar.style.width=pct+'%';progressText.innerHTML='⏳ 加载语言包 '+pct+'%';}
-            else if(m.status==='initializing tesseract'){progressBar.style.width='80%';progressText.innerHTML='⏳ 初始化引擎...';}
-            else if(m.status==='initializing api'){progressBar.style.width='90%';progressText.innerHTML='⏳ 初始化API...';}
-        }).then(function(r){
+        var simTimer=setInterval(function(){
+            var w=parseFloat(progressBar.style.width);
+            if(w<85) progressBar.style.width=Math.min(w+6,85)+'%';
+        },5000);
+        runOCR(file).then(function(r){
+            clearInterval(simTimer);
+            progressBar.style.width='100%';
+            progressBar.style.width='100%';
             var text=(r.data||r).text.trim();
             if(!text){progressText.innerHTML='⚠️ 未识别到文字';return;}
             progress.style.display='none';
             result.style.display='';
-            result.style.display='none';
             preview.style.position='relative';
             preview.innerHTML+='<div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.5);pointer-events:none">点击图片查看大图</div>';
             analyzeTicket(text,extra);
         }).catch(function(err){
+            clearInterval(simTimer);
             progressText.innerHTML='❌ 识别失败';
             console.error('OCR failed:',err);
         });
@@ -4283,6 +4292,7 @@ function analyzeTicket(text,extraEl){
     text=text.replace(/\s*VS\s*/g,'VS');
     text=text.replace(/\s*[|]\s*/g,'');
 
+    text=text.replace(/乎/g,'平').replace(/琶/g,'纳').replace(/[〈《]/g,'(').replace(/[〉》]/g,')').replace(/~/g,'-');
     var body=text.split('\n').filter(function(l){
         return ['竞彩足球','详情','票数注数金额','内容','查看明细>','附近门店','注:明细信息请以彩票票面实际显示为准。'].indexOf(l)<0
             &&!/^保存时间/.test(l)&&!/^\d+张\d+注\d+元$/.test(l)&&!/^过关:/.test(l);
@@ -4487,7 +4497,7 @@ function analyzeTicket(text,extraEl){
             var modelP=0,label=p.label||p.h+'-'+p.a,judge='',color='',typeTag='';
             if(p.origType==='让球胜平负'){
                 typeTag='让球';
-                var hcpNum=parseInt(p.origHcp);
+                var hcpNum=parseInt(p.origHcp)||0;
                 var hcpLabel=(hcpNum>0?'+':'')+hcpNum+'球'+(p.label==='胜'?'主胜':p.label==='平'?'平局':'主负');
                 var hcpPick=p.label.replace('主','');
                 if(curOdds){
@@ -4764,6 +4774,7 @@ async function loadData(){
             try{populateTeamFilter();}catch(e2){console.error('populateTeamFilter error:',e2);}
             try{render();}catch(e3){console.error('render error:',e3);}
             setTimeout(function(){window.scrollTo(0,scrollY);},50);
+            setTimeout(preloadOCR, 100);
             return;
         } else {
             el.className='api err';el.innerHTML='❌ API数据异常 <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
