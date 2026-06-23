@@ -64,7 +64,12 @@
         .nav-item.ns:hover{border-color:rgba(46,204,113,0.6);background:rgba(46,204,113,0.15)}
         .nav-item .ni-score{color:#f39c12;font-weight:bold;font-size:0.74rem}
         .nav-item .ni-vs{color:#27ae60;font-weight:bold;font-size:0.74rem;margin:0 4px}
-        .nav-item.active,.nav-item.active.ns{background:rgba(243,156,18,0.3);border-color:#f39c12;color:#fff;box-shadow:0 0 12px rgba(243,156,18,0.4)}
+        .nav-item .ni-tag{font-size:0.7rem;margin-right:2px}
+        .nav-item.live{border-color:rgba(231,76,60,0.4);background:rgba(231,76,60,0.08)}
+        .nav-item.live:hover{border-color:rgba(231,76,60,0.7);background:rgba(231,76,60,0.18)}
+        .nav-item .live-tag{animation:pulse 1.5s ease-in-out infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+        .nav-item.active,.nav-item.active.ns,.nav-item.active.live{background:rgba(243,156,18,0.3);border-color:#f39c12;color:#fff;box-shadow:0 0 12px rgba(243,156,18,0.4)}
         .section-title{font-size:1.1rem;margin:25px 0 15px;padding:10px 14px;border-left:4px solid #f39c12;background:rgba(243,156,18,0.06);border-radius:0 8px 8px 0}
 
         .standings{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
@@ -3011,9 +3016,19 @@ function buildMatchNav(matches){
     var html='';
     matches.forEach(function(m,i){
         var h=cn(m.home_team), a=cn(m.away_team);
-        var cls=m.status==='FT'?'ft':m.status==='NS'?'ns':'';
-        var score=m.status==='FT'?'<span class="ni-score">'+m.home_score+'-'+m.away_score+'</span>':'';
-        html+='<div class="nav-item '+cls+'" onclick="scrollToMatch('+i+')">'+h+'<span class="ni-vs">VS</span>'+a+score+'</div>';
+        var cls=m.status==='FT'?'ft':m.status==='NS'?'ns':'live';
+        var score='';
+        var tag='';
+        if(m.status==='FT'){
+            score='<span class="ni-score">'+m.home_score+'-'+m.away_score+'</span>';
+            tag='<span class="ni-tag ft-tag">✅</span>';
+        } else if(m.status!=='NS'){
+            score='<span class="ni-score">'+(m.home_score||0)+'-'+(m.away_score||0)+'</span>';
+            tag='<span class="ni-tag live-tag">🔴</span>';
+        } else {
+            tag='<span class="ni-tag ns-tag">⏳</span>';
+        }
+        html+='<div class="nav-item '+cls+'" onclick="scrollToMatch('+i+')">'+tag+h+'<span class="ni-vs">VS</span>'+a+score+'</div>';
     });
     list.innerHTML=html;
 }
@@ -3022,7 +3037,10 @@ function scrollToMatch(idx){
     isScrolling=true;
     var navItems=document.querySelectorAll('.nav-item');
     navItems.forEach(function(item){item.classList.remove('active');});
-    if(navItems[idx]) navItems[idx].classList.add('active');
+    if(navItems[idx]){
+        navItems[idx].classList.add('active');
+        navItems[idx].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    }
     var el=document.getElementById('match-'+idx);
     if(!el) return;
     var top=el.getBoundingClientRect().top+window.pageYOffset-80;
