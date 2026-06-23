@@ -319,6 +319,74 @@
         @media(max-width:600px){.box .goal-dist{grid-template-columns:repeat(8,1fr);gap:2px}}
         @media(min-width:768px){.match-nav{max-width:100%;margin:0 auto 12px;border-radius:12px}}
 
+        /* History View */
+        .history-view{max-width:1000px;margin:0 auto}
+        .history-summary{text-align:center;padding:12px;margin-bottom:16px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06)}
+        .history-summary .hs-num{font-size:1.6rem;font-weight:bold;color:#f39c12}
+        .history-summary .hs-label{font-size:0.78rem;color:#888;margin-top:2px}
+        .history-summary .hs-items{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:8px}
+        .history-summary .hs-item{text-align:center}
+        .history-year-group{margin-bottom:20px}
+        .history-year-title{font-size:1.2rem;padding:10px 14px;margin-bottom:10px;border-left:4px solid #e74c3c;background:rgba(231,76,60,0.06);border-radius:0 8px 8px 0;display:flex;align-items:center;gap:10px}
+        .history-year-title .hy-count{font-size:0.75rem;color:#888;font-weight:normal}
+        .history-pair-card{background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.07);border-radius:12px;margin-bottom:12px;overflow:hidden;transition:all 0.2s}
+        .history-pair-card:hover{border-color:rgba(255,255,255,0.14);box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+        .hp-header{display:flex;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.05);gap:8px;flex-wrap:wrap}
+        .hp-teams{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+        .hp-team{display:flex;align-items:center;gap:6px;font-size:0.85rem;font-weight:600}
+        .hp-team .hp-flag{font-size:1.1rem}
+        .hp-vs{color:#555;font-size:0.75rem;font-weight:bold}
+        .hp-stats{display:flex;gap:12px;align-items:center;font-size:0.75rem;flex-shrink:0}
+        .hp-stat{text-align:center;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,0.04)}
+        .hp-stat .hp-s-num{font-weight:bold;font-size:0.85rem}
+        .hp-stat.hp-w .hp-s-num{color:#2ecc71}
+        .hp-stat.hp-d .hp-s-num{color:#f1c40f}
+        .hp-stat.hp-l .hp-s-num{color:#e74c3c}
+        .hp-stat.hp-pts .hp-s-num{color:#f39c12}
+        .hp-records{padding:8px 16px}
+        .hp-record{display:flex;align-items:center;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.04);gap:10px;font-size:0.82rem;transition:background 0.15s}
+        .hp-record:last-child{border-bottom:none}
+        .hp-record:hover{background:rgba(255,255,255,0.03)}
+        .hp-r-year{color:#888;min-width:80px;font-size:0.75rem;flex-shrink:0}
+        .hp-r-score{font-weight:bold;font-size:0.95rem;min-width:50px;text-align:center;color:#f1c40f}
+        .hp-r-info{color:#999;font-size:0.72rem;flex:1;text-align:right}
+        .hp-r-result{display:inline-block;padding:1px 8px;border-radius:8px;font-size:0.68rem;font-weight:600;min-width:36px;text-align:center}
+        .hp-r-result.w{background:rgba(46,204,113,0.15);color:#2ecc71}
+        .hp-r-result.d{background:rgba(241,196,15,0.15);color:#f1c40f}
+        .hp-r-result.l{background:rgba(231,76,60,0.15);color:#e74c3c}
+        .hp-r-result.live{background:rgba(231,76,60,0.15);color:#e74c3c;animation:pulse 1.5s ease-in-out infinite}
+        .hp-team-info{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+        .hp-team-info .hp-t-name{font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .hp-team-info .hp-t-rank{font-size:0.65rem;color:#888}
+        .hp-team-info .hp-t-val{font-size:0.65rem;color:#27ae60}
+        .hm-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .hm-top .hp-r-result{font-size:0.72rem}
+        .hm-round{color:#888;font-size:0.7rem}
+        .hm-time{color:#555;font-size:0.7rem}
+        .hm-live{color:#e74c3c;font-size:0.65rem;animation:pulse 1.5s ease-in-out infinite}
+        .hm-body{display:flex;align-items:center;padding:12px 16px;gap:8px}
+        .hm-side{flex:1;text-align:center;min-width:0;padding:4px}
+        .hm-name{font-size:1rem;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .hm-info{display:flex;justify-content:center;gap:6px;font-size:0.68rem;color:#888;flex-wrap:wrap}
+        .hm-info .hm-pts{color:#f39c12;font-weight:500}
+        .hm-score{text-align:center;font-size:1.6rem;font-weight:bold;padding:0 4px;flex-shrink:0;min-width:50px}
+        @media(max-width:500px){
+            .history-summary .hs-items{gap:8px}
+            .history-summary .hs-num{font-size:1rem}
+            .history-summary .hs-label{font-size:0.65rem}
+            .history-year-title{font-size:0.85rem;padding:6px 8px}
+            .hp-header{padding:6px 8px}
+            .hm-top{gap:4px}
+            .hm-top .hp-r-result{font-size:0.62rem;padding:0 5px;min-width:0}
+            .hm-round,.hm-time{font-size:0.6rem}
+            .hm-live{font-size:0.58rem}
+            .hm-body{padding:6px 4px;gap:2px}
+            .hm-side{padding:2px}
+            .hm-name{font-size:0.75rem;margin-bottom:2px}
+            .hm-info{gap:3px;font-size:0.55rem;flex-direction:column;align-items:center;line-height:1.3}
+            .hm-score{font-size:1.2rem;min-width:36px}
+        }
+
     </style>
 </head>
 <body>
@@ -332,6 +400,7 @@
         </div>
         <div class="ctrls">
             <button class="btn" onclick="loadData()">刷新数据</button>
+            <button class="btn" id="btn-history" onclick="toggleView('history')">历史对战</button>
             <button class="btn" id="btn-standings" onclick="toggleView('standings')">积分榜</button>
             <button class="btn active" id="btn-predict" onclick="toggleView('predict')">预测分析</button>
             <div class="search-select" id="team-filter-wrap">
@@ -3070,10 +3139,90 @@ function setupNavObserver(){
     cards.forEach(function(card){observer.observe(card);});
 }
 
+function buildHistoryView(){
+    var matches=allMatches.filter(function(m){return m.status!=='NS';});
+    var stats=buildTeamStats(allMatches);
+    var ftCount=matches.filter(function(m){return m.status==='FT';}).length;
+    var liveCount=matches.filter(function(m){return m.status!=='FT';}).length;
+    var byDate={};
+    matches.forEach(function(m){
+        var d=m.kickoff_time.split(' ')[0];
+        if(!byDate[d]) byDate[d]=[];
+        byDate[d].push(m);
+    });
+    var dates=Object.keys(byDate).sort().reverse();
+
+    var html='<div class="history-view">';
+    html+='<div class="history-summary"><div class="hs-items">';
+    html+='<div class="hs-item"><div class="hs-num">'+dates.length+'</div><div class="hs-label">比赛日</div></div>';
+    html+='<div class="hs-item"><div class="hs-num">'+matches.length+'</div><div class="hs-label">已赛/进行中</div></div>';
+    if(liveCount>0) html+='<div class="hs-item"><div class="hs-num" style="color:#e74c3c">'+liveCount+'</div><div class="hs-label">🔴 进行中</div></div>';
+    html+='</div></div>';
+
+    dates.forEach(function(d){
+        var dayMatches=byDate[d];
+        dayMatches.sort(function(a,b){return a.kickoff_time.localeCompare(b.kickoff_time);});
+        html+='<div class="history-year-group">';
+        html+='<div class="history-year-title" style="border-left-color:#3498db;background:rgba(52,152,219,0.06)">📅 '+fmtDate(d)+' <span class="hy-count">'+dayMatches.length+' 场</span></div>';
+        dayMatches.forEach(function(m){
+            var h=m.home_team,a=m.away_team;
+            var hs=m.home_score||0,as=m.away_score||0;
+            var r1=rk(h),r2=rk(a);
+            var v1=TEAM_VAL[h]||'--',v2=TEAM_VAL[a]||'--';
+            var s1=stats[h],s2=stats[a];
+            var p1=s1?s1.pts:'--',p2=s2?s2.pts:'--';
+            var isFT=m.status==='FT';
+            var roundLabel=fmtRound(m.round);
+            var timeStr=fmtTime(m.kickoff_time);
+
+            var cls,resultLabel,scoreColor;
+            if(isFT){
+                var hWin=hs>as,aWin=as>hs;
+                cls=hWin?'w':aWin?'l':'d';
+                resultLabel=hWin?cn(h)+'胜':aWin?cn(a)+'胜':'平局';
+                scoreColor='#f1c40f';
+            } else {
+                cls='live';
+                resultLabel='🔴 进行中';
+                scoreColor='#e74c3c';
+            }
+
+            html+='<div class="history-pair-card">';
+            html+='<div class="hp-header">';
+            html+='<div class="hm-top">';
+            html+='<span class="hp-r-result '+cls+'">'+resultLabel+'</span>';
+            html+='<span class="hm-round">'+roundLabel+'</span>';
+            html+='<span class="hm-time">'+timeStr+'</span>';
+            if(!isFT) html+='<span class="hm-live">● '+statusText(m.status)+'</span>';
+            html+='</div>';
+            html+='</div>';
+            html+='<div class="hm-body">';
+            // Home team
+            html+='<div class="hm-side">';
+            html+='<div class="hm-name">'+cn(h)+'</div>';
+            html+='<div class="hm-info"><span>🌍 #'+r1+'</span><span>💰 '+v1+'</span><span class="hm-pts">'+p1+'分</span></div>';
+            html+='</div>';
+            // Score
+            html+='<div class="hm-score" style="color:'+scoreColor+'">'+hs+':'+as+'</div>';
+            // Away team
+            html+='<div class="hm-side">';
+            html+='<div class="hm-name">'+cn(a)+'</div>';
+            html+='<div class="hm-info"><span>🌍 #'+r2+'</span><span>💰 '+v2+'</span><span class="hm-pts">'+p2+'分</span></div>';
+            html+='</div>';
+            html+='</div></div>';
+        });
+        html+='</div>';
+    });
+    if(matches.length===0) html+='<div style="text-align:center;padding:40px;color:#888">暂无已结束或进行中的比赛</div>';
+    html+='</div>';
+    return html;
+}
+
 function toggleView(v){
     currentView=v;
     document.getElementById('btn-standings').className='btn'+(v==='standings'?' active':'');
     document.getElementById('btn-predict').className='btn'+(v==='predict'?' active':'');
+    document.getElementById('btn-history').className='btn'+(v==='history'?' active':'');
     var wrap=document.getElementById('team-filter-wrap');
     var mob=document.getElementById('team-filter-mobile');
     if(v==='predict'){
@@ -4494,6 +4643,17 @@ function render(){
         var html=buildStandings(allMatches);
         html+=buildTournamentAnalysis(allMatches);
         main.innerHTML=html;
+        return;
+    }
+    if(currentView==='history'){
+        navEl.style.display='none';
+        if(dateBar) dateBar.style.display='none';
+        document.getElementById('compareBar').style.display='none';
+        document.getElementById('lottoBtn').style.display='none';
+        document.getElementById('lottoBtnMobile').style.display='none';
+        var ba=document.querySelector('.bottom-actions');
+        if(ba) ba.style.display='none';
+        main.innerHTML=buildHistoryView();
         return;
     }
 
