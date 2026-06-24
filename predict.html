@@ -760,7 +760,7 @@ function getAdvancementProb(groupTeams,remainingMatches,team){
         teamNames.forEach(function(tn){var st=groupTeams[tn];sim[tn]={p:st.p,w:st.w,d:st.d,l:st.l,gf:st.gf,ga:st.ga,pts:st.pts,name:tn};});
         for(var mi=0;mi<matchPreds.length;mi++){
             var mp=matchPreds[mi];
-            var rand=Math.random()*100;
+            var rand=Math.random();
             var h=mp.home,a=mp.away,sl;
             if(rand<mp.hw){sl=hSl[Math.floor(Math.random()*hSl.length)];sim[h].p++;sim[h].w++;sim[h].pts+=3;sim[a].p++;sim[a].l++;}
             else if(rand<mp.hw+mp.dw){sl=dSl[Math.floor(Math.random()*dSl.length)];sim[h].p++;sim[h].d++;sim[h].pts++;sim[a].p++;sim[a].d++;sim[a].pts++;}
@@ -2525,6 +2525,14 @@ function buildStandings(matches){
         }
     });
 
+    var REAL_GROUP={'Mexico':'A','South Africa':'A','South Korea':'A','Czechia':'A','Canada':'B','Bosnia & Herzegovina':'B','Qatar':'B','Switzerland':'B','Brazil':'C','Morocco':'C','Haiti':'C','Scotland':'C','USA':'D','Paraguay':'D','Australia':'D','Türkiye':'D','Germany':'E','Curaçao':'E','Ivory Coast':'E','Ecuador':'E','Netherlands':'F','Japan':'F','Sweden':'F','Tunisia':'F','Belgium':'G','Egypt':'G','Iran':'G','New Zealand':'G','Spain':'H','Cape Verde Islands':'H','Saudi Arabia':'H','Uruguay':'H','France':'I','Senegal':'I','Iraq':'I','Norway':'I','Argentina':'J','Algeria':'J','Austria':'J','Jordan':'J','Portugal':'K','Congo DR':'K','Uzbekistan':'K','Colombia':'K','England':'L','Croatia':'L','Ghana':'L','Panama':'L'};
+    var remapped={};
+    Object.keys(groups).forEach(function(g){
+        var anyTeam=Object.keys(groups[g])[0];
+        remapped[REAL_GROUP[anyTeam]||g]=groups[g];
+    });
+    groups=remapped;
+
     matches.forEach(function(m){
         if(m.status!=='FT') return;
         var h=m.home_team, a=m.away_team;
@@ -4072,58 +4080,169 @@ function buildMixedParlay(nsMatches){
         var comb=1;parlay.forEach(function(p){comb*=p.pick.oddsNum;});
         comb=Math.round(comb*100)/100;
         var pay=Math.round(10*comb*100)/100;
-        var h='<table class="lottery-table"><tr><th>比赛</th><th>类型</th><th>推荐</th><th>赔率</th><th>概率</th></tr>';
+        var h='<table class="lottery-table"><tr><th>比赛</th><th>类型</th><th>推荐</th><th>赔率</th><th>概率</th><th>分析</th></tr>';
         parlay.forEach(function(p){
-            var m=p.match;
-            h+='<tr><td>'+cn(m.home_team)+' vs '+cn(m.away_team)+'</td><td><span class="lottery-tag '+(p.pick.type==='比分'||p.pick.type==='总进球'?'red':'green')+'">'+p.pick.type+'</span></td><td>'+p.pick.label+'</td><td style="color:#f39c12;font-weight:bold">'+p.pick.oddsNum.toFixed(2)+'</td><td class="'+(p.pick.prob>=30?'hot':p.pick.prob>=15?'warm':'')+'">'+p.pick.prob.toFixed(1)+'%</td></tr>';
-            var hF=m.home_team?getTournamentForm(m.home_team):null, aF=m.away_team?getTournamentForm(m.away_team):null;
-            if(hF&&hF.n>0) h+='<tr style="font-size:0.6rem;color:#666"><td colspan="5">'+cn(m.home_team)+' '+hF.w+'胜'+hF.d+'平'+hF.l+'负 进'+hF.gf+'失'+hF.ga+' &nbsp;|&nbsp; '+cn(m.away_team)+' '+aF.w+'胜'+aF.d+'平'+aF.l+'负 进'+aF.gf+'失'+aF.ga+'</td></tr>';
+            var m=p.match,home=m.home_team,away=m.away_team;
+            var note=p.pick.note||'';
+            var noteHtml=note?'<span style="font-size:0.62rem;color:'+(note.indexOf('价值')>=0||note.indexOf('爆冷')>=0?'#e74c3c':note==='信心十足'?'#2ecc71':'#f39c12')+';font-weight:bold">'+note+'</span>':'<span style="font-size:0.6rem;color:#555">—</span>';
+            h+='<tr><td style="font-size:0.68rem">'+cn(home)+' vs '+cn(away)+'</td><td><span class="lottery-tag '+(p.pick.type==='比分'||p.pick.type==='总进球'?'red':'green')+'">'+p.pick.type+'</span></td><td style="font-weight:bold;font-size:0.78rem">'+p.pick.label+'</td><td style="color:#f39c12;font-weight:bold">'+p.pick.oddsNum.toFixed(2)+'</td><td class="'+(p.pick.prob>=30?'hot':p.pick.prob>=15?'warm':'')+'" style="font-weight:bold">'+p.pick.prob.toFixed(0)+'%</td><td>'+noteHtml+'</td></tr>';
+            var hF=getTournamentForm(home), aF=getTournamentForm(away);
+            var hElo=TEAM_ELO[home]||'--', aElo=TEAM_ELO[away]||'--';
+            var hForm='', aForm='';
+            if(hF&&hF.n>0) hForm='<span style="color:'+(hF.w>hF.l?'#2ecc71':'#e74c3c')+'">'+hF.w+'胜'+hF.d+'平'+hF.l+'负</span>';
+            if(aF&&aF.n>0) aForm='<span style="color:'+(aF.w>aF.l?'#2ecc71':'#e74c3c')+'">'+aF.w+'胜'+aF.d+'平'+aF.l+'负</span>';
+            var pred=predictScore(home,away);
+            var eloDiff=hElo!=='--'&&aElo!=='--'?(hElo-aElo):0;
+            var insight='';
+            if(p.pick.type==='总进球'){
+                var expected=(pred.home+pred.away).toFixed(1);
+                insight='预期'+expected+'球';
+            } else if(p.pick.type==='比分'){
+                insight='主'+pred.home.toFixed(1)+'-'+pred.away.toFixed(1)+'客';
+            } else {
+                var pH=pred.homeWin,pD=pred.draw,pA=pred.awayWin;
+                var parts=[];
+                if(pH>=30) parts.push('主胜'+pH+'%');
+                if(pD>=25) parts.push('平局'+pD+'%');
+                if(pA>=30) parts.push('客胜'+pA+'%');
+                insight=parts.join(' | ');
+                if(eloDiff>100) insight+=' ELO占优';
+                else if(eloDiff<-100) insight+=' ELO劣势';
+            }
+            h+='<tr style="font-size:0.6rem;color:#888"><td colspan="6">ELO '+hElo+' vs '+aElo+' &nbsp;|&nbsp; '+cn(home)+' '+hForm+' &nbsp;|&nbsp; '+cn(away)+' '+aForm+' &nbsp;|&nbsp; '+insight+'</td></tr>';
         });
         h+='</table>';
-        h+='<div style="display:flex;justify-content:space-around;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa"><span>综合赔率 <b style="color:#f39c12">'+comb.toFixed(2)+'</b></span><span>投入 <b style="color:#fff">10元</b></span><span>奖金 <b style="color:#e74c3c;font-size:1rem">'+pay.toFixed(2)+'元</b></span></div>';
+        var avgProb=parlay.reduce(function(s,p){return s+p.pick.prob/100;},0)/parlay.length;
+        var riskLevel=avgProb<0.15?'🔥高风险':avgProb<0.30?'⚠️中风险':'✅低风险';
+        h+='<div style="display:flex;justify-content:space-around;padding:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.82rem;color:#aaa"><span>综合赔率 <b style="color:#f39c12">'+comb.toFixed(2)+'</b></span><span>投入 <b style="color:#fff">10元</b></span><span>奖金 <b style="color:#e74c3c;font-size:1rem">'+pay.toFixed(2)+'元</b></span><span>风险 <b style="color:'+(avgProb<0.15?'#e74c3c':avgProb<0.30?'#f39c12':'#2ecc71')+'">'+riskLevel+'</b></span></div>';
         return h;
     }
     function genParlays(){
         var result=[];
-        // 1. 混合轮换
-        var p1=[],used1={},ti1=0,types=['x2','score','goals'];
-        var s1=picks;
-        var idx1=0;
-        while(idx1<s1.length){
-            var p=s1[idx1];idx1++;
-            for(var t=0;t<3;t++){
-                var tk=types[(ti1+t)%3];
-                var bet;
-                if(tk==='x2') bet={type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o};
-                else {var src=tk==='score'?p.scores[0]:p.goals[0];if(!src) continue;bet={type:tk==='score'?'比分':'总进球',label:tk==='score'?src.home+'-'+src.away:src.goals+'球',prob:src.prob,oddsNum:oddsFromProb(src.prob)};}
-                if(!used1[p.mk+'_'+tk]&&bet.prob>=3){p1.push({match:p.match,pick:bet});used1[p.mk+'_'+tk]=true;ti1++;break;}
+        // 1. 价值推荐 — 模型概率显著高于赔率隐含概率的选项
+        var v1=[];
+        picks.forEach(function(p){
+            var best=null;
+            p.x2.forEach(function(o){
+                var implied=+(1/parseFloat(o.o)).toFixed(3);
+                var val=o.p/100-implied;
+                if(!best||val>best.val) best={label:o.l,prob:o.p,oddsNum:o.o,val:val};
+            });
+            if(best&&best.val>0.03){
+                v1.push({match:p.match,pick:{type:'胜平负',label:best.label,prob:best.prob,oddsNum:best.oddsNum,note:'价值+'+Math.round(best.val*100)+'%'}});
             }
-        }
-        if(p1.length>=2) result.push({label:'混合轮换',html:buildParlayHtml(p1)});
-        // 2. 全胜平负
-        var p2=[];
-        picks.forEach(function(p){p2.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
-        if(p2.length>=2) result.push({label:'全胜平负',html:buildParlayHtml(p2)});
-        // 3. 高赔推荐 (每场选赔率最高的选项，即冷门)
-        var h3=[];
+        });
+        if(v1.length>=2) result.push({label:'⚡ 价值博胆',html:buildParlayHtml(v1)});
+
+        // 2. 冷门推荐 — 多维度冷门检测
+        var u1=[];
         picks.forEach(function(p){
             var hi=p.x2.reduce(function(a,b){return a.o>b.o?a:b;});
-            h3.push({match:p.match,pick:{type:'胜平负',label:hi.l,prob:hi.p,oddsNum:hi.o}});
-        });
-        if(h3.length>=2) result.push({label:'高赔推荐',html:buildParlayHtml(h3)});
-        // 4. 稳胆推荐 (概率最高的组合)
-        var p4=[];
-        picks.forEach(function(p){p4.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
-        if(p4.length>=2) result.push({label:'稳胆推荐',html:buildParlayHtml(p4)});
-        // 5. 稳胆比分
-        var p5=[];
-        picks.forEach(function(p){
-            if(p.scores[0]&&p.scores[0].prob>=3){
-                var so=oddsFromProb(p.scores[0].prob);
-                p5.push({match:p.match,pick:{type:'比分',label:p.scores[0].home+'-'+p.scores[0].away,prob:p.scores[0].prob,oddsNum:so}});
+            var lo=p.x2.reduce(function(a,b){return a.o<b.o?a:b;});
+            var hF=getTournamentForm(p.match.home_team), aF=getTournamentForm(p.match.away_team);
+            var hElo=TEAM_ELO[p.match.home_team]||1500, aElo=TEAM_ELO[p.match.away_team]||1500;
+            var reasons=[];
+            // 条件1: 高赔+模型认可
+            if(hi.o>2.80&&hi.p>=12) reasons.push('模型看高');
+            // 条件2: 近期状态反差（弱队状态好，强队状态差）
+            if(lo.p>hi.p){
+                var favForm=hi.l.indexOf('胜')>=0?hF:aF, dogForm=hi.l.indexOf('胜')>=0?aF:hF;
+                if(dogForm&&favForm&&dogForm.n>=2&&favForm.n>=2&&dogForm.w>=favForm.w) reasons.push('状态碾压');
+            }
+            // 条件3: ELO接近但赔率严重偏向一方
+            if(Math.abs(hElo-aElo)<100&&hi.o>3.00) reasons.push('ELO接近被低估');
+            // 条件4: 胜平负概率分布接近（无明显热门）
+            var spread=Math.abs(p.x2[0].p-p.x2[2].p);
+            if(spread<15&&hi.o>2.50) reasons.push('胜负难料');
+            if(reasons.length>0&&(hi.o>2.50||reasons.length>=2)){
+                u1.push({match:p.match,pick:{type:'胜平负',label:hi.l,prob:hi.p,oddsNum:hi.o,note:'爆冷 '+(reasons.length>1?reasons.slice(0,2).join('/'):reasons[0])}});
             }
         });
-        if(p5.length>=2) result.push({label:'稳胆比分',html:buildParlayHtml(p5)});
+        if(u1.length>=2) result.push({label:'🔥 冷门博胆',html:buildParlayHtml(u1)});
+
+        // 3. 稳胆精选 — 高概率信心场次
+        var s1=[];
+        picks.forEach(function(p){
+            var best=p.x2b;
+            var hF=getTournamentForm(p.match.home_team);
+            var aF=getTournamentForm(p.match.away_team);
+            var note='';
+            if(best.p>=55) note='信心十足';
+            else if(best.p>=40) note='较为可信';
+            else note='谨慎参考';
+            s1.push({match:p.match,pick:{type:'胜平负',label:best.l,prob:best.p,oddsNum:best.o,note:note}});
+        });
+        if(s1.length>=2) result.push({label:'🛡️ 稳胆精选',html:buildParlayHtml(s1)});
+
+        // 4. 激进入球 — 总进球数高概率选项
+        var g1=[];
+        picks.forEach(function(p){
+            var odds=p.match.home_team?getOddsForMatch(p.match.home_team,p.match.away_team):null;
+            var src=p.goals[0];
+            if(src&&src.prob>=10){
+                var go=oddsFromProb(src.prob);
+                g1.push({match:p.match,pick:{type:'总进球',label:src.goals+'球',prob:src.prob,oddsNum:go}});
+            }
+        });
+        if(g1.length>=2) result.push({label:'⚽ 激进入球',html:buildParlayHtml(g1)});
+
+        // 5. 比分+进球混合 — 多种轮换组合
+        var sgCombos=[
+            {label:'🎯 比分为主',types:['score','score','goals']},
+            {label:'⚽ 进球为主',types:['goals','goals','score']},
+            {label:'🔄 比分+进球交替',types:['score','goals','score']},
+            {label:'🎲 全比分',types:['score','score','score']},
+            {label:'📊 全进球',types:['goals','goals','goals']}
+        ];
+        sgCombos.forEach(function(combo){
+            var sg1=[],sgUsed={},sgTi=0;
+            picks.forEach(function(p){
+                for(var t=0;t<3;t++){
+                    var tk=combo.types[(sgTi+t)%combo.types.length];
+                    var bet;
+                    if(tk==='score'){var src=p.scores[0];if(!src)continue;bet={type:'比分',label:src.home+'-'+src.away,prob:src.prob,oddsNum:oddsFromProb(src.prob)};}
+                    else{var src=p.goals[0];if(!src)continue;bet={type:'总进球',label:src.goals+'球',prob:src.prob,oddsNum:oddsFromProb(src.prob)};}
+                    if(!sgUsed[p.mk+'_'+tk]&&bet.prob>=3){sg1.push({match:p.match,pick:bet});sgUsed[p.mk+'_'+tk]=1;sgTi++;break;}
+                }
+            });
+            if(sg1.length>=2) result.push({label:combo.label,html:buildParlayHtml(sg1)});
+        });
+
+        // 体彩串关: 3串1 ~ 8串1 — 根据当天比赛场数动态生成
+        var ranked=[];
+        picks.forEach(function(p){
+            ranked.push({match:p.match,x2b:p.x2b,mk:p.mk});
+        });
+        ranked.sort(function(a,b){return b.x2b.p-a.x2b.p;});
+        var m=ranked.length;
+        if(m>=3){
+            for(var n=3;n<=m&&n<=8;n++){
+                var opt=[];
+                ranked.slice(0,n).forEach(function(p){opt.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+                result.push({label:'📦 '+m+'场可选 → '+n+'串1 最优',html:buildParlayHtml(opt)});
+                // 博冷版: 仅当场数充裕且n=3或4时，避免重复
+                if(m>=n+2&&n<=4){
+                    var cold=[];
+                    ranked.slice().reverse().slice(0,n).forEach(function(p){cold.push({match:p.match,pick:{type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o}});});
+                    result.push({label:'📦 '+m+'场可选 → '+n+'串1 博冷',html:buildParlayHtml(cold)});
+                }
+            }
+        }
+
+        // 6. 胜负+进球混合 — 每场换一种类型（胜平负→进球→比分轮换）
+        var m1=[],used={},ti=0,mTypes=[{k:'x2'},{k:'goals'},{k:'score'}];
+        picks.forEach(function(p){
+            for(var t=0;t<3;t++){
+                var tk=mTypes[(ti+t)%3].k;
+                var bet;
+                if(tk==='x2') bet={type:'胜平负',label:p.x2b.l,prob:p.x2b.p,oddsNum:p.x2b.o};
+                else if(tk==='goals'){var src=p.goals[0];if(!src)continue;bet={type:'总进球',label:src.goals+'球',prob:src.prob,oddsNum:oddsFromProb(src.prob)};}
+                else{var src=p.scores[0];if(!src)continue;bet={type:'比分',label:src.home+'-'+src.away,prob:src.prob,oddsNum:oddsFromProb(src.prob)};}
+                if(!used[p.mk+'_'+tk]&&bet.prob>=3){m1.push({match:p.match,pick:bet});used[p.mk+'_'+tk]=1;ti++;break;}
+            }
+        });
+        if(m1.length>=2) result.push({label:'🔄 混合轮换',html:buildParlayHtml(m1)});
+
         return result;
     }
     function tabPaneMixed(){

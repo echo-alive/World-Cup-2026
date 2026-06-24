@@ -139,52 +139,76 @@ const worldCupData = {
     ],
     groupStage: {
         'A组': [
-            { team: '荷兰', played: 3, won: 2, drawn: 1, lost: 0, goalsFor: 5, goalsAgainst: 1, points: 7 },
-            { team: '塞内加尔', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 5, goalsAgainst: 4, points: 6 },
-            { team: '厄瓜多尔', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 4, goalsAgainst: 3, points: 4 },
-            { team: '卡塔尔', played: 3, won: 0, drawn: 0, lost: 3, goalsFor: 1, goalsAgainst: 7, points: 0 }
+            { team: '墨西哥', played: 2, won: 2, drawn: 0, lost: 0, goalsFor: 3, goalsAgainst: 0, points: 6 },
+            { team: '韩国', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 2, goalsAgainst: 2, points: 3 },
+            { team: '捷克', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 2, goalsAgainst: 3, points: 1 },
+            { team: '南非', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 1, goalsAgainst: 3, points: 1 }
         ],
         'B组': [
-            { team: '英格兰', played: 3, won: 2, drawn: 1, lost: 0, goalsFor: 9, goalsAgainst: 2, points: 7 },
-            { team: '美国', played: 3, won: 1, drawn: 2, lost: 0, goalsFor: 2, goalsAgainst: 1, points: 5 },
-            { team: '威尔士', played: 3, won: 0, drawn: 1, lost: 2, goalsFor: 1, goalsAgainst: 6, points: 1 },
-            { team: '伊朗', played: 3, won: 1, drawn: 0, lost: 2, goalsFor: 4, goalsAgainst: 7, points: 3 }
+            { team: '加拿大', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 7, goalsAgainst: 1, points: 4 },
+            { team: '瑞士', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 5, goalsAgainst: 2, points: 4 },
+            { team: '波黑', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 2, goalsAgainst: 5, points: 1 },
+            { team: '卡塔尔', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 1, goalsAgainst: 7, points: 1 }
         ],
         'C组': [
-            { team: '阿根廷', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 5, goalsAgainst: 2, points: 6 },
-            { team: '波兰', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 2, goalsAgainst: 2, points: 4 },
-            { team: '墨西哥', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 2, goalsAgainst: 3, points: 4 },
-            { team: '沙特阿拉伯', played: 3, won: 1, drawn: 0, lost: 2, goalsFor: 3, goalsAgainst: 5, points: 3 }
+            { team: '巴西', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 4, goalsAgainst: 1, points: 4 },
+            { team: '摩洛哥', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 2, goalsAgainst: 1, points: 4 },
+            { team: '苏格兰', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 1, goalsAgainst: 1, points: 3 },
+            { team: '海地', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 0, goalsAgainst: 4, points: 0 }
         ],
         'D组': [
-            { team: '法国', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 6, goalsAgainst: 3, points: 6 },
-            { team: '澳大利亚', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 3, goalsAgainst: 4, points: 6 },
-            { team: '突尼斯', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 1, goalsAgainst: 1, points: 4 },
-            { team: '丹麦', played: 3, won: 0, drawn: 1, lost: 2, goalsFor: 1, goalsAgainst: 3, points: 1 }
+            { team: '美国', played: 2, won: 2, drawn: 0, lost: 0, goalsFor: 6, goalsAgainst: 1, points: 6 },
+            { team: '澳大利亚', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 2, goalsAgainst: 2, points: 3 },
+            { team: '巴拉圭', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 2, goalsAgainst: 4, points: 3 },
+            { team: '土耳其', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 0, goalsAgainst: 3, points: 0 }
         ],
         'E组': [
-            { team: '日本', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 4, goalsAgainst: 3, points: 6 },
-            { team: '西班牙', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 9, goalsAgainst: 3, points: 4 },
-            { team: '德国', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 6, goalsAgainst: 5, points: 4 },
-            { team: '哥斯达黎加', played: 3, won: 1, drawn: 0, lost: 2, goalsFor: 3, goalsAgainst: 11, points: 3 }
+            { team: '德国', played: 2, won: 2, drawn: 0, lost: 0, goalsFor: 9, goalsAgainst: 2, points: 6 },
+            { team: '科特迪瓦', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 2, goalsAgainst: 2, points: 3 },
+            { team: '厄瓜多尔', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 0, goalsAgainst: 1, points: 1 },
+            { team: '库拉索', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 1, goalsAgainst: 7, points: 1 }
         ],
         'F组': [
-            { team: '摩洛哥', played: 3, won: 2, drawn: 1, lost: 0, goalsFor: 4, goalsAgainst: 1, points: 7 },
-            { team: '克罗地亚', played: 3, won: 1, drawn: 2, lost: 0, goalsFor: 4, goalsAgainst: 1, points: 5 },
-            { team: '比利时', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 1, goalsAgainst: 2, points: 4 },
-            { team: '加拿大', played: 3, won: 0, drawn: 0, lost: 3, goalsFor: 2, goalsAgainst: 7, points: 0 }
+            { team: '荷兰', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 7, goalsAgainst: 3, points: 4 },
+            { team: '日本', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 6, goalsAgainst: 2, points: 4 },
+            { team: '瑞典', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 6, goalsAgainst: 6, points: 3 },
+            { team: '突尼斯', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 1, goalsAgainst: 9, points: 0 }
         ],
         'G组': [
-            { team: '巴西', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 3, goalsAgainst: 1, points: 6 },
-            { team: '瑞士', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 4, goalsAgainst: 3, points: 6 },
-            { team: '喀麦隆', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 4, goalsAgainst: 4, points: 4 },
-            { team: '塞尔维亚', played: 3, won: 0, drawn: 1, lost: 2, goalsFor: 5, goalsAgainst: 8, points: 1 }
+            { team: '埃及', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 4, goalsAgainst: 2, points: 4 },
+            { team: '伊朗', played: 2, won: 0, drawn: 2, lost: 0, goalsFor: 2, goalsAgainst: 2, points: 2 },
+            { team: '比利时', played: 2, won: 0, drawn: 2, lost: 0, goalsFor: 1, goalsAgainst: 1, points: 2 },
+            { team: '新西兰', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 3, goalsAgainst: 5, points: 1 }
         ],
         'H组': [
-            { team: '葡萄牙', played: 3, won: 2, drawn: 0, lost: 1, goalsFor: 6, goalsAgainst: 4, points: 6 },
-            { team: '韩国', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 4, goalsAgainst: 3, points: 4 },
-            { team: '乌拉圭', played: 3, won: 1, drawn: 1, lost: 1, goalsFor: 2, goalsAgainst: 2, points: 4 },
-            { team: '加纳', played: 3, won: 1, drawn: 0, lost: 2, goalsFor: 5, goalsAgainst: 7, points: 3 }
+            { team: '西班牙', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 4, goalsAgainst: 0, points: 4 },
+            { team: '乌拉圭', played: 2, won: 0, drawn: 2, lost: 0, goalsFor: 3, goalsAgainst: 3, points: 2 },
+            { team: '佛得角', played: 2, won: 0, drawn: 2, lost: 0, goalsFor: 2, goalsAgainst: 2, points: 2 },
+            { team: '沙特阿拉伯', played: 2, won: 0, drawn: 1, lost: 1, goalsFor: 1, goalsAgainst: 5, points: 1 }
+        ],
+        'I组': [
+            { team: '法国', played: 2, won: 2, drawn: 0, lost: 0, goalsFor: 6, goalsAgainst: 1, points: 6 },
+            { team: '挪威', played: 2, won: 2, drawn: 0, lost: 0, goalsFor: 7, goalsAgainst: 3, points: 6 },
+            { team: '塞内加尔', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 3, goalsAgainst: 6, points: 0 },
+            { team: '伊拉克', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 1, goalsAgainst: 7, points: 0 }
+        ],
+        'J组': [
+            { team: '阿根廷', played: 2, won: 2, drawn: 0, lost: 0, goalsFor: 5, goalsAgainst: 0, points: 6 },
+            { team: '奥地利', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 3, goalsAgainst: 3, points: 3 },
+            { team: '阿尔及利亚', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 2, goalsAgainst: 4, points: 3 },
+            { team: '约旦', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 2, goalsAgainst: 5, points: 0 }
+        ],
+        'K组': [
+            { team: '葡萄牙', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 6, goalsAgainst: 1, points: 4 },
+            { team: '哥伦比亚', played: 1, won: 1, drawn: 0, lost: 0, goalsFor: 3, goalsAgainst: 1, points: 3 },
+            { team: '刚果（金）', played: 1, won: 0, drawn: 1, lost: 0, goalsFor: 1, goalsAgainst: 1, points: 1 },
+            { team: '乌兹别克斯坦', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 1, goalsAgainst: 8, points: 0 }
+        ],
+        'L组': [
+            { team: '英格兰', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 4, goalsAgainst: 2, points: 4 },
+            { team: '加纳', played: 2, won: 1, drawn: 1, lost: 0, goalsFor: 1, goalsAgainst: 0, points: 4 },
+            { team: '克罗地亚', played: 2, won: 1, drawn: 0, lost: 1, goalsFor: 3, goalsAgainst: 4, points: 3 },
+            { team: '巴拿马', played: 2, won: 0, drawn: 0, lost: 2, goalsFor: 0, goalsAgainst: 2, points: 0 }
         ]
     },
     historicalMatches: [
