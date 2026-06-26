@@ -497,6 +497,8 @@ var oddsData = {};
 var ODDS_API_KEY = 'ca4e91ccbc0799447f1d550a7700a2b0';
 var ODDS_CACHE_KEY = 'wc2026_odds_cache';
 var ODDS_CACHE_TTL = 3600000; // 1 hour in ms
+var DATA_CACHE_KEY = 'wc2026_data_cache';
+var DATA_CACHE_TTL = 120000; // 2 min in ms
 
 var TEAM_CN = {
     'Argentina':'阿根廷','Austria':'奥地利','Algeria':'阿尔及利亚','Australia':'澳大利亚',
@@ -2329,10 +2331,11 @@ function fmtTime(dateStr){
 
 function fmtRound(r){
     if(!r) return '';
-    return r.replace('Group Stage','小组赛').replace('1','第1轮').replace('2','第2轮').replace('3','第3轮');
+    var map={'Matchday 1':'小组赛第1轮','Matchday 2':'小组赛第2轮','Matchday 3':'小组赛第3轮','Round of 32':'1/16决赛','Round of 16':'1/8决赛','Quarter-final':'1/4决赛','Semi-final':'半决赛','Match for third place':'季军赛','Final':'决赛'};
+    return map[r]||r.replace('Group Stage','小组赛').replace('1','第1轮').replace('2','第2轮').replace('3','第3轮');
 }
 
-function statusText(s){ return {'NS':'未开始','1H':'上半场','HT':'中场','2H':'下半场','FT':'已结束','ET':'加时','PEN':'点球'}[s]||s; }
+function statusText(s){ return {'NS':'未开始','1H':'上半场','HT':'中场','2H':'下半场','FT':'已结束','ET':'加时','PEN':'点球','LIVE':'进行中','CANC':'已取消','SUSP':'暂停'}[s]||s; }
 function statusClass(s){ return s==='FT'?'st-ft':s==='NS'?'st-ns':'st-live'; }
 function matchClass(s){ return s==='FT'?'ft':s==='NS'?'ns':'live'; }
 
@@ -2491,7 +2494,7 @@ function findNearestMatchDay(allMs){
 }
 
 function buildStandings(matches){
-    var groupMatches=matches.filter(function(m){return m.round&&m.round.indexOf('Group Stage')===0;});
+    var groupMatches=matches.filter(function(m){return m.round&&(m.round.indexOf('Group Stage')===0||m.round.indexOf('Matchday')===0);});
     var adj={};
     function addEdge(a,b){
         if(!adj[a]) adj[a]={};
@@ -2566,7 +2569,7 @@ function buildStandings(matches){
     Object.keys(formMap).forEach(function(t){formMap[t]=formMap[t].slice(-5);});
 
     var remainingGroupMatches=matches.filter(function(m){
-        return m.status!=='FT' && m.round && m.round.indexOf('Group Stage')===0;
+        return m.status!=='FT' && m.round && (m.round.indexOf('Group Stage')===0||m.round.indexOf('Matchday')===0);
     });
 
     var html='<div class="standings">';
@@ -2628,7 +2631,7 @@ function buildStandings(matches){
 }
 
 function getGroupForTeams(matches, teamA, teamB){
-    var groupMatches=matches.filter(function(m){return m.round&&m.round.indexOf('Group Stage')===0;});
+    var groupMatches=matches.filter(function(m){return m.round&&(m.round.indexOf('Group Stage')===0||m.round.indexOf('Matchday')===0);});
     if(groupMatches.length===0) groupMatches=matches;
     var adj={};
     function addEdge(a,b){
@@ -3735,7 +3738,7 @@ function buildTournamentAnalysis(matches){
 
     // 2. Best 3rd place analysis
     var groups={};
-    var groupMatches=matches.filter(function(m){return m.round&&m.round.indexOf('Group Stage')===0;});
+    var groupMatches=matches.filter(function(m){return m.round&&(m.round.indexOf('Group Stage')===0||m.round.indexOf('Matchday')===0);});
     var adj={};
     function addEdge(a,b){if(!adj[a])adj[a]={};if(!adj[b])adj[b]={};adj[a][b]=1;adj[b][a]=1;}
     groupMatches.forEach(function(m){addEdge(m.home_team,m.away_team);});
@@ -4866,43 +4869,78 @@ function render(){
     updateCompareBar();
 }
 
+function normalizeTeam(name){
+    var map={'Czech Republic':'Czechia','Cape Verde':'Cape Verde Islands','DR Congo':'Congo DR','Turkey':'Türkiye','South Korea':'South Korea'};
+    return map[name]||name;
+}
+
+function transformWcupData(apiData){
+    if(!apiData||!apiData.matches) return null;
+    var statusMap={'finished':'FT','live':'LIVE','upcoming':'NS','scheduled':'NS','postponed':'NS','cancelled':'CANC','suspended':'SUSP'};
+    return apiData.matches.map(function(m){
+        var score=m.score||[null,null];
+        var ts=m.datetime?new Date(m.datetime*1000):new Date(m.date+'T00:00:00');
+        var kf=ts.getFullYear()+'-'+String(ts.getMonth()+1).padStart(2,'0')+'-'+String(ts.getDate()).padStart(2,'0')+' '+String(ts.getHours()).padStart(2,'0')+':'+String(ts.getMinutes()).padStart(2,'0');
+        return {
+            id:m.id,home_team:normalizeTeam(m.team1),away_team:normalizeTeam(m.team2),
+            home_score:score[0],away_score:score[1],
+            status:statusMap[m.status]||'NS',kickoff_time:kf,
+            round:m.round,group:m.group,
+            home_logo:m.flag1||'',away_logo:m.flag2||'',venue:m.ground||''
+        };
+    });
+}
+
+function loadDataCache(){
+    try{var c=localStorage.getItem(DATA_CACHE_KEY);if(c){var obj=JSON.parse(c);if(Date.now()-obj.ts<DATA_CACHE_TTL){allMatches=obj.data;return true;}}}catch(e){}
+    return false;
+}
+
+function saveDataCache(matches){
+    try{localStorage.setItem(DATA_CACHE_KEY,JSON.stringify({ts:Date.now(),data:matches}));}catch(e){}
+}
+
+function applyData(matches,scrollY,source){
+    allMatches=matches;window._advCache=null;
+    var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
+    var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
+    var el=document.getElementById('api-status');
+    if(el){el.className='api ok';el.textContent='✅ 已连接'+source+' | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';}
+    if(!selectedDate){var nearest=findNearestMatchDay(allMatches);if(nearest) selectedDate=nearest.date;}
+    try{buildDateBar();}catch(e2){console.error('buildDateBar error:',e2);}
+    try{populateTeamFilter();}catch(e2){console.error('populateTeamFilter error:',e2);}
+    try{render();}catch(e3){console.error('render error:',e3);}
+    setTimeout(function(){window.scrollTo(0,scrollY);},50);
+    setTimeout(preloadOCR,100);
+}
+
 async function loadData(){
     var el=document.getElementById('api-status');
     if(!el) return;
     var scrollY=window.scrollY;
+    if(loadDataCache()){applyData(allMatches,scrollY,'(缓存)');return;}
     el.className='api loading';el.textContent='获取数据中...';
-    var apiUrl='https://www.26worldcup.cn/api/v1/cup/2026/schedule';
-    try{
-        var controller=new AbortController();
-        var timeoutId=setTimeout(function(){controller.abort();},10000);
-        var r=await fetch(apiUrl,{signal:controller.signal});
-        clearTimeout(timeoutId);
-        var d=await r.json();
-        if(d.code===0&&d.data&&d.data.matches){
-            allMatches=d.data.matches;
-            window._advCache=null;
-            var ftCount=allMatches.filter(function(m){return m.status==='FT';}).length;
-            var nsCount=allMatches.filter(function(m){return m.status==='NS';}).length;
-            el.className='api ok';
-            el.textContent='✅ 已连接 | '+allMatches.length+'场比赛 (已结束:'+ftCount+' 待进行:'+nsCount+')';
-            if(!selectedDate){
-                var nearest=findNearestMatchDay(allMatches);
-                if(nearest) selectedDate=nearest.date;
+    var t=Date.now();
+    var apis=['https://wcup2026.org/api/data.php?action=all&_='+t,'https://www.26worldcup.cn/api/v1/cup/2026/schedule?_='+t];
+    for(var i=0;i<apis.length;i++){
+        try{
+            var controller=new AbortController();
+            var timeoutId=setTimeout(function(){controller.abort();},10000);
+            var r=await fetch(apis[i],{signal:controller.signal});
+            clearTimeout(timeoutId);
+            var d=await r.json();
+            var matches=null;
+            if(i===0&&d.ok&&d.matches){matches=transformWcupData(d);}
+            else if(d.code===0&&d.data&&d.data.matches){matches=d.data.matches;}
+            if(matches&&matches.length>0){
+                saveDataCache(matches);
+                applyData(matches,scrollY,'');
+                return;
             }
-            try{buildDateBar();}catch(e2){console.error('buildDateBar error:',e2);}
-            try{populateTeamFilter();}catch(e2){console.error('populateTeamFilter error:',e2);}
-            try{render();}catch(e3){console.error('render error:',e3);}
-            setTimeout(function(){window.scrollTo(0,scrollY);},50);
-            setTimeout(preloadOCR, 100);
-            return;
-        } else {
-            el.className='api err';el.innerHTML='❌ API数据异常 <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
-            return;
-        }
-    }catch(e){
-        console.error('loadData error:',e);
-        el.className='api err';el.innerHTML='❌ API连接失败('+e.message+') <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
+        }catch(e){console.error('API '+apis[i]+' failed:',e.message);continue;}
     }
+    el.className='api err';
+    el.innerHTML='❌ API连接失败 <span style="cursor:pointer;text-decoration:underline;color:#3498db" onclick="loadData()">点击重试</span>';
 }
 
 async function initOdds(){
