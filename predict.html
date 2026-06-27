@@ -4851,9 +4851,7 @@ function render(){
     nsBadge.className='badge b-ns';
 
     var html='';
-    var ft=dateMatches.filter(function(m){return m.status==='FT';});
-    var ns=dateMatches.filter(function(m){return m.status!=='FT';});
-    var ordered=ft.concat(ns);
+    var ordered=dateMatches.slice().sort(function(a,b){return a.kickoff_time.localeCompare(b.kickoff_time);});
     ordered.forEach(function(m,i){html+=buildMatchCard(m,stats,i);});
 
     var nsMatches=dateMatches.filter(function(m){return m.status!=='FT';});
